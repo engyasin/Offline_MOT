@@ -22,6 +22,11 @@ ap.add_argument("-v", "--video", type=str,
 args = vars(ap.parse_args())
 
 def FirstFrame(frame):
+
+    # detect
+
+    # creat objects based on detections
+
     pass
 
 
@@ -40,10 +45,13 @@ def main():
 
     # for every frame and object in the list:
     previous_frame = frame.copy()
+    bg = previous_frame.copy()
     ret, frame = v_obj.read()
     while frame is not None:
         frame_id += 1
 
+        # bg substract
+        foreground, bg = bg_substract(frame,bg)
         # stabilize frame by frame
         frame = fix_view(frame)
 
@@ -51,7 +59,7 @@ def main():
         objects = track_objs(frame,objects)
 
         # check tracking with background substraction
-        foreground, bg = bg_substract(frame,bg)
+
         all_ok, objects = check_tracking(objects,foreground)
 
         # track everything if new objects are added by bg_substract
@@ -67,7 +75,7 @@ def main():
             # filter bad objects
 
         # detect every N frame,
-        if (frame_id%config.N)==0:
+        if (frame_id%config.detect_every_N)==0:
             detections = detect(frame)
 
             # filter bad objects after detection
