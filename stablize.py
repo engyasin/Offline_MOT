@@ -72,7 +72,7 @@ sift = cv2.SIFT_create()
 
 #ORB_detector = cv2.ORB_create(nfeatures=2000)
 
-# FLANN parameters
+# FLANN parameters (ORB)
 FLANN_INDEX_LSH = 6
 index_params1= dict(algorithm = FLANN_INDEX_LSH,
                    table_number = 6, # 12
