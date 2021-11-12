@@ -1,89 +1,126 @@
-
 import cv2
 import numpy as np
+from background_substraction import BG_substractor 
 
-def fix_view(frame,bg):
-    pass
-
-
-bg = np.load('background.png.npy')
-bg = cv2.cvtColor(bg, cv2.COLOR_BGR2GRAY)
-
-# Initiate SIFT detector
-sift = cv2.SIFT_create()
-
-FLANN_INDEX_KDTREE = 1
-index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
-search_params = dict(checks = 500)
+from config import config
+from utils import resize
 
 
-flann = cv2.FlannBasedMatcher(index_params,search_params)
+class FixView():
+    def __init__(self,bg_rgb):
+        # Initiate SIFT detector
+        self.sift = cv2.SIFT_create(nfeatures=2000)
+
+        FLANN_INDEX_KDTREE = 1
+        index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
+        search_params = dict(checks = 500)
+
+        self.flann = cv2.FlannBasedMatcher(index_params,search_params)
+
+        bg = cv2.cvtColor(bg_rgb, cv2.COLOR_BGR2GRAY)
+
+        # taking from the border to avoid, foreground
+        mask =  np.zeros_like(bg,dtype=np.uint8)
+
+        borders_ = 1200
+        mask[:borders_,:] = 255
+        mask[-borders_:,:] = 255
+        mask[:,:borders_] = 255
+        mask[:,-borders_:] = 255
+        self.mask_bg = mask.copy()
+
+        self.kps_bg,self.des_bg = self.sift.detectAndCompute(bg,self.mask_bg)
+
+        #dilation for mask of the frames
+        kernel_size = config.fixing_dilation
+        self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(kernel_size,kernel_size))
+        self.min_matches = config.min_matches
+
+    def get_good_matches(self,matches):
+        good = []
+        for mn in matches:
+            if len(mn)==2:
+                m,n=mn
+                if m.distance < 0.7*n.distance:
+                    good.append(m)
+            else:
+                #try adding anyway
+                good.append(mn[0])
+                pass
+        # take only the best 1000
+        good = sorted(good,key=lambda x: x.distance)[:500]
+        return good
+
+    def fix_view(self,frame,fgmask=None):
+
+        if fgmask is None:
+            mask = self.mask_bg.copy()
+        else:
+            fg_img = cv2.dilate(fgmask,self.kernel,iterations = 1)
+            mask = np.zeros_like(fg_img,dtype=np.uint8)
+            mask[fg_img==0] = 255
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        kps, des = self.sift.detectAndCompute(gray,mask)
+
+        matches = self.flann.knnMatch(self.des_bg,des,k=2)
+        good = self.get_good_matches(matches)
+
+        if len(good)>self.min_matches:
+            src_pts = np.float32([ self.kps_bg[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
+            dst_pts = np.float32([ kps[m.trainIdx].pt for m in good ]).reshape(-1,1,2)
+
+            M,dummy = cv2.estimateAffine2D(dst_pts[:,0,:],src_pts[:,0,:])
+            M = np.round(M,4)
+            if dummy.sum()>self.min_matches:
+                frame = cv2.warpAffine(frame,M,gray.shape[::-1],flags=cv2.INTER_CUBIC,borderValue=0)
+            else:
+                print("Not transformed, there is low number of correcr matches")
+        else:
+            print( "Not enough matches are found - {}/{}".format(len(good), self.min_matches) )
+
+        return frame
+
+    def set_new_bg(self,bg_rgb,fg_mask=None):
+        bg = cv2.cvtColor(bg_rgb, cv2.COLOR_BGR2GRAY)
+        if fg_mask is None:
+            mask = self.mask_bg.copy()
+        else:
+            fg_img = cv2.dilate(fg_mask,self.kernel,iterations = 1)
+            mask = np.zeros_like(fg_img,dtype=np.uint8)
+            mask[fg_img==0] = 255
+        self.kps_bg,self.des_bg = self.sift.detectAndCompute(bg,mask)
 
 
-mask =  np.zeros_like(bg,dtype=np.uint8)
+if __name__ == '__main__':
 
-mask[:500,:] = 255
-mask[-500:,:] = 255
-mask[:,:600] = 255
-mask[:,-600:] = 255
+    cap = cv2.VideoCapture('../../DJI_0148.mp4')#Dataset_Drone/DJI_0134.mp4')
+    frame_id = 1
+    cap.set(1, frame_id-1)
+    ret,bg_rgb = cap.read()
 
-##
-#kps_bg,des_bg = ORB_detector.detectAndCompute(bg,mask)
-kps_bg,des_bg = sift.detectAndCompute(bg,mask)
+    Fix_obj = FixView(bg_rgb)
+    BG_s = BG_substractor(bg_rgb)
 
-max_background = 0
-rate_learn = 0.5
+    ret, frame = cap.read()
 
-MIN_MATCH_COUNT = 5
-cap = cv2.VideoCapture('../../DJI_0148.mp4')#Dataset_Drone/DJI_0134.mp4')
+    fg_img= BG_s.bg_substract(frame)
 
-while(ret):
-	ret, frame = cap.read()
-	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-	#kps, des = ORB_detector.detectAndCompute(gray,mask)
-	kps, des = sift.detectAndCompute(gray,mask)
+    while(ret):
 
-	matches = flann.knnMatch(des_bg,des,k=2)
-	#matches = [m for m in matches if len(m)==2]
-	#frame = map_frame(frame,centers)
-	#print('shape: ',frame.shape)
-	#if frame_id%batch_s ==0:
-	#	for i in range(batch_s):
-	#		_,frame2 = cap2.read()
-	#		fgmask = fgbg.apply(frame2,learningRate = float((batch_s-i)/batch_s))
-	# store all the good matches as per Lowe's ratio test.
-	#print(matches)
-	good = []
-	for mn in matches:
-		if len(mn)==2:
-			m,n=mn
-			if m.distance < 0.7*n.distance:
-				good.append(m)
-	# take only the best 10
-	good = sorted(good,key=lambda x: x.distance)[:200]
-	if len(good)>MIN_MATCH_COUNT:
-		src_pts = np.float32([ kps_bg[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
-		dst_pts = np.float32([ kps[m.trainIdx].pt for m in good ]).reshape(-1,1,2)
+        frame = Fix_obj.fix_view(frame,fg_img)
 
-		# find the square:
-		#src_pts,dst_pts = get_quard(src_pts,dst_pts,gray.shape[:2])
-		#breakpoint()
-		#M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,5.0)
-		#M = cv2.getPerspectiveTransform(dst_pts[:4,0,:],src_pts[:4,0,:],solveMethod=cv2.DECOMP_CHOLESKY)
-		M,_ = cv2.estimateAffine2D(dst_pts[:,0,:],src_pts[:,0,:])#,solveMethod=cv2.DECOMP_CHOLESKY)
-		print( dst_pts[:3,0,:])
-		print(src_pts[:3,0,:])
-		#matchesMask = mask.ravel().tolist()
-		print('M: ',M)
-		frame = cv2.warpAffine(frame,M,gray.shape[::-1],borderValue=10)
+        fg_img = BG_s.bg_substract(frame)
 
-		#pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
-		#dst = cv2.perspectiveTransform(pts,M)
-		#img2 = cv2.polylines(img2,[np.int32(dst)],True,255,3, cv.LINE_AA)
-	else:
-		print( "Not enough matches are found - {}/{}".format(len(good), MIN_MATCH_COUNT) )
-		matchesMask = None
+        cv2.imshow('fgmask', resize(fg_img,0.2)) 
+        print(frame_id)
+        k = cv2.waitKey(30) & 0xff
+        #prv_regions = []
+        if k == 27: 
+            break
 
+        ret, frame = cap.read()
+        frame_id += 1
 
-
-	frame_id += 1
+    cap.release() 
+    cv2.destroyAllWindows() 
