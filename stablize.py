@@ -1,9 +1,7 @@
 # Python code for Background subtraction using OpenCV 
 import numpy as np 
-import matplotlib.pyplot as plt
 import cv2 
 from skimage.measure import label, regionprops
-from aux_func import Template_p_match, Element, assocciate, not_within_frame, wighted_associate
 
 
 
