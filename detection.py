@@ -1,9 +1,6 @@
 from tool import darknet2pytorch
 import torch
 
-
-from models import Yolov4
-
 from tool.utils import *
 from tool.torch_utils import *
 #

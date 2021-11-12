@@ -16,8 +16,6 @@ from objects_classes import  TrafficObj
 
 
 
-
-
 def detections_to_objs(detections,frame,frame_id):
     # results : (p1,p2,prob,class_id)
     output = []

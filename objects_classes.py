@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 from config import config
-from utils import  test_box
 
 class TrafficObj():
 

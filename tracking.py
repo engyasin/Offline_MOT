@@ -16,7 +16,6 @@ def track_objs(frame,frame_id,objects):
 
     return objects
 
-
 #         all_ok, objects = check_tracking(objects,foreground)
 
 def check_tracking(objects,foreground, new_objects):

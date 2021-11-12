@@ -1,14 +1,11 @@
 # Python code for Background subtraction using OpenCV 
 import numpy as np 
-import matplotlib.pyplot as plt
 import cv2 
 from skimage.measure import label, regionprops
 import sys
 from utils import resize
 
 from config import config
-#from vidstab import VidStab
-#from draft import simplifyimg
 
 class BG_substractor():
     def __init__(self,bg):
