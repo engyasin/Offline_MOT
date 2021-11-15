@@ -13,14 +13,19 @@ def resize(img,scale=1):
 
 def save_tracks(tracks_objs,filename):
     filename = filename.split('\\')[-1].split('.')[-2]#[-5:]
-    f = open(filename+'.txt',mode='w+')
+    f = open('outputs\\'+filename+'.txt',mode='w+')
     for obj in tracks_objs:
-        for i,frame_id in enumerate(obj.time_steps[:-1]):
+        for i,frame_id in enumerate(obj.time_steps):
+            # not taking the last step if it's wrong
+            if not(any(obj.trust_level[i])):
+                # all zeros
+                break
             #TODO add:
-            # class_idS
             # thetas
-            # track id
-            f.write(' '.join([str(frame_id),str(obj.boxes[i]),str(obj.class_id),str(obj.track_id)])+'\n')
+            class_ = max(obj.class_ids,key=lambda x:obj.class_ids[x])
+            # TODO i case class is a miss, maybe flag it with -1 sign
+            f.write(' '.join(
+                [str(frame_id),str(obj.boxes[i]),str(class_),str(obj.track_id),str(int(obj.angels[i]))])+'\n')
 
     f.close()
 
@@ -29,7 +34,7 @@ def read_tracks(filename):
     # input : video name
     filename = filename.split('\\')[-1].split('.')[-2]#[-5:]
     tracking_data = {}
-    with open(filename+'.txt',mode='r') as f:
+    with open('outputs\\'+filename+'.txt',mode='r') as f:
         while True:
             line = f.readline().split()
             if len(line)<1:
@@ -37,12 +42,13 @@ def read_tracks(filename):
             frame_id = int(line[0]) # frame_id
             class_id = int(line[5])
             track_id = int(line[6])
+            angel    = int(line[7])
             box = [int(line[1][1:-1]),int(line[2][:-1]),int(line[3][:-1]),int(line[4][:-1])]
             if frame_id in tracking_data:
                 # box is x,y,w,h
-                tracking_data[frame_id].append((box,class_id,track_id))
+                tracking_data[frame_id].append((box,class_id,track_id,angel))
             else:
-                tracking_data[frame_id] = [(box,class_id,track_id)]
+                tracking_data[frame_id] = [(box,class_id,track_id,angel)]
 
     return tracking_data
 
@@ -90,3 +96,6 @@ def detect_overlaping(objects,overlap_thresh=0.5):
                         # this is tricky, maybe leave them for future steps to descid (or at the end)
                         pass
     return -1
+
+
+

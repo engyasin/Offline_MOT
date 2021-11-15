@@ -2,11 +2,12 @@ import cv2
 import numpy as np
 from config import config
 
+from utils import test_box
+
 class TrafficObj():
 
     def __init__(self,frame,frame_id,box,track_id,tracker=cv2.TrackerKCF_create,class_id=-1,detection_way=1,detect_prob=0.0):
         # -1 for class id means unkonwn
-
 
         # detection way:
         # 1 for detection
@@ -18,6 +19,7 @@ class TrafficObj():
 
         self.box = box
         self.boxes = [box]
+        self.true_wh_max = box[2:],1
         self.tracking_state = [1]
         self.checked_bg = []
 
@@ -31,7 +33,9 @@ class TrafficObj():
         self.tracker.init(frame,box)
         self.class_id = class_id
 
-        self.class_ids = [class_id]
+        # length is not standard (class,prob)
+        self.class_ids = {-1:0,1:0,2:0,3:0}
+        self.class_ids[class_id] += (1/(1-detect_prob))
 
         self.colors_map = [ (0,0,255), # error
                             (0,255,0), # ped
@@ -43,12 +47,14 @@ class TrafficObj():
 
         self.last_detect_prob = detect_prob
 
-        self.thetas = [(None,None)]
-        #h,w = frame.shape[:-1]
-        #self.img_wh = (w,h)
-        #self.need_redetect = True
+        self.img_wh = frame.shape[:2][::-1]
 
+        # to be used in postprocess
+        self.angels  = []
+        self.centers = []
 
+    def find_center(self):
+        return int(self.box[0]+(self.box[2]/2)),int(self.box[1]+(self.box[3]/2))
 
     def track(self,new_frame,frame_id):
         state, box = self.tracker.update(new_frame)
@@ -56,6 +62,7 @@ class TrafficObj():
         if state:
             #update boxes list
             self.box = box
+            self.find_true_size(box)
             self.boxes.append(list(box))
 
         self.tracking_state.append(state)
@@ -98,6 +105,10 @@ class TrafficObj():
             cv2.rectangle(new_frame, (x, y), (x + w, y + h), color=color_code, thickness=4)
 
             cv2.putText(new_frame,str(self.track_id),(x,y),2,3,color_code,thickness=4)
+        else:
+            # moving obj
+            cv2.rectangle(new_frame, (x, y), (x + w, y + h), color=color_code, thickness=4)
+
 
         return new_frame
 
@@ -112,12 +123,18 @@ class TrafficObj():
             if self.class_id == -1:
                 # after some history and still no detection --> delete
                 return False,False
-            traj_state = [any(state) for state in self.trust_level]
-            if all(traj_state):
-                #if object is still, (detection error) or not much detections
-                if sum([sum(state) for state in self.trust_level])<(config.min_history+5):
-                    # at least five times movement or detection
-                    return False,False
+
+            traj_state,sum_traj_state = [] , 0
+            for state in self.trust_level:
+                traj_state.append(any(state))
+                sum_traj_state += sum(state)
+
+            #if object is still, (detection error) or not much detections
+            if sum_traj_state<(config.min_history+5):
+                # at least five times movement or deletsion
+                return False,False
+            elif all(traj_state):
+                # keep tracking if detected enough
                 return True,False
             elif all(traj_state[:config.min_history]):
                 # error last, save rest
@@ -137,7 +154,7 @@ class TrafficObj():
 
     def filter_by_detections(self,detections):
         # detections : (p1,p2,prob,class_id)
-        center = int(self.box[0]+(self.box[2]/2)),int(self.box[1]+(self.box[3]/2))
+        center = self.find_center()
         #print(center)
         remaining_detections = detections[:]
         r = 0#-10 # error margin
@@ -175,7 +192,7 @@ class TrafficObj():
 
     def filter_by_detections_dist(self, detections, check=False):
 
-        obj_cntr = int(self.box[0]+(self.box[2]/2)),int(self.box[1]+(self.box[3]/2))
+        obj_cntr = self.find_center()
         detections_dists = []
 
         for obj_item in detections:
@@ -188,7 +205,6 @@ class TrafficObj():
                                     (obj_item[0][1]+obj_item[1][1])//2 - obj_cntr[1]))
 
             #if (obj_item[3] not in self.class_ids) and (self.class_id != -1):
-            #    # TODO vote here for class type
             #    if dist < config.dist_thresh: self.class_ids.append(obj_item[3])
             #    detections_dists.append(1e9)
             #    continue
@@ -204,16 +220,18 @@ class TrafficObj():
         if Ok:
             obj_item = detections.pop(np.argmin(detections_dists))
             box = [obj_item[0][0], obj_item[0][1], obj_item[1][0]-obj_item[0][0],obj_item[1][1]-obj_item[0][1]]
-            self.box = box
-            self.class_ids.append(obj_item[3])
-            self.last_detect_prob = obj_item[2]
 
+            self.find_true_size(box)
             if check: 
                 self.boxes[-1] = box
             else:
                 self.boxes.append(box)
-            #if self.class_id == -1: 
+            if self.class_id == -1: 
+                print('now is turned to ',obj_item[3])
             self.class_id = obj_item[3]
+            self.box = box
+            self.class_ids[obj_item[3]] += (1/(1-obj_item[2]))
+            self.last_detect_prob = obj_item[2]
 
             #self.need_redetect = not(test_box(box,self.img_wh))
 
@@ -222,7 +240,7 @@ class TrafficObj():
 
     def filter_by_bg_objs(self, bg_objs):
 
-        obj_cntr = int(self.box[0]+(self.box[2]/2)),int(self.box[1]+(self.box[3]/2))
+        obj_cntr = self.find_center()
         detections_dists = []
 
         for obj_item in bg_objs:
@@ -247,12 +265,11 @@ class TrafficObj():
 
                 box = [obj_item.bbox[1],obj_item.bbox[0],obj_item.bbox[3]-obj_item.bbox[1],obj_item.bbox[2]-obj_item.bbox[0]]
 
-            #box = [obj_item[0][0], obj_item[0][1], obj_item[1][0]-obj_item[0][0],obj_item[1][1]-obj_item[0][1]]
+                #box = [obj_item[0][0], obj_item[0][1], obj_item[1][0]-obj_item[0][0],obj_item[1][1]-obj_item[0][1]]
                 self.box = box
+                self.find_true_size(box)
                 self.boxes.append(box)
 
-            # add theta
-            self.set_theta(obj_item.orientation) # in randian
             #if self.class_id == -1: 
             #    self.class_id = obj_item[3]
 
@@ -270,5 +287,14 @@ class TrafficObj():
             self.track_id = id_
 
 
-    def set_theta(self,theta):
-        self.theta = [(self.time_steps[-1],theta)]
+    def find_true_size(self,new_box):
+        # if the view is bird-view sizes should be fixed
+        # box is : x,y,w,h
+        if test_box(new_box,self.img_wh):
+            center = self.find_center()
+            new_center = int(new_box[0]+(new_box[2]/2)),int(new_box[1]+(new_box[3]/2))
+            d_x,d_y = center[0]-new_center[0],center[1]-new_center[1]
+
+            # max difference between d_x,d_y is needed, means angels near 0,90,180,270,360
+            if abs(d_x-d_y)>self.true_wh_max[1]:
+                self.true_wh_max = new_box[2:],abs(d_x-d_y)

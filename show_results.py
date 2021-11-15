@@ -35,7 +35,7 @@ def main(args):
                 (0, 0, 0)] # cars
     #ret, frame = v_obj.read()
 
-    while frame is not None:
+    while ret:#frame is not None:
 
         if frame_id in tracking_data:
             objects_2_draw = tracking_data[frame_id]
@@ -44,10 +44,17 @@ def main(args):
             break
 
         for obj in objects_2_draw:
-            box,class_id,track_id = obj
+            box,class_id,track_id,angel = obj
             #print(box)
 
-            cv2.rectangle(frame,(box[0],box[1]),(box[0]+box[2],box[1]+box[3]),color=color_map[class_id-1],thickness=4)
+            #TODO draw rotated
+            center = int(box[0]+(box[2]/2)),int(box[1]+(box[3]/2))
+            rect = cv2.boxPoints((center,(box[2],box[3]),angel))
+            rect = np.intp(rect)
+            cv2.drawContours(frame,[rect],0,color=color_map[class_id-1],thickness=4)
+            #cv2.drawContours(stabilized_frame, [rect], 0, (255,0,0),4)   
+
+            #cv2.rectangle(frame,(box[0],box[1]),(box[0]+box[2],box[1]+box[3]),color=color_map[class_id-1],thickness=4)
             cv2.putText(frame,str(track_id),(box[0],box[1]),2,3,color=color_map[class_id-1],thickness=4)
 
         cv2.imshow('fgmask', resize(frame,0.3)) 

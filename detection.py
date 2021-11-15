@@ -84,7 +84,7 @@ class YoloDetector:
             prob = box[5]
             class_id = box[6] + 1 # 0 reserved to error code, so +1
             results.append((p1,p2,prob,class_id))
-            print('class id: ',class_id)
+            #print('class id: ',class_id)
         #print('**********')
 
         return results,(w,h)

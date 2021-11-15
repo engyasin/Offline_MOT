@@ -26,7 +26,8 @@ class BG_substractor():
         #TODO use class methods instead
         out = np.array([])
         frame_rate ,bg_rate = 0.3, 0.5
-        for i in range(4):
+        for _ in range(4):
+            # 4 times to learn bg more
             fgmask = self.fgbg.apply(self.bg,out,learningRate = bg_rate)
 
         fgmask = self.fgbg.apply(frame,out,learningRate = frame_rate)
