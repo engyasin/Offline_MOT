@@ -16,7 +16,8 @@
 
 
 - docs:
-    - talk about cv2.TrackerKCF_create
+    - talk about cv2.TrackerKCF_create (or make example of using different trackers)
+    - Read Me
 
 
 - post process:
@@ -25,3 +26,23 @@
     - calcuate theta [DONE]
     - smooth trajectory
     - real dimensions (maybe a preprocee to calib with each video with known object while the data still in meters)
+
+
+- Additional:
+
+
+
+
+
+- Orgnized:
+** Readme
+
+** Examples = docs , just scripts to test the different steps as i  current Readme
+
+** test as possible (don't over kill it) and automated as script in one liner
+with one video as example
+
+** Paper and contributing
+
+** submit
+

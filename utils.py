@@ -3,6 +3,23 @@ import numpy as np
 
 
 def resize(img,scale=1):
+    """Resize image by a scale factor 
+
+    Parameters
+    ----------
+    img : numpy array 
+        The image represented as grayscale image array or 
+        rgb image array (if grayscale will be stacked to 3 channels)
+    scale : float, optional
+        A scale to enlarge or shrink the image to both the 
+        width and height.  (default is 1)
+
+    Returns
+    -------
+    numpy array
+        The image after rescaling
+
+    """
     if len(img.shape)==2:
         img = np.dstack((img,img,img))
 
@@ -12,6 +29,29 @@ def resize(img,scale=1):
 
 
 def save_tracks(tracks_objs,filename):
+    """Record the tracking results in a text file,
+
+    It saves the boxes, angels, track ids and classes after
+    deleting the parts where no detection, tracking or movement is found,
+    and after taking the highst class score of all the detections across 
+    the track 
+
+    Parameters
+    ----------
+    tracks_objs : list
+        The list that contains all the objects instances of the tracked 
+        tragets 
+        that should be saved
+    filename : str
+        The directory of the video that is under processing. 
+        The saved text file will have the same name.
+
+    See Also
+    --------
+    save_tracks : Record the tracking results in a text file.
+
+    """
+
     filename = filename.split('\\')[-1].split('.')[-2]#[-5:]
     f = open('outputs\\'+filename+'.txt',mode='w+')
     for obj in tracks_objs:
@@ -20,8 +60,6 @@ def save_tracks(tracks_objs,filename):
             if not(any(obj.trust_level[i])):
                 # all zeros
                 break
-            #TODO add:
-            # thetas
             class_ = max(obj.class_ids,key=lambda x:obj.class_ids[x])
             # TODO i case class is a miss, maybe flag it with -1 sign
             f.write(' '.join(
@@ -31,6 +69,21 @@ def save_tracks(tracks_objs,filename):
 
 
 def read_tracks(filename):
+    """Read the text file and load it into a dictionary with
+    frame number as the keys and the objects and its positions as values.
+
+    Parameters
+    ----------
+    filename : str
+        The directory of the video whose tracking data should
+        be shown. The text file will have the same name but '.txt'
+        extention
+
+    See Also
+    --------
+    read_tracks : It loads the tracking data into a dictionary.
+
+    """
     # input : video name
     filename = filename.split('\\')[-1].split('.')[-2]#[-5:]
     tracking_data = {}
@@ -52,11 +105,47 @@ def read_tracks(filename):
 
     return tracking_data
 
-
 def test_box(box,img_wh):
+    """ Test whether a box is within image size.
+
+    Parameters
+    ----------
+    box : list
+        A list of [x,y,width,height] where x,y in the top-left 
+        point coordinates 
+
+    Returns
+    -------
+    bool
+        A boolean indicating whether the box inside the image 
+        dimensions or not.
+
+    """
     return (box[0]>=0)*(box[1]>=0)*((box[0]+box[2])<img_wh[0])*((box[1]+box[3])<img_wh[1])*(box[2]>=0)*(box[3]>=0)
 
 def find_overlap(box1,box2):
+    """Find the area of intersection between two boxes
+
+    Parameters
+    ----------
+    box1 : list
+        A list of [x,y,width,height] where x,y in the top-left
+        point coordinates of the first box
+    box2 : list
+        A list of [x,y,width,height] where x,y in the top-left 
+        point coordinates of the second box
+
+    Returns
+    -------
+    int
+        The area of the intersection between the two boxes
+
+    Examples
+    --------
+    >>> find_overlap([0,0,10,5],[0,0,5,10])
+     25
+
+    """
     # box is : x,y,w,h
     x1 = set(range(box1[0],box1[0]+box1[2]))
     y1 = set(range(box1[1],box1[1]+box1[3]))
@@ -67,6 +156,28 @@ def find_overlap(box1,box2):
     return len(x1.intersection(x2))*len(y1.intersection(y2))
 
 def detect_overlaping(objects,overlap_thresh=0.5):
+
+    """Check if any object is overlaping within another in the list
+    and delete one of them according to: 
+    1) history length
+    2) detection probability
+    3) area
+    respectively.
+
+    Parameters
+    ----------
+    objects : list
+        The list of objects instances with boxes attributes
+    overlap_thresh : float, optional
+        A threshold of accepted overlaping ratio to the object area, 
+        before deleting one of the overlapped object (default is 0.5)
+
+    Returns
+    -------
+    int
+        The index of object that should be deleted or -1 if none should
+
+    """
 
     for i,obj in enumerate(objects):
         for j,other_obj in enumerate(objects):
@@ -93,7 +204,7 @@ def detect_overlaping(objects,overlap_thresh=0.5):
                     elif (obj.box[2]*obj.box[3]) > (other_obj.box[2]*other_obj.box[3]):
                         return j
                     else:
-                        # this is tricky, maybe leave them for future steps to descid (or at the end)
+                        # this is tricky, maybe leave them for future steps to decide (or at the end)
                         pass
     return -1
 

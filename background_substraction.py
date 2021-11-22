@@ -2,13 +2,52 @@
 import numpy as np 
 import cv2 
 from skimage.measure import label, regionprops
-import sys
 from utils import resize
 
 from config import config
 
 class BG_substractor():
+    """
+    A class to perform background subtraction on videos
+    based on opencv implementation.
+
+    ...
+
+    Attributes
+    ----------
+    history : int
+        Number of frames to calculate the background from.
+    thresh : int
+        Threshold on the squared distance between the pixel 
+        and the sample to decide whether a pixel is close to that 
+        sample. This parameter does not affect the background 
+        update.
+    shadows : bool
+        whether to detect the shadows or not.
+    fgbg : class instance
+        The background subtraction object of type KNN
+    bg : numpy array
+        The current calculated background
+    kernel : numpy array
+        The kernel array to do erosion process on the resulting foreground
+
+    Methods
+    -------
+    bg_substract(numpy array) -> numpy array
+        Process a new frame to find the foreground
+
+    get_big_objects(numpy array,numpy array) -> (numpy array,list)
+        Process a foreground with its frame to get the group
+        of the different background objects.
+    """
     def __init__(self,bg):
+        """
+        Parameters
+        ----------
+        bg : numpy array
+            The background object for the first time
+
+        """
 
         self.history = config.bgs_history
         self.thresh  = config.bgs_threshold
@@ -20,7 +59,22 @@ class BG_substractor():
         self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(kernel_size,kernel_size))
 
     def bg_substract(self,frame):
+        """Find out the background and foreground and post process them
 
+        It applies the background subtraction object several times on 
+        the background to focus more on the last changes. Then it erode
+        the resulting foreground.
+
+        Parameters
+        ----------
+        frame : numpy array
+            The image whose foreground should be found.
+
+        Returns
+        ------
+        numpy array
+            The foreground of the frame as grayscale image
+        """
         # bg is the old background
         # frame is the image
         #TODO use class methods instead
@@ -44,7 +98,22 @@ class BG_substractor():
         return fgmask
 
     def get_big_objects(self,fg_mask,frame):
+        """Find the foreground objects based on the foreground image
 
+        Parameters
+        ----------
+        fg_mask : numpy array
+            The forground as grayscale image
+        frame : numpy array
+            The input image related to the foreground
+
+        Returns
+        -------
+        (numpy array, list)
+            A tuple of a new foreground image, and list of foreground 
+            objects.
+
+        """
         label_image = label(fg_mask)
         regs_str = regionprops(label_image,frame)
         new_regions = []
@@ -62,7 +131,7 @@ class BG_substractor():
 
 if __name__ == '__main__':
 
-    cap = cv2.VideoCapture('../../DJI_0148.mp4')#Dataset_Drone/DJI_0134.mp4')
+    cap = cv2.VideoCapture('../../DJI_0148.mp4')
     ret, bg = cap.read()
     frame_id = 1
     cap.set(1, frame_id-1)

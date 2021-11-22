@@ -1,9 +1,22 @@
+"""Show the result of the tracking of a video
+
+This script shows the results of the tracking and load it form a saved 
+text file. The video file name and text file name should be the same.
+The video directory should be passed after -v flag in the command line.
+
+This script requires that `opencv-python` be installed within the Python
+environment you are running this script in.
+
+This contains the following functions:
+
+    * main - the main function of the script
+"""
 
 import numpy as np
 import cv2
 
 import argparse
-from utils import read_tracks, save_tracks, resize, test_box, detect_overlaping
+from utils import read_tracks, resize
 
 # read video from args
 
@@ -20,11 +33,6 @@ def main(args):
 
     ret, frame = v_obj.read()
     frame_id = 0
-
-    # good tracks
-    saved_tracks = []
-
-    candidates_objs = []
 
     # run first frame logic
     previous_frame = frame.copy()
@@ -62,19 +70,6 @@ def main(args):
         #prv_regions = []
         if k == 27: 
             break
-
-
-    # save the most good tracks
-    #detections = detector.detect(previous_frame)
-    #for obj in objects:
-    
-    #    Track,Save = obj.update()
-    #
-    #     if Track and (obj.class_id != -1):
-    #        saved_tracks.append(obj)
-        #ok,detections = obj.filter_by_detections(detections)
-        #if ok or obj.good_enough():
-        #    saved_tracks.append(obj)
 
 
         ret, frame = v_obj.read()

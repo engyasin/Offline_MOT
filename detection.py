@@ -7,68 +7,85 @@ from tool.torch_utils import *
 # from tool.darknet2pytorch import Darknet
 import cv2
 
-# load weights from darknet format
-#model = darknet2pytorch.Darknet('yolov4-obj.cfg', inference=True)
-#model.load_weights('yolov4-obj_last.weights')
+class YoloDetector():
 
-# save weights to pytorch format
-#torch.save(model.state_dict(), 'yolov4-pytorch.pth')
+    """
+    A class to load trained Yolov4 model from memory,
+    and perform detection on frames.
 
-# reload weights from pytorch format
-#model_pt = darknet2pytorch.Darknet('../yolov4-obj.cfg', inference=True)
-#model_pt.load_state_dict(torch.load('../yolov4-pytorch.pth'))
+    ...
 
+    Attributes
+    ----------
+    m : Pytorch Model class instance 
+        A model of Yolov4 architecture
+    
+    use_cude : bool
+        Run on CPU if False or GPU if True
 
-class YoloDetector:
+    class_names : list
+        list of class names from which detection performed
+
+    Methods
+    -------
+    detect(numpy array) -> list,(int,int)
+        Process a new frame to find the detections along with
+        their positions and probabilities
+
+    """
 
     def __init__(self,cfgfile, weightfile, use_cuda=True):
 
-        self.m = darknet2pytorch.Darknet(cfgfile, inference=True)
+        """
+        Parameters
+        ----------
+        cfgfile : str
+            The filename of the configuration file of the Yolov4 model
 
-        #self.m = Yolov4(yolov4conv137weight=weightfile, n_classes=3, inference=True)
+        weightfile : str
+            The filename of the network model (Yolov4)
+
+        use_cuda : bool
+            Run on CPU if False or GPU if True (default is True)
+
+        """
+
+        self.m = darknet2pytorch.Darknet(cfgfile, inference=True)
 
         self.m.load_state_dict(torch.load(weightfile))
         #self.m.load_weights(weightfile)
-        """
-        pretrained_dict = torch.load(weightfile)
-
-        model_dict = self.m.state_dict()
-        for x in model_dict.copy():
-            if 'neek' in x:
-                del model_dict[x]
-        # 1. filter out unnecessary keys
-        pretrained_dict = {k1: v for (k, v), k1 in zip(pretrained_dict.items(), model_dict)}
-        # 2. overwrite entries in the existing state dict
-        model_dict.update(pretrained_dict)
-
-        self.m.load_state_dict(model_dict)       
-        
-        """
 
         self.use_cuda = use_cuda
-
-        #m.print_network()
-        #m.load_weights(weightfile)
-        #print('Loading weights from %s... Done!' % (weightfile))
 
         if self.use_cuda:
             self.m.cuda()
 
-        #num_classes = m.num_classes
-        #if num_classes == 20:
-        #    namesfile = 'data/voc.names'
-        #elif num_classes == 80:
-        #    namesfile = 'data/coco.names'
-        #else:
         namesfile = 'obj.names'
         self.class_names = load_class_names(namesfile)
     
     def detect(self,imgfile):
+
+        """Detect the classes within the image
+
+        Parameters
+        ----------
+        imgfile : str or numpy array
+            The input image that could be a string filename or a numpy 
+            array
+
+        Returns
+        -------
+        list,(int,int)
+            A list of detection positions and classes and the shape of
+            the original image. The result list has the following shape 
+            [top-left point, bottom-right point,probabilty, class id]
+
+        """
+
         if type(imgfile)==str:
             img = cv2.imread(imgfile)
         else:
             img = imgfile.copy()
-        #img = cv2.imread(imgfile)
         sized = cv2.resize(img, (self.m.width, self.m.height))
         sized = cv2.cvtColor(sized, cv2.COLOR_BGR2RGB)
 
@@ -88,78 +105,13 @@ class YoloDetector:
         #print('**********')
 
         return results,(w,h)
-    #plot_boxes_cv2(img, boxes[0], savename='predictions.jpg', class_names=class_names)
-
-
-
-
-
-def detect_cv2(cfgfile, weightfile, imgfile,use_cuda=True):
-
-    #m = Darknet(cfgfile)
-
-    m = darknet2pytorch.Darknet(cfgfile, inference=True)
-    m.load_state_dict(torch.load(weightfile))
-
-    #m.print_network()
-    #m.load_weights(weightfile)
-    print('Loading weights from %s... Done!' % (weightfile))
-
-    if use_cuda:
-        m.cuda()
-
-    #num_classes = m.num_classes
-    #if num_classes == 20:
-    #    namesfile = 'data/voc.names'
-    #elif num_classes == 80:
-    #    namesfile = 'data/coco.names'
-    #else:
-    namesfile = 'obj.names'
-    class_names = load_class_names(namesfile)
-
-    img = cv2.imread(imgfile)
-    sized = cv2.resize(img, (m.width, m.height))
-    sized = cv2.cvtColor(sized, cv2.COLOR_BGR2RGB)
-
-    boxes = do_detect(m, sized, 0.4, 0.6, use_cuda)
-
-    """
-    for i in range(2):
-        start = time.time()
-        boxes = do_detect(m, sized, 0.4, 0.6, use_cuda)
-        finish = time.time()
-        if i == 1:
-            print('%s: Predicted in %f seconds.' % (imgfile, (finish - start)))   
-    """
-
-
-    # print(boxes)
-    # boxes : x=(0)*w, y=(1)*h, x2, y2, prob, class(0,1,2)
-
-    h,w = img.shape[1:]
-    results = []
-    for box in boxes[0]:
-        p1 = box[0]*w , box[1]*h
-        p2 = box[2]*w , box[3]*h
-        prob = box[5]
-        class_id = box[6]
-        results.append((p1,p2,prob,class_id))
-        #print('**********')
-
-    return results
-    #plot_boxes_cv2(img, boxes[0], savename='predictions.jpg', class_names=class_names)
-
-
-
 
 
 if __name__ == '__main__':
 
-    detector  = YoloDetector('yolov4-obj.cfg','INTERRUPTED.pth',use_cuda=False)
+    detector  = YoloDetector('yolov4-obj.cfg','Yolov4-epoch300.pth',use_cuda=False)
     r = detector.detect('P1_02_03_04_00001.jpg')#'00120.jpg')
 
-    #r = detect_cv2('yolov4-obj.cfg','yolov4_last.pth','00120.jpg',use_cuda=False)
-    #print(len(r))
 
     print(r)
     print(detector.m)

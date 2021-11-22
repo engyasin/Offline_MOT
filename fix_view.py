@@ -5,9 +5,61 @@ from background_substraction import BG_substractor
 from config import config
 from utils import resize
 
-
 class FixView():
+
+    """
+    A class to fix the frames postions in a video
+    that experiance shaking or random movement.
+
+    ...
+
+    Attributes
+    ----------
+    sift : SIFT detector object
+        The sift detector object that will perform the detection 
+        on frames
+    flann : FLANN based matcher object
+        The FLANN matcher with parameters compitaple with matching
+        SIFT keypoints
+    mask_bg : numpy array
+        The boolean mask which determines the acceptable area
+        to detect keypoints from in the input image.
+    kps_bg : list of KeyPoint objects
+        The background keypoints that will be matched with 
+        each next frame.
+    des_bg : numpy array
+        The background descriptors of the kypoints to perform 
+        matching later
+    min_matches : int
+        Minumum Number of matches to perform transformation on fame
+    kernel : numpy array
+        The kernel array to do dilation process on the foreground
+        to form the mask
+
+    Methods
+    -------
+    get_good_matches(list) -> list
+        Filter the matches objects according to the distance and distance ratio test.
+
+    fix_view(numpy array,numpy array) -> numpy array
+        Process the frame by detecting the 2D affine motion, and transform it
+        if it is found with enough number of matches points 
+    
+    set_new_bg(numpy array, numpy array) -> None
+        Set a new background image, keypoints and descriptors according to the
+        forground if provided
+
+    """
+
     def __init__(self,bg_rgb):
+        """
+        Parameters
+        ----------
+        bg_rgb : numpy array
+            The background image that all the next frames will be refrenced to,
+            whether they need transformation or not.
+
+        """
         # Initiate SIFT detector
         self.sift = cv2.SIFT_create(nfeatures=2000)
 
@@ -22,7 +74,7 @@ class FixView():
         # taking from the border to avoid, foreground
         mask =  np.zeros_like(bg,dtype=np.uint8)
 
-        borders_ = 1200
+        borders_ = int(np.min(mask.shape)/2)
         mask[:borders_,:] = 255
         mask[-borders_:,:] = 255
         mask[:,:borders_] = 255
@@ -37,6 +89,21 @@ class FixView():
         self.min_matches = config.min_matches
 
     def get_good_matches(self,matches):
+        """Filter the matches objects according to the distance and distance ratio test
+
+        Parameters
+        ----------
+        matches : list
+            The list of Matches objects list refering to the same descriptor and
+            all its matches
+
+        Returns
+        -------
+        list
+            a list of the matches objects passing the distance ratio and sorted
+            according to the distance of length no more than 500
+
+        """
         good = []
         for mn in matches:
             if len(mn)==2:
@@ -44,14 +111,31 @@ class FixView():
                 if m.distance < 0.7*n.distance:
                     good.append(m)
             else:
-                #try adding anyway
+                #try adding anyway, to be later tested with distance
                 good.append(mn[0])
-                pass
-        # take only the best 1000
+        # take only the best 500
         good = sorted(good,key=lambda x: x.distance)[:500]
         return good
 
     def fix_view(self,frame,fgmask=None):
+        """Process the frame by detecting the 2D affine motion,
+        and transform it if it is found with enough number of matches 
+        points 
+
+        Parameters
+        ----------
+        frame : numpy array
+            The frame that should be transformed to the fixed postion
+        fgmask : numpy array, optional
+            The mask defining where to detect the frame keypoints 
+            and descriptors to match with
+
+        Returns
+        -------
+        numpy array
+            The transformed frame if the conditions apply.
+
+        """
 
         if fgmask is None:
             mask = self.mask_bg.copy()
@@ -82,6 +166,18 @@ class FixView():
         return frame
 
     def set_new_bg(self,bg_rgb,fg_mask=None):
+        """Set a new background image, keypoints and descriptors
+        according to the forground if provided
+
+        Parameters
+        ----------
+        bg_rgb : numpy array
+            The new background to match each frame with
+        fg_mask : numpy array, optional
+            The mask defining where to detect the background keypoints 
+            and descriptors
+
+        """
         bg = cv2.cvtColor(bg_rgb, cv2.COLOR_BGR2GRAY)
         if fg_mask is None:
             mask = self.mask_bg.copy()

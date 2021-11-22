@@ -1,3 +1,21 @@
+"""Perform the main loop of reading the video and tracking the traffic
+objects in it.
+
+This script reads the video file frame by frame and tries to detect 
+all the objects in it and track them. Additionally, a check with
+background substraction is done.
+
+This contains the following functions:
+
+    * main - the main function of the script
+    * track_objs - Perfrom tracking on every object in the frame
+    * bgObjs_to_objs - transform background substraction objects to traffic
+    objects
+    * FirstFrame - initilize the detector and return the objects in the
+    first frame if they fall within the image borders
+
+"""
+
 import argparse
 import numpy as np
 import cv2
@@ -15,6 +33,25 @@ from post_process import postProcessAll
 
 
 def track_objs(frame,frame_id,objects):
+    """Perfrom tracking on every object in the frame
+
+    Parameters
+    ----------
+    frame : numpy array
+        The input image to track the objects within
+    frame_id : int
+        The order of the frame in the video
+    objects : list
+        list of the current traffic object under tracking
+        to check where they moved in the frame.
+
+    Returns
+    -------
+    list
+        a list of the traffic object classes with updated
+        postions according to the tracking result.
+
+    """
     # return new object
     for obj in objects:
         obj.track(frame,frame_id)
@@ -23,6 +60,25 @@ def track_objs(frame,frame_id,objects):
 
 
 def bgObjs_to_objs(bgObjs,frame,frame_id):
+    """Transform background substraction objects to traffic objects
+
+    Parameters
+    ----------
+    bgObjs : list
+        a list of the new moving objects in the current frame.
+        excluding the objects where the objects already detected.
+    frame : numpy array
+        The input image where the objects are detected
+    frame_id : int
+        The order of the frame in the video
+
+    Returns
+    -------
+    list
+        a list of traffic object instances, representing the 
+        previous list of objects in the input if within the image
+
+    """
     # results : (p1,p2,prob,class_id)
     output = []
     for obj_item in bgObjs:
@@ -34,9 +90,24 @@ def bgObjs_to_objs(bgObjs,frame,frame_id):
     return output
 
 def FirstFrame(frame):
+    """initilize the detector and return the objects in the first frame
+    if they fall within the image borders
 
+    Parameters
+    ----------
+    frame : numpy array
+        The first frame of the video
+
+    Returns
+    -------
+    tuple
+        a tuple of a list of the new detected traffic objects as the first
+        element and the detector instance of YOLOv4 detector as the second
+        element.
+
+    """
     # detect
-    detector  = YoloDetector('yolov4-obj.cfg','Yolov4_epoch300.pth',use_cuda=False)
+    detector  = YoloDetector('yolov4-obj.cfg','Yolov4_epoch300.pth',use_cuda=config.use_cuda)
     # 'Yolov4_epoch300.pth'
     #  'yolov4_last.pth'
 
@@ -64,7 +135,16 @@ def FirstFrame(frame):
     return output, detector
 
 def main(args):
+    """The main loop to detect and track traffic objects in the video
+    and save the result after post processing to a text file.
 
+    Parameters
+    ----------
+    args : dict
+        The input parameters as dictionary with values for keys such as
+        video name.
+
+    """
     # read video file
     v_obj = cv2.VideoCapture(args["video"])
 
@@ -118,7 +198,7 @@ def main(args):
         # maybe make object thiner to allow for nearby object to be detected
         br = config.bgs_broder_margin # pixels for borders
 
-        ########## if track failed,  check with tracking, 
+        ########## if track failed,  check with detection, 
         ########## check all with bgs 
         for i,obj in enumerate(objects+ candidates_objs):
             #obj.update()
@@ -160,9 +240,8 @@ def main(args):
                 candidates_objs.append(n_obj)
                 #objects.append(n_obj)
 
-
-        ############## detect every N frame, check all
-        ############## add from candidate to objects if checked with detection
+        # detect every N frame, check all
+        # add from candidate to objects if checked with detection
         if (frame_id%config.detect_every_N)==0:
             if not(done_detect):
                 detections, _ = detector.detect(frame)

@@ -5,8 +5,127 @@ from config import config
 from utils import test_box
 
 class TrafficObj():
+    """
+    A class used to represent any traffic entity, with its full track 
+    across frame until it gets lost.
+
+    ...
+
+    Attributes
+    ----------
+    box : list
+        a box is list of [x,y,w,h] where x,y is the top-left point
+        coordinates and w,h are the width and height of the bounding box
+        unrotated.
+    boxes : list
+        a list of box lists for every time step saved in time_steps
+    true_wh_max : tuple
+        the width and height when the object is moving horizontally,
+        vertically or the nearst to these directions
+    tracking_state : list
+        the list of the tracking success variable
+    time_steps : list
+        list of frames where object are detected or tracked successfully.
+    trust_level : list
+        list of three values rows where each value refer to a boolean,
+        indicating the sucess of detection, tracking and background
+        substraction respectively
+    tracker_class : Tracker function
+        The function that will build the tracker object (default: TrackerKCF_create)
+    tracker : Tracker object
+        the tracker object that will perform the tracking
+    class_id : int
+        an integer representing the type of object whether it is
+        -1: unknown (default), 1 pedistrains, 2 cyclist, 3 cars.
+    colors_map : list
+        what color to draw each traffic object
+    track_id : int
+        a unique id assigned to each traffic object
+    last_detect_prob : float
+        the probabilty of the last detection.
+        it is needed to solve overlaping conflict (default:0)
+    img_wh : tuple
+        the width and height of the frame
+    angels : list
+        a placeholder list to calculate the angle of direction at
+        the end for the object.
+    centers : list
+        a placeholder list to calculate the centers of the boxes
+        at the end for the object.
+
+    Methods
+    -------
+    find_center()
+        Calculate the current center for the box. 
+        the output is integers
+
+    track(new_frame,frame_id)
+        Track the object in the new frame, save the result,
+        and update the true size
+
+    re_init_tracker(frame)
+        start a new tracker object in the frame provided with
+        the current box
+
+    draw(new_frame=numpy array)
+        Draw the current box position with color code and track ID
+        on the frame
+
+    update()
+        Test the object if still need to be tracked, or it
+        is lost so if it needs to be deleted
+
+    filter_by_detections_dist(detections,check=False)
+        It assigns the object to one of the detections in the frame
+        if a minimum distance and detection probability is found.
+
+    filter_by_bg_objs(bg_objs)
+        check if the object is within a minimum distance
+        to any moving area. 
+
+    set_detection(ok)
+        save the result of the current detection. 
+
+    set_bg_substract(ok)
+        save the result of the current background substraction.
+
+    set_track_id(id_)
+        set track id for the object once it has a detected class
+
+    find_true_size(new_box)
+        Test evey box of the current position whether it moves
+        in the horizontal or vertical direction or the closest
+        to that and save the current size if so.
+
+    """
 
     def __init__(self,frame,frame_id,box,track_id,tracker=cv2.TrackerKCF_create,class_id=-1,detection_way=1,detect_prob=0.0):
+        """
+        Parameters
+        ----------
+        frame : numpy array
+            The image of the first occurrence of the object
+        frame_id : int
+            The frame order in the video
+        box : int
+            The current bounding box of the object, represented as
+            [x,y,w,h], where x,y is the top left corner, and
+            w,h are the width and height.
+        track_id : int
+            The object unique identifier
+        tracker : function
+            The builder function for the tracker object 
+            (default is cv2.TrackerKCF_create)
+        class_id : int, optional
+            The class type of the object,unknown, pedestrain, cyclist or 
+            car (default is -1)
+        detection_way : int, optional
+            The way the object is detected, detection network, 
+            tracking or background substraction (default is 1)
+        detect_prob : float, optional
+            The probabilty that the network detected the 
+            object with (default is 0.0)
+        """
         # -1 for class id means unkonwn
 
         # detection way:
@@ -21,7 +140,6 @@ class TrafficObj():
         self.boxes = [box]
         self.true_wh_max = box[2:],1
         self.tracking_state = [1]
-        self.checked_bg = []
 
         self.time_steps = [frame_id]
         self.trust_level = [[0,0,0]]
@@ -54,9 +172,29 @@ class TrafficObj():
         self.centers = []
 
     def find_center(self):
+        """Calculate the current center for the box. 
+        the output is integers
+
+        Returns
+        -------
+        tuple
+            a tuple of the center x and y as rounded integers
+
+        """
         return int(self.box[0]+(self.box[2]/2)),int(self.box[1]+(self.box[3]/2))
 
     def track(self,new_frame,frame_id):
+        """Track the object in the new frame, save the result,
+        and update the true size
+
+        Parameters
+        ----------
+        new_frame : numpy array
+            The frame to do the tracking in
+        frame_id : int
+            The current frame order in the video
+
+        """
         state, box = self.tracker.update(new_frame)
         #print(state)
         if state:
@@ -70,6 +208,14 @@ class TrafficObj():
         self.trust_level.append([0,int(state),0])
 
     def re_init_tracker(self,frame):
+        """start a new tracker object in the provided frame with
+        the current box
+
+        Parameters
+        ----------
+        frame : numpy array
+            The current frame to initilize the tracking in
+        """
         # tracker may have errors
         # re init with detections
         # done after filter by detection
@@ -77,8 +223,23 @@ class TrafficObj():
         self.tracker = self.tracker_class()
         self.tracker.init(frame,self.box)
 
-
     def draw(self,new_frame):
+
+        """Draw the current box position with color code and track ID
+        on the frame
+
+        Parameters
+        ----------
+        new_frame : numpy array
+            The current frame to draw the object in
+
+        Returns
+        -------
+        numpy array
+            The new frame that should be shown with the object
+            data drawn in it.
+
+        """
 
         # object that is being tracked
         # TODO five color code (3 classes, unknown and error) 
@@ -87,17 +248,6 @@ class TrafficObj():
 
         (x, y, w, h) = [int(v) for v in self.box]
 
-
-        ###################### Draw rotated
-        """
-        if self.theta[-1][0] == self.time_steps[-1] and self.track_id>-1:
-            center = int(self.box[0]+(self.box[2]/2)),int(self.box[1]+(self.box[3]/2))
-            #print(dims)
-            rect = cv2.boxPoints((center,(w,h),-1*np.rad2deg(self.theta[-1][1])))
-            rect = np.intp(rect)
-            cv2.drawContours(new_frame, [rect], 0, color_code,thickness=4)
-            #cv2.drawContours(stabilized_frame, [rect], 0, (255,0,0),4)       
-        """
 
         ################################
 
@@ -114,7 +264,17 @@ class TrafficObj():
 
 
     def update(self):
+        """Test the object if still need to be tracked, or it
+        is lost so if it needs to be deleted
 
+        Returns
+        -------
+        tuple
+            a tuple of two boolean varaible, the first to test if 
+            the object are lost and the second to test if it was
+            real object or noise.
+
+        """
         # history length
         under_prosses = len(self.trust_level)<config.min_history
 
@@ -146,52 +306,28 @@ class TrafficObj():
         return True, False
         ##Return: Track, Save
 
-    def good_enough(self):
-
-        #TODO when saved after, the last mistakes in detection should be deleted
-        return (config.min_track_thresh*2)<(sum(self.tracking_state)+sum(self.checked_bg))
-
-
-    def filter_by_detections(self,detections):
-        # detections : (p1,p2,prob,class_id)
-        center = self.find_center()
-        #print(center)
-        remaining_detections = detections[:]
-        r = 0#-10 # error margin
-        for i,obj_item in enumerate(detections):
-            #print(obj_item[0],obj_item[1])
-            if obj_item[2]>config.detect_thresh:
-                condition = (obj_item[0][0]+r <center[0]< obj_item[1][0]-r) * (obj_item[0][1]+r <center[1]< obj_item[1][1]-r)
-                if condition :
-                    box = [obj_item[0][0], obj_item[0][1], obj_item[1][0]-obj_item[0][0],obj_item[1][1]-obj_item[0][1]]
-                    if self.class_id == -1:
-                        # unknown type
-                        self.class_id = obj_item[3]
-                        self.box = box
-                        self.boxes.append(box)
-                        _ = remaining_detections.pop(i)
-                        return True,remaining_detections
-                    elif self.class_id == obj_item[3]:
-                        # known type
-                        self.box = box
-                        self.boxes.append(box)
-                        _ = remaining_detections.pop(i)
-
-                        return True, remaining_detections
-                    #else:
-                    #    continue
-                    #    return False, remaining_detections
-
-                #output.append(TrafficObj(frame,box,class_id=obj_item[3]))
-        
-        return False,remaining_detections
-
-    def checked_with_bg(self,result):
-        self.checked_bg.append(result)
-
 
     def filter_by_detections_dist(self, detections, check=False):
+        """Assign the object to one of the detections in the frame
+        if a minimum distance and detection probability are found.
 
+        Parameters
+        ----------
+        detections : list
+            A list for the detections in the current frame as
+            output from the detection network
+        check : bool, optional
+            A flag used to add the result as new point or just update
+            the last position
+
+        Returns
+        -------
+        tuple
+            a tuple of two elements, where the first is boolean whether
+            a match of the detection are found. The second is the 
+            detection list after removing the matched detection.
+
+        """
         obj_cntr = self.find_center()
         detections_dists = []
 
@@ -239,7 +375,22 @@ class TrafficObj():
 
 
     def filter_by_bg_objs(self, bg_objs):
+        """Check if the object is within a minimum distance
+        of any moving area.
 
+        Parameters
+        ----------
+        bg_objs : list
+            The list of moving object in the current frame
+
+        Returns
+        -------
+        tuple
+            a tuple of two elements, where the first is boolean whether a
+            match with one of the moving objects are found. The second is
+            the list of moving objects after removing the matched object
+
+        """
         obj_cntr = self.find_center()
         detections_dists = []
 
@@ -276,18 +427,48 @@ class TrafficObj():
         return Ok, bg_objs 
 
     def set_detection(self,ok):
+        """save the result of the current detection. 
+
+        Parameters
+        ----------
+        ok : boolean
+            Whether detection found or not
+        """
         self.trust_level[-1][0] = int(ok)
 
     def set_bg_substract(self,ok):
+        """save the result of the current background substraction.
+
+        Parameters
+        ----------
+        ok : boolean
+            Whether moving object found or not
+        """
         self.trust_level[-1][2] = int(ok)
 
 
     def set_track_id(self,id_):
+        """set track id for the object once it has a detected class
+
+        Parameters
+        ----------
+        id_ : int
+            The id to set for the object if it does not have one yet
+        """
         if self.track_id == -1:
             self.track_id = id_
 
 
     def find_true_size(self,new_box):
+        """Test evey box of the current position whether it moves
+        in the horizontal or vertical direction or the closest
+        to that and save the current size if so.
+
+        Parameters
+        ----------
+        new_box : list
+            The current box to test its direction of movement
+        """
         # if the view is bird-view sizes should be fixed
         # box is : x,y,w,h
         if test_box(new_box,self.img_wh):
