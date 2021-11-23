@@ -38,6 +38,8 @@ def main(args):
     frame_id = 0
 
     # run first frame logic
+    previous_frame = frame.copy()
+    bg = previous_frame.copy()
     #Fix_obj = FixView(bg)
     color_map =[(0,255,0), # ped
                 (255,0,0), # cyclist
