@@ -26,7 +26,8 @@ from background_substraction import BG_substractor
 
 #from Detection.detection import detect
 from detection import YoloDetector
-from utils import save_tracks, resize, test_box, detect_overlaping
+from utils import find_overlap
+from utils import save_tracks, resize, check_box, detect_overlaping, transform_detection
 
 from objects_classes import  TrafficObj
 from post_process import postProcessAll
@@ -111,7 +112,7 @@ def FirstFrame(frame):
     # 'Yolov4_epoch300.pth'
     #  'yolov4_last.pth'
 
-    results,img_wh = detector.detect(frame)
+    results,img_wh = detector.better_detection(frame)
     # create objects based on detections
     # results : (p1,p2,prob,class_id)
     output = []
@@ -125,7 +126,7 @@ def FirstFrame(frame):
             #box = abs(np_box*(np_box>0)).tolist()
             ######
             #print(box)
-            if test_box(box,img_wh): 
+            if check_box(box,img_wh): 
                 # if within the image
                 #print('taken')
                 output.append(TrafficObj(frame,0,box,Track_id,class_id=obj_item[3],detection_way=1,detect_prob=obj_item[2]))
@@ -167,15 +168,17 @@ def main(args):
     BG_s = BG_substractor(bg)
 
     ret, frame = v_obj.read()
+
     foreground = BG_s.bg_substract(frame)
     # for every frame and object in the list:
 
     while ret:
         frame_id += 1
+        #frame = frame[:,:2800,:]
         print('Frame: %s'%frame_id,'Time: %s ,'%(frame_id/30))
         ## stabilize frame by frame
         if config.do_fix: 
-            frame = Fix_obj.fix_view(frame,fgmask=foreground)
+            frame, = Fix_obj.fix_view(frame,fgmask=foreground)
 
         ## bg substract
         foreground = BG_s.bg_substract(frame)
@@ -206,7 +209,7 @@ def main(args):
             if not(obj.tracking_state[-1]):# and obj.track_id!=-1:
                 # failed tracking
                 if not(done_detect):
-                    detections,_ = detector.detect(frame)
+                    detections,_ = detector.better_detection(frame,additional_objs=candidates_objs+objects)
                     done_detect = True
                 ok,detections = obj.filter_by_detections_dist(detections)
                 obj.set_detection(ok)
@@ -214,7 +217,9 @@ def main(args):
                     obj.re_init_tracker(frame)
                     obj.tracking_state[-1] = True
                     if obj.track_id == -1:
+                        # candidate
                         obj.set_track_id(max([x.track_id for x in objects+saved_tracks]+[0])+1)
+                        objects.append(obj)
                         print('Creating new objects **** ')
                 else: 
                     lost_indx.append(i)
@@ -224,7 +229,8 @@ def main(args):
             ok_bg,new_bg_objects = obj.filter_by_bg_objs(new_bg_objects)
             obj.set_bg_substract(ok_bg)
 
-            curr_fg[obj.box[1]+br:obj.box[1]+obj.box[3]-br,obj.box[0]+br:obj.box[0]+obj.box[2]-br] = 1
+            br_w,br_h = int(obj.box[2]*br),int(obj.box[3]*br)
+            curr_fg[obj.box[1]+br_h:obj.box[1]+obj.box[3]-br_h,obj.box[0]+br_w:obj.box[0]+obj.box[2]-br_w] = 1
             # deal with the newly not detected with spical logic
         #print('len of lost_indx: ',len(lost_indx))
 
@@ -243,8 +249,9 @@ def main(args):
         # detect every N frame, check all
         # add from candidate to objects if checked with detection
         if (frame_id%config.detect_every_N)==0:
-            if not(done_detect):
-                detections, _ = detector.detect(frame)
+            #if not(done_detect):
+                
+            detections, _ = detector.better_detection(frame,additional_objs=candidates_objs+objects)
 
             # filter bad objects after detection
             #new_objects = []
@@ -261,9 +268,19 @@ def main(args):
             #objects = new_objects[:]
 
             ## check if new detection agree with bg:
-            new_candidates_objs = []
 
             for bg_obj in candidates_objs:
+
+                # not taken objects? ==> detect on higher scale
+                # frame shape is h,w,3
+                # maybe when first an object is created
+                #x,y,w,h = tuple(bg_obj.box)
+                #cropped_img = frame[max(y-margin_crop,0):y+h+margin_crop,max(x-margin_crop,0):x+w+margin_crop]
+                #new_detections, _ = detector.detect(cropped_img)
+                #p0 = (max(x-margin_crop,0),max(y-margin_crop,0))
+                #detections.extend(transform_detection(p0,new_detections))
+
+
                 if len(detections)==0: 
                     break
                 ok,detections = bg_obj.filter_by_detections_dist(detections,check=True)
@@ -273,13 +290,12 @@ def main(args):
                     bg_obj.set_track_id(max([x.track_id for x in objects+saved_tracks]+[0])+1)
                     print('Creating new objects **** ')
                     objects.append(bg_obj)
-                else:
-                    new_candidates_objs.append(bg_obj)
 
-            candidates_objs = new_candidates_objs[:]
+            # remove the detected classes
+            candidates_objs = [candi_obj for candi_obj in candidates_objs if(candi_obj.class_id ==-1)]
 
             if len(detections):
-                print('There is a problem. some objects detected but not moving or seen before')
+                print('Note: some objects detected but not moving or seen before')
 
         ######### check if all object good enough to track again, or else to save if long and sure enough
         new_objs , new_candidates_objs = [], []
@@ -307,6 +323,8 @@ def main(args):
         if config.draw:
             for obj in objects+candidates_objs:
                 frame = obj.draw(frame)
+            #for b in new_boxes:
+            #   frame[b[1]:b[1]+b[3],b[0]:b[0]+b[2]] = 0 
             cv2.imshow('fgmask', resize(frame,0.2)) 
             k = cv2.waitKey(10) & 0xff
             #prv_regions = []

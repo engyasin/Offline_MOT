@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+from config import config
+
 
 def resize(img,scale=1):
     """Resize image by a scale factor 
@@ -105,7 +107,7 @@ def read_tracks(filename):
 
     return tracking_data
 
-def test_box(box,img_wh):
+def check_box(box,img_wh):
     """ Test whether a box is within image size.
 
     Parameters
@@ -185,7 +187,7 @@ def detect_overlaping(objects,overlap_thresh=0.5):
                 continue
             area = find_overlap(obj.box,other_obj.box)
             if area:
-                if ((obj.box[2]*obj.box[3])/area)>overlap_thresh:
+                if (area/min((obj.box[2]*obj.box[3]),(other_obj.box[2]*other_obj.box[3])))>overlap_thresh:
                     # test according to three terms respectivelly
                     # Histroy length, then
                     if len(obj.trust_level)<len(other_obj.trust_level)-1:
@@ -200,13 +202,44 @@ def detect_overlaping(objects,overlap_thresh=0.5):
                         return j
                     # area
                     elif (obj.box[2]*obj.box[3]) < (other_obj.box[2]*other_obj.box[3]):
-                        return i 
+                        return i
                     elif (obj.box[2]*obj.box[3]) > (other_obj.box[2]*other_obj.box[3]):
                         return j
                     else:
-                        # this is tricky, maybe leave them for future steps to decide (or at the end)
-                        pass
+                        # choose randomly, they are practicly the same.
+                        # to save track id range, choose the minmum
+                        return min(i,j)
     return -1
 
 
+
+def transform_detection(p0,detections):
+    """Convert the result of the detection from a cropped part 
+    of image to the original image coordinates.
+
+    Parameters
+    ----------
+    p0 : tuple
+        The top-left point used for cropping the image (x,y)
+    detections : list
+        A list of lists for the detections in the cropped frame as it is the 
+        output from the detection network. The list has the following
+        shape [top-left point, bottom-right point,probabilty, class id]
+
+    Returns
+    -------
+    list
+        The same detection list as the input but with moving 
+        the coordinates to the original frame of coordinates
+        before cropping.
+    """
+
+    output = []
+    for detection in detections:
+        if detection[2]>config.detect_thresh:
+            output.append( [(p0[0]+detection[0][0],p0[1]+detection[0][1]),
+                            (p0[0]+detection[1][0],p0[1]+detection[1][1]),
+                            detection[2], detection[3]])
+    
+    return output
 

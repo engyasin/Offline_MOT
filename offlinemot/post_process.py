@@ -55,7 +55,7 @@ def tracks_angels(track):
     # track is a list of (x,y)
     angels = []
     #change happen on langer time period than 1 frame (1/30 second)
-    N = 10
+    N = min(10, len(track)-2)
     for i,p1 in enumerate(track[:-1*N]):
         p2 = track[i+N]
         # (y2-y1)/(x2-x1)
@@ -95,7 +95,7 @@ def post_process(obj):
 
     obj.centers = find_cntrs(obj.boxes)
     # smooth
-    if config.do_smooth:
+    if config.do_smooth and len(obj.centers)>=config.window_size:
         obj.centers = savgol_filter(obj.centers,config.window_size,config.polydegree,axis=0)
         #spl = splrep(x, y, s=0.5) #Larger s means more smoothing 
         #y2 = splev(x2, spl)

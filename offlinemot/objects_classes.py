@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from config import config
 
-from utils import test_box
+from utils import check_box
 
 class TrafficObj():
     """
@@ -96,6 +96,10 @@ class TrafficObj():
         Test evey box of the current position whether it moves
         in the horizontal or vertical direction or the closest
         to that and save the current size if so.
+
+    get_detection_format()
+        Get the bounding box in (top-left point, bottom-right) point
+        format and add class_id and dummy probabilty.
 
     """
 
@@ -254,7 +258,7 @@ class TrafficObj():
         if self.track_id>-1:
             cv2.rectangle(new_frame, (x, y), (x + w, y + h), color=color_code, thickness=4)
 
-            cv2.putText(new_frame,str(self.track_id),(x,y),2,3,color_code,thickness=4)
+            cv2.putText(new_frame,str(self.track_id),(x,y),2,3,color_code,thickness=2)
         else:
             # moving obj
             cv2.rectangle(new_frame, (x, y), (x + w, y + h), color=color_code, thickness=4)
@@ -290,8 +294,8 @@ class TrafficObj():
                 sum_traj_state += sum(state)
 
             #if object is still, (detection error) or not much detections
-            if sum_traj_state<(config.min_history+5):
-                # at least five times movement or deletsion
+            if sum_traj_state<(config.min_history+3):
+                # at least three times movement or detection
                 return False,False
             elif all(traj_state):
                 # keep tracking if detected enough
@@ -315,7 +319,7 @@ class TrafficObj():
         ----------
         detections : list
             A list for the detections in the current frame as
-            output from the detection network
+            it is the output from the detection network
         check : bool, optional
             A flag used to add the result as new point or just update
             the last position
@@ -369,7 +373,7 @@ class TrafficObj():
             self.class_ids[obj_item[3]] += (1/(1-obj_item[2]))
             self.last_detect_prob = obj_item[2]
 
-            #self.need_redetect = not(test_box(box,self.img_wh))
+            #self.need_redetect = not(check_box(box,self.img_wh))
 
         return Ok, detections 
 
@@ -381,7 +385,8 @@ class TrafficObj():
         Parameters
         ----------
         bg_objs : list
-            The list of moving object in the current frame
+            The list of moving object in the current frame, as
+            regions class instances of skimage library
 
         Returns
         -------
@@ -471,7 +476,7 @@ class TrafficObj():
         """
         # if the view is bird-view sizes should be fixed
         # box is : x,y,w,h
-        if test_box(new_box,self.img_wh):
+        if check_box(new_box,self.img_wh):
             center = self.find_center()
             new_center = int(new_box[0]+(new_box[2]/2)),int(new_box[1]+(new_box[3]/2))
             d_x,d_y = center[0]-new_center[0],center[1]-new_center[1]
@@ -479,3 +484,13 @@ class TrafficObj():
             # max difference between d_x,d_y is needed, means angels near 0,90,180,270,360
             if abs(d_x-d_y)>self.true_wh_max[1]:
                 self.true_wh_max = new_box[2:],abs(d_x-d_y)
+
+    def get_detection_format(self):
+        """get the bounding box in (top-left point, bottom-right) point
+        format and add class_id and dummy probabilty.
+
+        """
+
+        return [(self.box[0],self.box[1]),
+                (self.box[0]+self.box[2],self.box[1]+self.box[3]),
+                0.5,self.class_id]

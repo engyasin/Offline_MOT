@@ -91,10 +91,10 @@ class BG_substractor():
         fgmask = cv2.erode(fgmask,self.kernel,iterations = 1)
         #fgmask = cv2.filter2D(fgmask,-1,smoothing_kernel)
         #fgmask = cv2.medianBlur(fgmask,5)
-        #fgmask[fgmask<255] = 0
+        if self.shadows:
+            fgmask[fgmask<255] = 0
 
         self.bg = self.fgbg.getBackgroundImage()
-
         return fgmask
 
     def get_big_objects(self,fg_mask,frame):
