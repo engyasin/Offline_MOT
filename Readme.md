@@ -7,7 +7,7 @@ This project is used to extract trajectories as precise as possible for differen
 
 The project needs a pretrained network for detection, which should be trained separately. The network included with this library is Yolov4 in a pytorch format. The loading and running of Yolo model is done with the help of scripts taken from [this project](https://github.com/Tianxiaomo/pytorch-YOLOv4). All of these scripts are in *tool* subfolder.
 
-Example of output for sample video:
+Example output for sample video:
 
 ![Problem loading the gif!](docs/output.gif)
 
@@ -98,8 +98,10 @@ For the previous command you need `pytest` library installed.
 ## Support
 
 If you have any questions or comments, or if you find any bugs, please open an issue in this project. Please feel free
-to fork the project, and create a pull request, if you have any improvements or bug fixes. We welcome all feedback and
-contributions.
+to fork the project, and create a pull request, if you have any improvements or bug fixes. 
+Additionally, the [contribution instruction](CONTRIBUTING.md) has further details.
+
+
 
 --------------------
 ## Citation Info
