@@ -20,7 +20,7 @@ bibliography: paper.bib
 # Summary
 
 The topic of multi-objects tracking is considered an open research topic till now [@MOTChallenge2015].
-But a step for detection first should be performed before doing the tracking, in order to get the class of the object as well as its position needed to be tracked. 
+ 
 Among the many methods available for this problem it is worth mentioning *Deep Sort* [@wojke2017simple], where a detection and tracking should be done in real time and for varying types of scenes and areas (for example on pedestrians movement). 
 
 The importance of the problem comes from the many applications that can benefit from addressing it. For example, self-driving cars software, traffic analysis, animals’ movement analysis, or general surveillance applications.  
