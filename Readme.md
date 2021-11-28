@@ -99,7 +99,7 @@ For the previous command you need `pytest` library installed.
 
 If you have any questions or comments, or if you find any bugs, please open an issue in this project. Please feel free
 to fork the project, and create a pull request, if you have any improvements or bug fixes. 
-Additionally, the [contribution instruction](CONTRIBUTING.md) has further details.
+Additionally, the [contribution instructions](CONTRIBUTING.md) has further details.
 
 
 

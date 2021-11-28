@@ -325,7 +325,7 @@ def main(args):
                 frame = obj.draw(frame)
             #for b in new_boxes:
             #   frame[b[1]:b[1]+b[3],b[0]:b[0]+b[2]] = 0 
-            cv2.imshow('fgmask', resize(frame,0.2)) 
+            cv2.imshow('fgmask', resize(frame,config.resize_scale)) 
             k = cv2.waitKey(10) & 0xff
             #prv_regions = []
             if k == 27: 

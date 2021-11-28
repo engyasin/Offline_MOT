@@ -1,129 +1,96 @@
 ---
-title: 'CellPyLib: A Python Library for working with Cellular Automata'
+title: 'OfflineMOT: A Python Package for multiple objects detection and tracking from bird view stationary drone videos'
 tags:
   - Python
-  - Cellular Automata
-  - complex systems
-  - non-linear dynamics
-  - discrete dynamical systems
+  - Multiple objects tracking
+  - Traffic trajectories
+  - Objects detection
+  - Drone video analysis
 authors:
-  - name: Luis M. Antunes
-    orcid: 0000-0002-4867-5635
+  - name: Yasin Maan Yousif
+    orcid: 0000-0002-5282-7259
     affiliation: 1
 affiliations:
- - name: Department of Chemistry, University of Reading, Whiteknights, Reading RG6 6DX, United Kingdom
+ - name: Technische Universität Clausthal, Clausthal-Zellerfeld, Germany.
    index: 1
-date: 28 July 2021
+date: 28 November 2021
 bibliography: paper.bib
 ---
 
 # Summary
 
-Cellular Automata (CA) are discrete dynamical systems with a rich history [@ilachinski2001cellular]. Introduced by John 
-von Neumann and Stanislaw Ulam in the 1940s [@von1951general], CA have continued to fascinate, as their conceptual 
-simplicity serves as a powerful microscope that allows us to explore the nature of computation and complexity, and the 
-origins of emergence. Far from being an antiquated computational model, investigators are utilizing CA in novel and 
-creative ways, such as the incorporation with Deep Learning [@nichele2017deep; @mordvintsev2020growing]. Popularized 
-and investigated by Stephen Wolfram in his book *A New Kind of Science* [@wolfram2002new], CA remain premier reminders 
-of a common theme in the study of the physical world: that simple systems and rules can give rise to remarkable 
-complexity. They are a laboratory for the study of the origins of the complexity we see in the world around us.
+The topic of multi-objects tracking is considered an open research topic till now [@MOTChallenge2015].
+But a step for detection first should be performed before doing the tracking, in order to get the class of the object as well as its position needed to be tracked. 
+Among the many methods available for this problem it is worth mentioning *Deep Sort* [@wojke2017simple], where a detection and tracking should be done in real time and for varying types of scenes and areas (for example on pedestrians movement). 
 
-`CellPyLib` is a Python library for working with CA. It provides a concise and simple interface for defining and 
-analyzing 1- and 2-dimensional CA. The CA can consist of discrete or continuous states. Neighbourhood radii are 
-adjustable, and in the 2-dimensional case, both Moore and von Neumann neighbourhoods are supported. With `CellPyLib`, it 
-is trivial to create Elementary CA, and CA with totalistic rules, as these rules are provided as part of the library. 
-Additionally, the library provides a means for creating asynchronous and reversible CA. Finally, an implementation 
-of C. G. Langton's approach for creating CA rules using the lambda value is provided, allowing for the exploration of 
-complex systems, phase transitions and emergent computation [@langton1990computation].
+The importance of the problem comes from the many applications that can benefit from addressing it. For example, self-driving cars software, traffic analysis, animals’ movement analysis, or general surveillance applications.  
+Unfortunately, due to the variety of scenes and contexts and the time constrains that are needed for the applications (for example, real-time performance condition), there is no one general solution that is able to work reasonably for all the cases.
 
-Utility functions for plotting and viewing the evolved CA are also provided. These tools make it easy to visualize the
-results of CA evolution, and include the option of creating animations of the evolution itself. Moreover, utility 
-functions for computing the information-theoretic properties of CA, such as the Shannon entropy and mutual information, 
-are included.
+Therefore, the work here tries to provide a solution to a more restricted problem, namely bird’s eye stationary view with no real-time performance. `OfflineMOT` is a package that does mainly apply three techniques for detection and tracking, on three different priority levels.
+
+First level is background subtraction. It is a fast method to find what pixels have changed in the image, and this is plausable because of the stationary condition. Otherwise, if the drone is moving freely, then the background will be much harder to learn and this cannot be applied. 
+One problem to mention here is the subtle movement of the drone due to wind and noise, etc. To solve this, a program to fix the view is introduced. Its idea depends on matching the first background features with every next frame, and then transforming the frame if big movement is detected.
+
+Second level is multi-objects tracking methods such as *kernelized correlation filters* (KCF) [@henriques2014high]. This method takes the output of the detection and the next frame to find where the objects will be. It can also return the failure or success states in tracking.
+
+Third level is the normal deep learning-based detection and classification of the objects. Here *Yolo-v4* [@yolov4] is used as a model structure of which training is done separately and not covered in the code. Additionally, the used code to implements Yolo structure and to load it is taken from this project [@Tianxiaomo] 
+
+Finally, all these parts are implemented separately in the code, making it easy to use or disable some or parts of them, with many tunable parameters. This is done in purpose in order to facilitate the running of the code on any new video with different settings by only changing a few parameters.
+
 
 # Statement of need
 
-The Python software ecosystem is lacking when it comes to Cellular Automata. A web search reveals that while there are 
-some projects dedicated to the simulation of CA, most are not general-purpose, focusing only on certain CA systems, and 
-are generally missing a substantial test suite, hindering their future extensibility and maintainability. In short, 
-there appears to be a dearth of robust and flexible libraries for working with CA in Python. 
+The specific case for extracting trajectories of traffic videos (for pedestrians, cyclists and vehicles) lacks targeted solution and open source projects in the literature. 
+Therefore, the development of this package is directed towards helping researchers in the field of traffic analysis or other fields where trajectories of moving objects are needed to get these trajectories and focus their research on the main task at hand. 
 
-Currently, many scientists choose Python as their main tool for computational tasks. Though researchers can choose to 
-implement CA themselves, this is error-prone, as there are some subtleties when it comes to correctly handling issues 
-such as boundary conditions on periodic lattices, or constructing von Neumann neighbourhoods with radius greater than 1, 
-for example. Researchers may be dissuaded from incorporating CA into their research if they are forced to work with 
-unfamiliar languages and technologies, or are required to devote considerable effort to the implementation and testing 
-of non-trivial algorithms. The availability of a user-friendly Python library for CA will likely encourage more 
-researchers to consider these fascinating dynamical and computational systems. Moreover, having a standard 
-implementation of CA in the Python environment helps to ensure that scientific results are reproducible. CellPyLib is a 
-Python library aimed to meet this need, which supports the creation and analysis of models that exist on a regular 
-array or uniform grid, such as elementary CA, and 2D CA with Moore or von Neumann neighbourhoods.
+This project was used to extract the trajectories of a datasets about the cyclists’ behavior in TU Clausthal successfully. The dataset itself will be published later publicly.
 
-Researchers and students alike should find CellPyLib useful. Students and instructors can use CellPyLib in an 
-educational context if they would like to learn about elementary CA and 2D CA on a uniform grid. Researchers in both the 
-computer and physical sciences can use CellPyLib to answer serious questions about the computational and natural worlds. 
-For example, the Abelian sandpile model included in the library can be used as part of a university course on complex 
-systems to demonstrate the phenomenon of self-organized criticality. The same model may be used by professional 
-physicists wishing to explore self-organized criticality more deeply. 
-
-While CellPyLib is expected to be of interest to students, educators, and researchers, there are certain scenarios in 
-which alternate tools would be more appropriate. For example, if a researcher would like to evolve CA with a very large
-number of cells, or for very many iterations, in a timely fashion, then an implementation that is optimized for the 
-specific model in question would be more appropriate. Also, if the model is not constrained to a uniform grid, then
-other solutions should be sought.
 
 # Example Usage
 
-`CellPyLib` can be readily installed using `pip`:
+This package can be installed simply by cloning the GitHub repository.
+Additionally, a few requirements should be installed as well. This can be done by running the following command inside the main directory:
 
 ```
-$ pip install cellpylib
+$ pip install -r requirements.txt
+```
+The main libraries which are used includes, *OpenCV* [@opencv_library], *Numpy* [@harris2020array], *scikit-image* [@van2014scikit] , and *pytorch* [@NEURIPS2019_9015].
+The main functionality of the package can be tested using any video or the demo video by running the following command inside the main directory:
+
+```
+$ python main.py -v docs\sample.mp4
 ```
 
-It has minimal dependencies, depending only on the commonly used libraries NumPy [@harris2020array] and Matplotlib 
-[@Hunter:2007].
+The `-v` flag is used here to set the directory of the input video. The example above is for a demo video inside the repository. 
 
-The following example illustrates the evolution of the Rule 30 CA, described in `A New Kind of Science` 
-[@wolfram2002new], as implemented with `CellPyLib`:
+The results will show a window of the real tracking status which is useful for debugging. Keep in mind that this is not the final results of tracking. 
+After the end of the tracking a text file with the same name as the video will appear in the `outputs` folder. 
 
-```python
-import cellpylib as cpl
+For example, for the previous command the following content is shown in the first line inside `sample.txt`:
 
-cellular_automaton = cpl.init_simple(200)
+` 39 || [3748, 964, 169, 73] || 2 || 5 || -137`
 
-rule = lambda n, c, t: cpl.nks_rule(n, 30)
+This means that in frame number 39, there is a box of dimensions [169,73] and with top-left point [3748,964] that is classified as 2 (cyclist) and numbered with id 5 and his orientation angel is -137 degree.
 
-cellular_automaton = cpl.evolve(cellular_automaton, timesteps=100, 
-                                apply_rule=rule)
+In order to view the final result, the same processing command can be run but with changing the name of the script only as follows:
+
 ```
+$ python show_results.py -v docs\sample.mp4
+``` 
 
-First, the initial conditions are instantiated using the function `init_simple`, which, in this example, creates a 
-200-dimensional vector consisting of zeroes, except for the component in the center of the vector, which is initialized
-with a value of 1. Next, the system is subjected to evolution by calling the `evolve` function. The system evolves under 
-the rule specified through the `apply_rule` parameter. Any function that accepts the three arguments `n`, `c` and `t` 
-can be supplied as a rule, but in this case the built-in function `nks_rule` is invoked to provide Rule 30. The CA is 
-evolved for 100 `timesteps`, or 100 applications of the rule to the initial and subsequent conditions.
+This will show the final result overlaid on the video with customized size. 
 
-During each timestep, the function supplied to `apply_rule` is invoked for each cell. The `n` argument refers to the 
-neighbourhood of the current cell, and consists of an array (in the 1-dimensional CA case) of the activities (i.e. 
-states) of the cells comprising the current cell's neighbourhood (an array with length 3, in the case of a 1-dimensional 
-CA with radius of 1). The `c` argument refers to index of the cell under consideration. It serves as a label identifying 
-the current cell. The `t` argument is an integer specifying the current timestep.
-
-Finally, to visualize the results, the `plot` function can be utilized:
-
-```python
-cpl.plot(cellular_automaton)
-```
-
-![Rule 30, as rendered with CellPyLib.\label{fig:rule30}](rule30.png){ width=60% }
-
-The result is rendered, as depicted in \autoref{fig:rule30}.
+Further documentations and information about the running are available in the `docs` folder in the format of Jupyter notebooks.
 
 # Scope
 
-While `CellPyLib` is a general-purpose library that allows for the implementation of a wide variety of CA, it is 
-important to note that CA constitute a very broad class of models. `CellPyLib` focuses on those that are constrained to 
-a regular array or uniform grid, such as elementary CA, and 2D CA with Moore or von Neumann neighbourhoods.
+The scope of the problems that this package can deal with is defined by fulfilling the following conditions:
+
+1.	*Stationary videos*
+2.	*Offline processing*
+3.	*Bird’s eye view*
+4.	*Pretrained detection model availability*
+
+Regarding the last point, the model provided with the package is trained on random images of cyclists, cars and pedestrians from bird’s eye view. This can be enough if the problem is the same, i.e. tracking traffic entities. Otherwise it could be a good starting point for training if the videos include similar objects and Yolo v4 is used as a model structure.
 
 # References

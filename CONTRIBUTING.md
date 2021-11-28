@@ -25,9 +25,8 @@ interpolation)
 How to contribute
 -----------------
 
-OfflineMOT welcomes contributions! To get started, pick up any issue
-labeled with `good first issue`! Alternatively you can read some
-documentation material or try browsing through the code.
+New contributions are welcome!  You can as well read some
+documentation material first or try browsing through the code.
 
 Testing and code quality
 ------------------------

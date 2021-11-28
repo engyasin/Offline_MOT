@@ -16,6 +16,9 @@ class config:
         video. 
     use_cuda : boolean
         Whether to perform detection on GPU or CPU 
+    resize_scale: float
+        The resizing scale of the image to show while processing.
+        1 means the same as the true size
     bgs_history : int
         The number of frames needed for background substractor
         before esitimating the background 
@@ -86,6 +89,7 @@ class config:
     draw = True
     detect_every_N = 3
     use_cuda = False
+    resize_scale = 0.2
 
     ### background substractor parameters
     bgs_history = 3

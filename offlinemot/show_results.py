@@ -16,6 +16,7 @@ import numpy as np
 import cv2
 
 import argparse
+from offlinemot.config import config
 from utils import read_tracks, resize
 
 # read video from args
@@ -65,7 +66,7 @@ def main(args):
 
             #cv2.rectangle(frame,(box[0],box[1]),(box[0]+box[2],box[1]+box[3]),color=color_map[class_id-1],thickness=4)
             cv2.putText(frame,str(track_id),(box[0],box[1]),2,3,color=color_map[class_id-1],thickness=4)
-        cv2.imshow('fgmask', resize(frame,0.3)) 
+        cv2.imshow('fgmask', resize(frame,config.resize_scale)) 
         k = cv2.waitKey(30) & 0xff
         #prv_regions = []
         if k == 27: 
