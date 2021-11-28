@@ -20,8 +20,7 @@ bibliography: paper.bib
 # Summary
 
 The topic of multi-objects tracking is considered an open research topic till now [@MOTChallenge2015].
- 
-Among the many methods available for this problem it is worth mentioning *Deep Sort* [@wojke2017simple], where a detection and tracking should be done in real time and for varying types of scenes and areas (for example on pedestrians movement). 
+Among the many methods available for this problem it is worth mentioning *Deep Sort* [@wojke2017simple], where a detection and tracking steps should be done in real time and for varying types of scenes and areas (for example on pedestrians movement). 
 
 The importance of the problem comes from the many applications that can benefit from addressing it. For example, self-driving cars software, traffic analysis, animals’ movement analysis, or general surveillance applications.  
 Unfortunately, due to the variety of scenes and contexts and the time constrains that are needed for the applications (for example, real-time performance condition), there is no one general solution that is able to work reasonably for all the cases.
@@ -61,7 +60,7 @@ The main functionality of the package can be tested using any video or the demo 
 $ python main.py -v docs\sample.mp4
 ```
 
-The `-v` flag is used here to set the directory of the input video. The example above is for a demo video inside the repository. 
+The `-v` flag is used here to set the directory of the input video. The example above is for a demo video inside the repository, taken from [@yang2019top]. 
 
 The results will show a window of the real tracking status which is useful for debugging. Keep in mind that this is not the final results of tracking. 
 After the end of the tracking a text file with the same name as the video will appear in the `outputs` folder. 

@@ -87,18 +87,18 @@ class config:
 
     ### general paprmters
     draw = True
-    detect_every_N = 3
+    detect_every_N = 4
     use_cuda = False
-    resize_scale = 0.2
+    resize_scale = 0.4
 
     ### background substractor parameters
     bgs_history = 3
     bgs_threshold = 100
     bgs_shadows = False
     bgs_learning = 0.5
-    bgs_erosion_size = 5
-    bgs_min_area = 700
-    bgs_broder_margin =  0.3    # bigger would give boxes near the detected boxes with yolo
+    bgs_erosion_size = 3
+    bgs_min_area = 500
+    bgs_broder_margin =  0.4    # bigger would give boxes near the detected boxes with yolo
 
 
     ### fix view paramers
@@ -111,16 +111,16 @@ class config:
     model_name = 'model/Yolov4_epoch300.pth'
     model_config = 'model/yolov4-obj.cfg'
     classes_file_name = 'model/obj.names'
-    detect_thresh = 0.35 #Yolo detection
+    detect_thresh = 0.2 #Yolo detection
     # distance to the nearst match between detection and tracking
     # output in pixels
-    dist_thresh = 40 
+    dist_thresh = 50 
     detect_scale = 2.5
 
 
     ### Filtering Objects:
-    min_history = 50
-    overlap_thresh = 0.60
+    min_history = 100
+    overlap_thresh = 0.80
 
 
     ### Smoothing for post processing

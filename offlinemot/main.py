@@ -209,7 +209,7 @@ def main(args):
             if not(obj.tracking_state[-1]):# and obj.track_id!=-1:
                 # failed tracking
                 if not(done_detect):
-                    detections,_ = detector.better_detection(frame,additional_objs=candidates_objs+objects)
+                    detections,_ = detector.detect(frame)#,additional_objs=candidates_objs+objects)
                     done_detect = True
                 ok,detections = obj.filter_by_detections_dist(detections)
                 obj.set_detection(ok)

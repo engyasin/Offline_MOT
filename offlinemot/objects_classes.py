@@ -295,7 +295,7 @@ class TrafficObj():
 
             #if object is still, (detection error) or not much detections
             if sum_traj_state<(config.min_history+3):
-                # at least three times movement or detection
+                # at least three time movement or detection
                 return False,False
             elif all(traj_state):
                 # keep tracking if detected enough
