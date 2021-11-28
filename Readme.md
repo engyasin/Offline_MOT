@@ -73,14 +73,13 @@ All these three steps are done for every object and the result is recorded for e
 
 There are a few jupyter notebook showcases for the different tracking and detection handling programs, and an additional working example for how to run and set the different parameters, Namely:
 
-1. Background substraction example [here](./docs/Background_Subtraction_Example)
+1. Background substraction example [here](./docs/Background_Subtraction_Example.ipynb)
 
-2. Tracking example [here](./docs/Tracking_Example)
+2. Tracking example [here](./docs/Tracking_Example.ipynb)
 
-3. Fixing the view example [here](./docs/Fixing_the_view)
+3. Fixing the view example [here](./docs/Fixing_the_view.ipynb)
 
 4. A general working example [here](./docs/A_Working_Example.ipynb)
-
 
 --------------------
 
