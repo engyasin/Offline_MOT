@@ -178,7 +178,7 @@ class YoloDetector():
             new_detections, _ = self.detect(cropped_img)
             p0 = (x,y)
             detections.extend(transform_detection(p0,new_detections))
-        return results_+detections,(w,h)
+        return detections,(w,h)
         # calculate the final detection and return it
 
 

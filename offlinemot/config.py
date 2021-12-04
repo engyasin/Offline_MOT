@@ -14,6 +14,9 @@ class config:
     detect_every_N : int
         The frequency of the detection with Yolov4 network in the
         video. 
+    missing_thresh : float
+        Maximum percentage of correct tracking and detection for any
+        object to continue tracking it
     use_cuda : boolean
         Whether to perform detection on GPU or CPU 
     resize_scale: float
@@ -87,18 +90,19 @@ class config:
 
     ### general paprmters
     draw = True
-    detect_every_N = 4
+    detect_every_N = 5
+    missing_thresh = 0.7
     use_cuda = False
     resize_scale = 0.4
 
     ### background substractor parameters
     bgs_history = 3
     bgs_threshold = 100
-    bgs_shadows = False
+    bgs_shadows = True
     bgs_learning = 0.5
     bgs_erosion_size = 3
-    bgs_min_area = 500
-    bgs_broder_margin =  0.4    # bigger would give boxes near the detected boxes with yolo
+    bgs_min_area = 300
+    bgs_broder_margin =  0.3    # bigger would give boxes near the detected boxes with yolo
 
 
     ### fix view paramers
@@ -111,16 +115,16 @@ class config:
     model_name = 'model/Yolov4_epoch300.pth'
     model_config = 'model/yolov4-obj.cfg'
     classes_file_name = 'model/obj.names'
-    detect_thresh = 0.2 #Yolo detection
+    detect_thresh = 0.3 #Yolo detection
     # distance to the nearst match between detection and tracking
     # output in pixels
     dist_thresh = 50 
-    detect_scale = 2.5
+    detect_scale = 3.0
 
 
     ### Filtering Objects:
     min_history = 100
-    overlap_thresh = 0.80
+    overlap_thresh = 0.50
 
 
     ### Smoothing for post processing

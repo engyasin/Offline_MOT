@@ -66,6 +66,29 @@ def tracks_angels(track):
     angels.extend([angels[-1]]*N)
     return angels
 
+def repair_traj(obj):
+    j,i = 0,0
+    new_centers = []
+    while i<len(obj.trust_level) and j<len(obj.centers):
+        if any(obj.trust_level[i]):
+            new_centers.append(obj.centers[j])
+            j += 1
+            i += 1
+            continue
+        else:
+            c = 0
+            for state2 in obj.trust_level[i:]:
+                if any(state2):
+                    break
+                else:
+                    c+=1
+            dx = (obj.centers[j][0]-obj.centers[j-1][0])/(c+1)
+            dy = (obj.centers[j][1]-obj.centers[j-1][1])/(c+1)
+            i += c
+            for x in range(c):
+                new_centers.append((obj.centers[j-1][0]+dx*x,obj.centers[j-1][1]+dy*x))
+    return new_centers
+
 def post_process(obj):
     """perform post processing steps on the tracking data.
 
@@ -94,6 +117,7 @@ def post_process(obj):
     """
 
     obj.centers = find_cntrs(obj.boxes)
+    obj.centers = repair_traj(obj)
     # smooth
     if config.do_smooth and len(obj.centers)>=config.window_size:
         obj.centers = savgol_filter(obj.centers,config.window_size,config.polydegree,axis=0)
@@ -103,8 +127,9 @@ def post_process(obj):
         
     # change boxes
     w,h = obj.true_wh_max[0][0],obj.true_wh_max[0][1]
+    obj.boxes = []
     for i,cntr in enumerate(obj.centers):
-        obj.boxes[i] = [int(cntr[0]-(w/2)),int(cntr[1]-(h/2)),w,h]
+        obj.boxes.append([int(cntr[0]-(w/2)),int(cntr[1]-(h/2)),w,h])
     # find angels
     obj.angels  = tracks_angels(obj.centers)
     return obj

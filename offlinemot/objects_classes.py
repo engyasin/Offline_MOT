@@ -25,7 +25,7 @@ class TrafficObj():
     tracking_state : list
         the list of the tracking success variable
     time_steps : list
-        list of frames where object are detected or tracked successfully.
+        list of frames where object is tested for detection or tracking.
     trust_level : list
         list of three values rows where each value refer to a boolean,
         indicating the sucess of detection, tracking and background
@@ -284,9 +284,9 @@ class TrafficObj():
 
         if not(under_prosses):
             # min detection
-            if self.class_id == -1:
+            #if self.class_id == -1:
                 # after some history and still no detection --> delete
-                return False,False
+            #    return False,False
 
             traj_state,sum_traj_state = [] , 0
             for state in self.trust_level:
@@ -296,16 +296,19 @@ class TrafficObj():
             #if object is still, (detection error) or not much detections
             if sum_traj_state<(config.min_history+3):
                 # at least three time movement or detection
+                print('Object ',self.track_id,' deleted because of missing matching steps')
                 return False,False
             elif all(traj_state):
                 # keep tracking if detected enough
                 return True,False
-            elif all(traj_state[:config.min_history]):
-                # error last, save rest
+            elif (sum(traj_state)/len(traj_state))<config.missing_thresh:
+                #delete
+                print('Object ',self.track_id,' deleted because of low detection rate')
+                print(sum(traj_state),len(traj_state))
                 return False,True
-            else:
+            #else:
                 # error in first steps , delete all
-                return False,False
+            #    return False,False
                 #save only history true longer than n_history
         return True, False
         ##Return: Track, Save
@@ -322,7 +325,7 @@ class TrafficObj():
             it is the output from the detection network
         check : bool, optional
             A flag used to add the result as new point or just update
-            the last position
+            the last position (default False)
 
         Returns
         -------
@@ -344,6 +347,8 @@ class TrafficObj():
             dist = np.linalg.norm(((obj_item[0][0]+obj_item[1][0])//2 - obj_cntr[0],
                                     (obj_item[0][1]+obj_item[1][1])//2 - obj_cntr[1]))
 
+            dist+= np.linalg.norm(((obj_item[1][0]-obj_item[0][0]) - self.box[2],
+                                   (obj_item[1][1]-obj_item[0][1]) - self.box[3]))
             #if (obj_item[3] not in self.class_ids) and (self.class_id != -1):
             #    if dist < config.dist_thresh: self.class_ids.append(obj_item[3])
             #    detections_dists.append(1e9)
@@ -352,7 +357,7 @@ class TrafficObj():
             detections_dists.append(dist)
 
         detections_dists.append(1e9)
-        Ok = min(detections_dists) < config.dist_thresh
+        Ok = min(detections_dists) < (config.dist_thresh * [1.0,1.5][self.class_id==-1])
         #if self.track_id == 4:
         #    print(detections_dists)
         #    print([ob[2] for ob in detections])
@@ -408,6 +413,10 @@ class TrafficObj():
 
             dist = np.linalg.norm((obj_item.centroid[1] - obj_cntr[0],
                                    obj_item.centroid[0] - obj_cntr[1]))
+
+            dist+= np.linalg.norm(((obj_item.bbox[3]-obj_item.bbox[1]) - self.box[2],
+                                   (obj_item.bbox[2]-obj_item.bbox[0]) - self.box[3]))
+
             detections_dists.append(dist)
 
         Ok = False

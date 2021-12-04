@@ -57,12 +57,17 @@ def save_tracks(tracks_objs,filename):
     filename = filename.split('\\')[-1].split('.')[-2]#[-5:]
     f = open('outputs\\'+filename+'.txt',mode='w+')
     for obj in tracks_objs:
+        class_ = max(obj.class_ids,key=lambda x:obj.class_ids[x])
+        #T = np.array(sorted(obj.centers,key=lambda x: x[0]))
+        #x,y = T.T[0],T.T[1]
+        #spl = splrep(x, y, s=0.2) #Larger s means more smoothing 
+        #print(spl)
+        w,h = obj.true_wh_max[0][0],obj.true_wh_max[0][1]
         for i,frame_id in enumerate(obj.time_steps):
+
             # not taking the last step if it's wrong
-            if not(any(obj.trust_level[i])):
-                # all zeros
+            if i>= len(obj.boxes):
                 break
-            class_ = max(obj.class_ids,key=lambda x:obj.class_ids[x])
             # TODO i case class is a miss, maybe flag it with -1 sign
             f.write(' '.join(
                 [str(frame_id),str(obj.boxes[i]),str(class_),str(obj.track_id),str(int(obj.angels[i]))])+'\n')

@@ -90,6 +90,29 @@ def bgObjs_to_objs(bgObjs,frame,frame_id):
             output.append(new_obj)
     return output
 
+
+def detections_to_objects(detections,frame):
+    output = []
+    Track_id = 0
+    img_wh = frame.shape[:-1]
+    for obj_item in detections:
+        if obj_item[2]>config.detect_thresh:
+            box = [obj_item[0][0], obj_item[0][1], obj_item[1][0]-obj_item[0][0],obj_item[1][1]-obj_item[0][1]]
+
+            ##### NOTE added
+            #np_box = np.array(box)
+            #box = abs(np_box*(np_box>0)).tolist()
+            ######
+            #print(box)
+            if check_box(box,img_wh): 
+                # if within the image
+                #print('taken')
+                output.append(TrafficObj(frame,0,box,Track_id,class_id=obj_item[3],detection_way=1,detect_prob=obj_item[2]))
+                Track_id += 1
+        #print('+++++++ ',obj_item)
+
+    return output 
+
 def FirstFrame(frame):
     """initilize the detector and return the objects in the first frame
     if they fall within the image borders
@@ -115,23 +138,8 @@ def FirstFrame(frame):
     results,img_wh = detector.better_detection(frame)
     # create objects based on detections
     # results : (p1,p2,prob,class_id)
-    output = []
-    Track_id = 0
-    for obj_item in results:
-        if obj_item[2]>config.detect_thresh:
-            box = [obj_item[0][0], obj_item[0][1], obj_item[1][0]-obj_item[0][0],obj_item[1][1]-obj_item[0][1]]
+    output = detections_to_objects(results,frame)
 
-            ##### NOTE added
-            #np_box = np.array(box)
-            #box = abs(np_box*(np_box>0)).tolist()
-            ######
-            #print(box)
-            if check_box(box,img_wh): 
-                # if within the image
-                #print('taken')
-                output.append(TrafficObj(frame,0,box,Track_id,class_id=obj_item[3],detection_way=1,detect_prob=obj_item[2]))
-                Track_id += 1
-        #print('+++++++ ',obj_item)
 
     return output, detector
 
@@ -155,6 +163,7 @@ def main(args):
     # good tracks
     saved_tracks = []
     candidates_objs = []
+    deleted_tracks = []
 
     # run first frame logic
     objects,detector = FirstFrame(frame)
@@ -209,7 +218,14 @@ def main(args):
             if not(obj.tracking_state[-1]):# and obj.track_id!=-1:
                 # failed tracking
                 if not(done_detect):
-                    detections,_ = detector.detect(frame)#,additional_objs=candidates_objs+objects)
+                    detections,_ = detector.better_detection(frame,additional_objs=candidates_objs+objects)
+                    #detected_objs = detections_to_objects(detections,frame)
+                    #while True:
+                    #    to_remove = detect_overlaping(detected_objs,overlap_thresh=config.overlap_thresh)
+                    #    if to_remove == -1:
+                    #        break
+                    #    _ = detected_objs.pop(to_remove)
+                    #detections = [obj_.get_detection_format() for obj_ in detected_objs]
                     done_detect = True
                 ok,detections = obj.filter_by_detections_dist(detections)
                 obj.set_detection(ok)
@@ -218,7 +234,7 @@ def main(args):
                     obj.tracking_state[-1] = True
                     if obj.track_id == -1:
                         # candidate
-                        obj.set_track_id(max([x.track_id for x in objects+saved_tracks]+[0])+1)
+                        obj.set_track_id(max([x.track_id for x in objects+saved_tracks+deleted_tracks]+[-1])+1)
                         objects.append(obj)
                         print('Creating new objects **** ')
                 else: 
@@ -228,6 +244,9 @@ def main(args):
             # check tracking with background substraction
             ok_bg,new_bg_objects = obj.filter_by_bg_objs(new_bg_objects)
             obj.set_bg_substract(ok_bg)
+            if ok_bg and not(obj.tracking_state[-1]):
+                obj.re_init_tracker(frame)
+                obj.tracking_state[-1] = True
 
             br_w,br_h = int(obj.box[2]*br),int(obj.box[3]*br)
             curr_fg[obj.box[1]+br_h:obj.box[1]+obj.box[3]-br_h,obj.box[0]+br_w:obj.box[0]+obj.box[2]-br_w] = 1
@@ -252,7 +271,14 @@ def main(args):
             #if not(done_detect):
                 
             detections, _ = detector.better_detection(frame,additional_objs=candidates_objs+objects)
-
+            ## filter repeatative detections
+            #detected_objs = detections_to_objects(detections,frame)
+            #while True:
+            #    to_remove = detect_overlaping(detected_objs,overlap_thresh=config.overlap_thresh)
+            #    if to_remove == -1:
+            #        break
+            #    _ = detected_objs.pop(to_remove)
+            #detections = [obj_.get_detection_format() for obj_ in detected_objs]
             # filter bad objects after detection
             #new_objects = []
             for obj in objects:
@@ -287,7 +313,7 @@ def main(args):
                 bg_obj.set_detection(ok)
                 if ok:
                     bg_obj.re_init_tracker(frame)
-                    bg_obj.set_track_id(max([x.track_id for x in objects+saved_tracks]+[0])+1)
+                    bg_obj.set_track_id(max([x.track_id for x in objects+saved_tracks+deleted_tracks]+[-1])+1)
                     print('Creating new objects **** ')
                     objects.append(bg_obj)
 
@@ -309,6 +335,8 @@ def main(args):
             elif Save:
                 saved_tracks.append(obj)
             else:
+                print('Object {} is deleted because of not enough detections'.format(obj.track_id))
+                deleted_tracks.append(obj)
                 # delete
                 continue
 
@@ -318,7 +346,19 @@ def main(args):
             to_remove = detect_overlaping(objects,overlap_thresh=config.overlap_thresh)
             if to_remove == -1:
                 break
-            _ = objects.pop(to_remove)
+
+            if (np.array(objects[to_remove].trust_level).sum()>(config.min_history+5)) and \
+                objects[to_remove].tracking_state[-1]:
+                # true object?
+                # return it to its last ok state.
+                objects[to_remove].box = objects[to_remove].boxes[-2]
+                objects[to_remove].boxes[-1] = objects[to_remove].boxes[-2]
+                objects[to_remove].tracking_state[-1] = False
+            
+                continue
+
+            print('Object {} is deleted because of overlaping'.format(objects[to_remove].track_id))
+            deleted_tracks.append(objects.pop(to_remove))
 
         if config.draw:
             for obj in objects+candidates_objs:
@@ -342,7 +382,9 @@ def main(args):
         #ok,detections = obj.filter_by_detections(detections)
         #if ok or obj.good_enough():
         #    saved_tracks.append(obj)
-
+    for obj in deleted_tracks:
+        if np.array(obj.trust_level).sum()>(config.min_history+10):
+            saved_tracks.append(obj)
     cv2.destroyAllWindows()
     v_obj.release()
     del Fix_obj
