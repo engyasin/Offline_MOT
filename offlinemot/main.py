@@ -187,7 +187,7 @@ def main(args):
         print('Frame: %s'%frame_id,'Time: %s ,'%(frame_id/30))
         ## stabilize frame by frame
         if config.do_fix: 
-            frame, = Fix_obj.fix_view(frame,fgmask=foreground)
+            frame = Fix_obj.fix_view(frame,fgmask=foreground)
 
         ## bg substract
         foreground = BG_s.bg_substract(frame)
@@ -198,6 +198,7 @@ def main(args):
         candidates_objs = track_objs(frame,frame_id,candidates_objs)
 
         ## add new from BG
+        #print(frame.shape)
         foreground , new_bg_objects = BG_s.get_big_objects(foreground,frame)
 
 
@@ -332,7 +333,7 @@ def main(args):
                     new_candidates_objs.append(obj)
                 else:
                     new_objs.append(obj)
-            elif Save:
+            elif Save and obj.class_id != -1:
                 saved_tracks.append(obj)
             else:
                 print('Object {} is deleted because of not enough detections'.format(obj.track_id))
@@ -382,9 +383,12 @@ def main(args):
         #ok,detections = obj.filter_by_detections(detections)
         #if ok or obj.good_enough():
         #    saved_tracks.append(obj)
-    for obj in deleted_tracks:
-        if np.array(obj.trust_level).sum()>(config.min_history+10):
-            saved_tracks.append(obj)
+    #for obj in deleted_tracks:
+    #    _,Save = obj.update()
+    #    if Save:
+    #        saved_tracks.append(obj)
+        #if np.array(obj.trust_level).sum()>(config.min_history+10) and min(obj.track_id,obj.class_id) !=-1:
+        #    saved_tracks.append(obj)
     cv2.destroyAllWindows()
     v_obj.release()
     del Fix_obj

@@ -90,19 +90,19 @@ class config:
 
     ### general paprmters
     draw = True
-    detect_every_N = 5
+    detect_every_N = 1
     missing_thresh = 0.7
     use_cuda = False
     resize_scale = 0.4
 
     ### background substractor parameters
-    bgs_history = 3
-    bgs_threshold = 100
+    bgs_history = 8
+    bgs_threshold = 40
     bgs_shadows = True
     bgs_learning = 0.5
     bgs_erosion_size = 3
-    bgs_min_area = 300
-    bgs_broder_margin =  0.3    # bigger would give boxes near the detected boxes with yolo
+    bgs_min_area = 250
+    bgs_broder_margin =  0.35    # bigger would give boxes near the detected boxes with yolo
 
 
     ### fix view paramers
@@ -118,13 +118,14 @@ class config:
     detect_thresh = 0.3 #Yolo detection
     # distance to the nearst match between detection and tracking
     # output in pixels
-    dist_thresh = 50 
+    dist_thresh = 55 
+    size_thresh = 25
     detect_scale = 3.0
 
 
     ### Filtering Objects:
     min_history = 100
-    overlap_thresh = 0.50
+    overlap_thresh = 0.5
 
 
     ### Smoothing for post processing

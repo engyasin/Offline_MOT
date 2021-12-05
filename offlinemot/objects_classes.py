@@ -337,17 +337,19 @@ class TrafficObj():
         """
         obj_cntr = self.find_center()
         detections_dists = []
+        detections_size = []
 
         for obj_item in detections:
 
             if obj_item[2]<config.detect_thresh:
                 detections_dists.append(1e9)
+                detections_size.append(1e9)
                 continue
 
             dist = np.linalg.norm(((obj_item[0][0]+obj_item[1][0])//2 - obj_cntr[0],
                                     (obj_item[0][1]+obj_item[1][1])//2 - obj_cntr[1]))
 
-            dist+= np.linalg.norm(((obj_item[1][0]-obj_item[0][0]) - self.box[2],
+            size_ = np.linalg.norm(((obj_item[1][0]-obj_item[0][0]) - self.box[2],
                                    (obj_item[1][1]-obj_item[0][1]) - self.box[3]))
             #if (obj_item[3] not in self.class_ids) and (self.class_id != -1):
             #    if dist < config.dist_thresh: self.class_ids.append(obj_item[3])
@@ -355,9 +357,12 @@ class TrafficObj():
             #    continue
 
             detections_dists.append(dist)
+            detections_size.append(size_)
 
         detections_dists.append(1e9)
-        Ok = min(detections_dists) < (config.dist_thresh * [1.0,1.5][self.class_id==-1])
+        detections_size.append(1e9)
+        Ok = min(detections_dists) < (config.dist_thresh)# * [1.0,2.0][self.class_id==-1])
+        Ok *= (min(detections_size) < (config.size_thresh))
         #if self.track_id == 4:
         #    print(detections_dists)
         #    print([ob[2] for ob in detections])
@@ -403,6 +408,7 @@ class TrafficObj():
         """
         obj_cntr = self.find_center()
         detections_dists = []
+        detections_size = []
 
         for obj_item in bg_objs:
 
@@ -414,14 +420,15 @@ class TrafficObj():
             dist = np.linalg.norm((obj_item.centroid[1] - obj_cntr[0],
                                    obj_item.centroid[0] - obj_cntr[1]))
 
-            dist+= np.linalg.norm(((obj_item.bbox[3]-obj_item.bbox[1]) - self.box[2],
+            size_ = np.linalg.norm(((obj_item.bbox[3]-obj_item.bbox[1]) - self.box[2],
                                    (obj_item.bbox[2]-obj_item.bbox[0]) - self.box[3]))
 
             detections_dists.append(dist)
+            detections_size.append(size_)
 
         Ok = False
         if bg_objs:
-            Ok = min(detections_dists) < (config.dist_thresh-12)
+            Ok = (min(detections_dists) < (config.dist_thresh-12))*(min(detections_size) < (config.size_thresh-12))
         if Ok:
 
             obj_item = bg_objs.pop(np.argmin(detections_dists))

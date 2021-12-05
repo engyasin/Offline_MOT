@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 
 from config import config
+import os
 
 
 def resize(img,scale=1):
@@ -54,8 +55,8 @@ def save_tracks(tracks_objs,filename):
 
     """
 
-    filename = filename.split('\\')[-1].split('.')[-2]#[-5:]
-    f = open('outputs\\'+filename+'.txt',mode='w+')
+    filename = os.path.split(filename)[-1].split('.')[-2]#[-5:]
+    f = open(os.path.join('outputs',filename+'.txt'),mode='w+')
     for obj in tracks_objs:
         class_ = max(obj.class_ids,key=lambda x:obj.class_ids[x])
         #T = np.array(sorted(obj.centers,key=lambda x: x[0]))
