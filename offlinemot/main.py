@@ -207,14 +207,14 @@ def main(args):
         if config.do_fix: 
             frame = Fix_obj.fix_view(frame,fgmask=foreground)
 
-        ######## Step 2: Backgorund Substract
+        ######## Step 3: Backgorund Substract
         foreground = BG_s.bg_substract(frame)
 
-        ######## Step 3: Track using OpenCV trackers
+        ######## Step 4: Track using OpenCV trackers
         objects = track_objs(frame,frame_id,objects)
         candidates_objs = track_objs(frame,frame_id,candidates_objs)
 
-        ####### Step 4: Filter the small object in the background 
+        ####### Step 5: Filter the small object in the background 
         ####### substraction result
         foreground , new_bg_objects = BG_s.get_big_objects(foreground,frame)
 
@@ -226,7 +226,7 @@ def main(args):
         # maybe make object thiner to allow for nearby object to be detected
         br = config.bgs_broder_margin # pixels for borders
 
-        ########## Step 5: find failing tracking cases and confirm it with a
+        ########## Step 6: find failing tracking cases and confirm it with a
         ########## a detection, confirm eveything with background substraction
         ########## and build binary mask for confirmed objects.
 
@@ -264,7 +264,7 @@ def main(args):
             curr_fg[obj.box[1]+br_h:obj.box[1]+obj.box[3]-br_h,obj.box[0]+br_w:obj.box[0]+obj.box[2]-br_w] = 1
             # deal with the newly not detected with spical logic
 
-        ######## Step 6: Add new objects from BG substraction
+        ######## Step 7: Add new objects from BG substraction
         ########  stage to candiatdates list
 
         for n_obj in bgObjs_to_objs(new_bg_objects,frame,frame_id):
@@ -277,7 +277,7 @@ def main(args):
                 candidates_objs.append(n_obj)
                 #objects.append(n_obj)
 
-        ####### Step 7: detect every N frame, check all (objects and candidates)
+        ####### Step 8: detect every N frame, check all (objects and candidates)
         ####### move from candidates to objects if checked with detections.
 
         if (frame_id%config.detect_every_N)==0:
@@ -314,7 +314,7 @@ def main(args):
             if len(detections):
                 print('Note: some objects detected but not moving or seen before')
 
-        ######### Step 8: check all objects if good enough to continue 
+        ######### Step 9: check all objects if good enough to continue 
         ######### tracking, to save if long and confirmed but lost, 
         ######### or to delete.
         new_objs , new_candidates_objs = [], []
@@ -335,7 +335,7 @@ def main(args):
 
         objects, candidates_objs = new_objs[:], new_candidates_objs[:],
 
-        ######## Step 9: check if any objects are overlapping with another
+        ######## Step 10: check if any objects are overlapping with another
         ######## Delete if a minmum area is found
         while True:
             to_remove = detect_overlaping(objects,overlap_thresh=config.overlap_thresh)
@@ -355,7 +355,7 @@ def main(args):
             print('Object {} is deleted because of overlaping'.format(objects[to_remove].track_id))
             deleted_tracks.append(objects.pop(to_remove))
 
-        ######## Step 10: Draw each frame with the tracking result
+        ######## Step 11: Draw each frame with the tracking result
         ######## if needed for debugging
 
         if config.draw:
@@ -368,7 +368,7 @@ def main(args):
 
         ret, frame = v_obj.read()
 
-    ###### Step 11: Take the current and saved objects,
+    ###### Step 12: Take the current and saved objects,
     ###### smooth the trajectories, interpolate the missing points,
     ###### find the angels and save to text file.
     for obj in objects:
