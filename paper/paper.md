@@ -46,7 +46,6 @@ Finally, all these parts are implemented separately in the code, making it easy 
 
 The following pesudo code is for the main workflow implemented in this project,
 
-\begin{document} 
 \begin{algorithm}[H]
 \SetAlgoLined
 
@@ -80,9 +79,6 @@ The following pesudo code is for the main workflow implemented in this project,
  Save all the successfully tracked objects to a text file\;
  \caption{OfflineMOT workflow}
 \end{algorithm}
-
-
-\end{document}
 
 # Statement of need
 
