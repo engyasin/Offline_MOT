@@ -1,13 +1,5 @@
 ---
 title: 'OfflineMOT: A Python Package for multiple objects detection and tracking from bird view stationary drone videos'
-header-includes: 
-  \title{AlgorithmTemplate}
-  \documentclass[12pt]{article}
-  \usepackage{fullpage}
-  \usepackage{times}
-  \usepackage{fancyhdr,graphicx,amsmath,amssymb}
-  \usepackage[ruled,vlined]{algorithm2e}
-  \include{pythonlisting}
 tags:
   - Python
   - Multiple objects tracking
@@ -44,41 +36,9 @@ Another problem here is the subtle movement of the drone due to wind and noise, 
 
 Finally, all these parts are implemented separately in the code, making it easy to enable or disable some or parts of them, with many tunable parameters. This is done in purpose in order to facilitate the processing on any new video with different settings by changing only a few parameters.
 
-The following pesudo code is for the main workflow implemented in this project,
+The following pesudo code is summarizing the main workflow implemented in this project,
 
-\begin{algorithm}[H]
-\SetAlgoLined
-
-\KwResult{The tracked objects trajectory data in a text file }
- initialization of parameters\;
- \For{every frame}{
-    Fix the frame in relation to a reference frame\;
-    Do background subtraction \;
-    Track all the objects \;
-    \For{All the objects}{
-    \If{the tracking fails}{
-    Try to confirm with a detection step}{
-    confirm with background subtraction step}
-    }
-    Add the new objects from the background subtraction to the candidates list\;
-    \If{Frames count is divisible by N}{
-    Do detection\;
-    \For{all the objects and candidates}{
-        match the object with the detection\;
-        transfer the candidate to confirmed objects if detected\;
-    }
-    }
-    \For{all the objects}{
-    \If{an object is tracked under a percentage from its history}{
-    Remove Object\;}
-    \If{an object is overlapping with another above a threshold}{
-    Remove Object\;}
-    }
-    Draw all the objects on the current frame and show it\;
- }
- Save all the successfully tracked objects to a text file\;
- \caption{OfflineMOT workflow}
-\end{algorithm}
+<img src='workflow.PNG' />
 
 # Statement of need
 
