@@ -3,8 +3,9 @@ import numpy as np
 
 import cv2
 
-from offlinemot.main import bgObjs_to_objs, FirstFrame
+from offlinemot.main import bgObjs_to_objs, FirstFrame, detections_to_objects
 from offlinemot.objects_classes import TrafficObj
+from offlinemot.config import config
 
 from offlinemot.detection import YoloDetector
 
@@ -37,8 +38,17 @@ class Test_main(unittest.TestCase):
         img = os.path.join('model','00120.jpg')
         output, detector = FirstFrame(cv2.imread(img))
 
-
         self.assertEqual(output[0].trust_level[-1][0],1)
+
+    def test_detections_to_objects(self):
+        frame = np.zeros((500,500,3))
+        objs = detections_to_objects(detections,frame,last_track_id=0)
+
+        N = sum([(det[2]>config.detect_thresh) for det in detections])
+        self.assertEqual(len(objs),N)
+
+        for obj in objs:
+            self.assertEqual(obj.box,detect_boxes[obj.track_id])
 
 
 

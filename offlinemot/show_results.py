@@ -14,6 +14,7 @@ This contains the following functions:
 
 import numpy as np
 import cv2
+import os
 
 import argparse
 from config import config
@@ -33,6 +34,8 @@ def main(args):
     v_obj = cv2.VideoCapture(args["video"])
 
     tracking_data = read_tracks(args["video"])
+
+    video_name = os.path.split(args["video"])[-1].split('.')[-2]
     # frame_id: ([x,y,w,h],class)
 
     ret, frame = v_obj.read()
@@ -44,9 +47,10 @@ def main(args):
                 (255,0,0), # cyclist
                 (0, 0, 0)] # cars
     #ret, frame = v_obj.read()
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  
-    print(frame.shape)
-    out = cv2.VideoWriter('output.mp4',fourcc, 30.0, tuple(frame.shape[:-1][::-1]))
+    if config.save_out_video:
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')  
+        video_2_save = os.path.join('outputs',video_name+'.mp4')
+        out = cv2.VideoWriter(video_2_save,fourcc, 30.0, tuple(frame.shape[:-1][::-1]))
     while ret:#frame is not None:
 
         if frame_id in tracking_data:
@@ -70,7 +74,8 @@ def main(args):
             #cv2.rectangle(frame,(box[0],box[1]),(box[0]+box[2],box[1]+box[3]),color=color_map[class_id-1],thickness=4)
             cv2.putText(frame,str(track_id),(box[0],box[1]),2,3,color=color_map[class_id-1],thickness=4)
         cv2.imshow('fgmask', resize(frame,config.resize_scale)) 
-        out.write(frame)
+        if config.save_out_video:
+            out.write(frame)
         k = cv2.waitKey(30) & 0xff
         #prv_regions = []
         if k == 27: 
@@ -82,7 +87,8 @@ def main(args):
     cv2.destroyAllWindows()
     v_obj.release()
 
-    out.release()
+    if config.save_out_video:
+        out.release()
 
 
 

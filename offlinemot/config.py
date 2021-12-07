@@ -86,23 +86,26 @@ class config:
     polydegree : int
         The polydegree for the smoothin algorithm, it must be
         smaller than window_size 
+    save_out_video : bool
+        Whether to save the output video in mp4 format with the
+        tracking data overlaid
     """
 
     ### general paprmters
-    draw = True
+    draw = False
     detect_every_N = 1
-    missing_thresh = 0.7
+    missing_thresh = 0.8
     use_cuda = False
     resize_scale = 0.4
 
     ### background substractor parameters
-    bgs_history = 8
-    bgs_threshold = 40
+    bgs_history = 5
+    bgs_threshold = 50
     bgs_shadows = True
     bgs_learning = 0.5
     bgs_erosion_size = 3
-    bgs_min_area = 250
-    bgs_broder_margin =  0.35    # bigger would give boxes near the detected boxes with yolo
+    bgs_min_area = 300
+    bgs_broder_margin =  0.45    # bigger would give boxes near the detected boxes with yolo
 
 
     ### fix view paramers
@@ -118,17 +121,18 @@ class config:
     detect_thresh = 0.3 #Yolo detection
     # distance to the nearst match between detection and tracking
     # output in pixels
-    dist_thresh = 55 
+    dist_thresh = 25
     size_thresh = 25
-    detect_scale = 3.0
+    detect_scale = 4.0
 
 
     ### Filtering Objects:
     min_history = 100
-    overlap_thresh = 0.5
+    overlap_thresh = 0.7
 
 
     ### Smoothing for post processing
     do_smooth   = True
     window_size = 7
     polydegree  = 3
+    save_out_video = False

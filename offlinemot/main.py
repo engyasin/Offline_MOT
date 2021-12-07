@@ -13,6 +13,8 @@ This contains the following functions:
     objects
     * FirstFrame - initilize the detector and return the objects in the
     first frame if they fall within the image borders
+    * detections_to_objects - Transfrom a group of detection results
+    in one frame to traffic objects instances
 
 """
 
@@ -91,9 +93,27 @@ def bgObjs_to_objs(bgObjs,frame,frame_id):
     return output
 
 
-def detections_to_objects(detections,frame):
+def detections_to_objects(detections,frame,last_track_id=0):
+    """Convert a list of detections out of Yolo network to traffic
+    object class instances.
+
+    Parameters
+    ----------
+    frame : numpy array
+        The input image in rgb format which the detections are in
+    last_track_id: int
+        The id number from which numbering is starting from
+        (default 0)
+
+    Returns
+    -------
+    list
+        a list of the traffic object classes representing the
+        new detections in the input
+
+    """
     output = []
-    Track_id = 0
+    Track_id = last_track_id 
     img_wh = frame.shape[:-1]
     for obj_item in detections:
         if obj_item[2]>config.detect_thresh:
@@ -379,6 +399,10 @@ def main(args):
     for obj in objects:
         Track,Save = obj.update()
         if Track and (obj.class_id != -1):
+            saved_tracks.append(obj)
+    for obj in deleted_tracks:
+        Track,Save = obj.update()
+        if Save and (obj.class_id != -1):
             saved_tracks.append(obj)
         #ok,detections = obj.filter_by_detections(detections)
         #if ok or obj.good_enough():

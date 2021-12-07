@@ -2,3 +2,4 @@ Old/
 __pycache__/
 todo
 docs/.ipynb_checkpoints
+.vscode/

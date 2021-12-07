@@ -67,6 +67,21 @@ def tracks_angels(track):
     return angels
 
 def repair_traj(obj):
+    """Perfrom linear interpolation for a track with missing 
+    steps (where there's no detection or tracking).
+
+    Parameters
+    ----------
+    obj : TrafficObj instance
+        The traffic object instance whose track should be interpolated
+
+    Returns
+    -------
+    list
+        a list of the object center coordinates, where the missing
+        postions are interpolated lineary using the surrounding positions
+
+    """
     j,i = 0,0
     new_centers = []
     while i<len(obj.trust_level) and j<len(obj.centers):
@@ -85,7 +100,7 @@ def repair_traj(obj):
             dx = (obj.centers[j][0]-obj.centers[j-1][0])/(c+1)
             dy = (obj.centers[j][1]-obj.centers[j-1][1])/(c+1)
             i += c
-            for x in range(c):
+            for x in range(1,c+1):
                 new_centers.append((obj.centers[j-1][0]+dx*x,obj.centers[j-1][1]+dy*x))
     return new_centers
 
@@ -93,7 +108,7 @@ def post_process(obj):
     """perform post processing steps on the tracking data.
 
     The processing contains:
-    1) finding the centers of boxes
+    1) finding and interpolating the centers of boxes
     2) smoothing the track of centers
     3) recalculating the boxes
     4) finding the orientations

@@ -361,8 +361,8 @@ class TrafficObj():
 
         detections_dists.append(1e9)
         detections_size.append(1e9)
-        Ok = min(detections_dists) < (config.dist_thresh)# * [1.0,2.0][self.class_id==-1])
-        Ok *= (min(detections_size) < (config.size_thresh))
+        Ok = min(detections_dists) < (config.dist_thresh)# )
+        Ok *= (min(detections_size) < (config.size_thresh* [1.0,1.6][self.class_id==-1]))
         #if self.track_id == 4:
         #    print(detections_dists)
         #    print([ob[2] for ob in detections])
@@ -502,8 +502,9 @@ class TrafficObj():
                 self.true_wh_max = new_box[2:],abs(d_x-d_y)
 
     def get_detection_format(self):
-        """get the bounding box in (top-left point, bottom-right) point
-        format and add class_id and dummy probabilty.
+        """Get the bounding box in (top-left point, bottom-right point)
+        format and add class_id and dummy probabilty to get a similar
+        format to the output of Yolo
 
         """
 

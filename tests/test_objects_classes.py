@@ -68,7 +68,6 @@ class Test_objects_classes(unittest.TestCase):
         example_obj.find_true_size(new_box=boxes[1])
         self.assertEqual(example_obj.true_wh_max,(boxes[1][2:],75))
 
-
     def test_get_detection_format(self):
         example_obj = TrafficObj(frame=np.random.rand(700,700)*255,frame_id=0,box=boxes[0],track_id=1,class_id=-1)
 
