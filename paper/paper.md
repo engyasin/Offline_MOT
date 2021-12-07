@@ -36,9 +36,9 @@ Another problem here is the subtle movement of the drone due to wind and noise, 
 
 Finally, all these parts are implemented separately in the code, making it easy to enable or disable some or parts of them, with many tunable parameters. This is done in purpose in order to facilitate the processing on any new video with different settings by changing only a few parameters.
 
-The following pesudo code is summarizing the main workflow implemented in this project,
+The following pesudo code \autoref{fig:workflow} is summarizing the main workflow implemented in this project.
 
-<img src='workflow.PNG' />
+![The general workflow of the method.\label{fig:workflow}](workflow.PNG)
 
 # Statement of need
 
