@@ -28,7 +28,7 @@ The topic of multi objects tracking (MOT) is still considered an open research a
 Among the many available methods for this problem, it is worth mentioning *Deep Sort* [@wojke2017simple], where a detection and tracking steps is done in real time and for different types of scenes and areas (for example on pedestrian movement or for vehicles tracking). Another state-of-the-art method is *Tracktor* [@bergmann2019tracking], where tracking is done by repetitive detections on all the frames in the video. 
 
 The importance of the problem comes from the many applications, which include self-driving cars software, traffic analysis, or general surveillance applications.  
-Unfortunately, due to the variety of scenes and contexts and due to the time constrains that are needed for some applications (for example, self-driving cars), there is no one general solution that is able to work perfectly for all the cases. 
+Unfortunately, due to the variety of scenes and contexts and due to the time constrains that are needed for some applications, there is no one general solution that is able to work perfectly for all cases. 
 
 For example, for the two cases of a moving camera recording side view of a road traffic, and a drone camera recording from above, there are many different challanges that should be addressed for each case. Making one method for both cases, make the method less effective for each case alone. 
 
@@ -52,12 +52,12 @@ The following pesudo code \autoref{fig:workflow} illustrating the main workflow 
 The specific case for extracting trajectories from top view, stationary traffic videos (for pedestrians, cyclists and vehicles) lacks targeted open source solutions in the literature. 
 Therefore, the development of this package is directed towards helping researchers in the field of traffic analysis or any other fields where trajectories of moving objects are needed.  
 
-With the help of this package, the trajectories from a dataset of the cyclists’ behavior in TU Clausthal were extracted successfully. The dataset itself will be published later.
+With the help of this package, the extraction of trajectories from a cyclists’ behavior dataset in TU Clausthal will be done. The package has proved its ability of producing very accurate results for different scenes and conditions in these videos. The dataset itself will be published later.
 
 # Example Usage
 
 This package can be installed simply by cloning the GitHub repository.
-Additionally, a few requirements should be installed at the start. This can be done by running the following command inside the main directory:
+But at the start, a few requirements should be installed. This can be done by running the following command inside the main directory:
 
 ```
 $ pip install -r requirements.txt
@@ -97,10 +97,10 @@ Further documentations and information about the running are available in the `d
 
 The scope of the problems that can be handled by this package is defined by the following conditions:
 
-1.	*is the video Stationary?*
-2.	*is the real time performance required?*
-3.	*is the view of the video a bird’s eye view?*
-4.	*is there a pretrained detection model for the objects of interest?*
+1.	*The video is stationary*
+2.	*The real time performance is not required*
+3.	*the view direction of the video is from bird’s eye view*
+4.	*A pretrained detection model for the objects of interest is avaliable*
 
 Regarding the last point, the provided model with the package is trained on random images of cyclists, cars and pedestrians from bird’s eye view. This could be enough if the problem is the same, i.e. tracking traffic entities. Otherwise, this model could be a good starting point to train for other kinds of objects if these objects are similar and Yolo v4 is used as a model structure.
 
@@ -110,5 +110,7 @@ If the video is too noisy, has low resoluation, or the training dataset detectio
 
 As an example, the sample video has some problems with one moving object, because of the different background and the new scene of the video. This can be avoided by retraining the detection part (Yolo network) on similar examples. Additionally, a thorough tunning step for the parameters in the `config` file should be done to eliminate possible errors in the result. 
 
+## *Acknowledgment*
+This work was supported by the German Academic Exchange Service (DAAD) under the Graduate School Scholarship Programme (GSSP).The training of Yolo network and labeling the datasets was done by Merlin Korth and Sakif Hossain.
 
 # References
