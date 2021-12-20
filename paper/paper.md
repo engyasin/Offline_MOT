@@ -99,7 +99,7 @@ The scope of the problems that can be handled by this package is defined by the 
 
 1.	*The video is stationary*
 2.	*The real time performance is not required*
-3.	*the view direction of the video is from bird’s eye view*
+3.	*The view direction of the video is from bird’s eye view*
 4.	*A pretrained detection model for the objects of interest is avaliable*
 
 Regarding the last point, the provided model with the package is trained on random images of cyclists, cars and pedestrians from bird’s eye view. This could be enough if the problem is the same, i.e. tracking traffic entities. Otherwise, this model could be a good starting point to train for other kinds of objects if these objects are similar and Yolo v4 is used as a model structure.
