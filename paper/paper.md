@@ -110,7 +110,7 @@ If the video is too noisy, has low resoluation, or the training dataset detectio
 
 As an example, the sample video has some problems with one moving object, because of the different background and the new scene of the video. This can be avoided by retraining the detection part (Yolo network) on similar examples. Additionally, a thorough tunning step for the parameters in the `config` file should be done to eliminate possible errors in the result. 
 
-## *Acknowledgment*
+### Acknowledgment
 This work was supported by the German Academic Exchange Service (DAAD) under the Graduate School Scholarship Programme (GSSP).The training of Yolo network and labeling the datasets was done by Merlin Korth and Sakif Hossain.
 
 # References
