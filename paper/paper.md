@@ -27,10 +27,10 @@ bibliography: paper.bib
 The topic of multi objects tracking (MOT) is still considered an open research area [@MOTChallenge20].
 Among the many available methods for this problem, it is worth mentioning *Deep Sort* [@wojke2017simple], where a detection and tracking steps is done in real time and for different types of scenes and areas (for example on pedestrian movement or for vehicles tracking). Another state-of-the-art method is *Tracktor* [@bergmann2019tracking], where tracking is done by repetitive detections on all the frames in the video. 
 
-The importance of the problem comes from the many applications, which include self-driving cars software, traffic analysis, or general surveillance applications.  
+The importance of the problem comes from its many applications, for example self-driving cars software, traffic analysis, or general surveillance applications.  
 Unfortunately, due to the variety of scenes and contexts and due to the time constrains that are needed for some applications, there is no one general solution that is able to work perfectly for all cases. 
 
-For example, for the two cases of a moving camera recording side view of a road traffic, and a drone camera recording from above, there are many different challanges that should be addressed for each case. Making one method for both cases, make the method less effective for each case alone. 
+For example, for the two cases of a moving camera recording side view of a road traffic, and a drone camera recording from above, there are many different challanges that should be addressed for each case. Developing one method for both cases, will make this method less effective for addressing each case problems alone. 
 
  `OfflineMOT`, the package introduced here, tries to provide a solution to a more restricted problem, namely bird’s eye stationary videos without real-time condition. It applies mainly three techniques for detection and tracking on three different priority levels.
 
