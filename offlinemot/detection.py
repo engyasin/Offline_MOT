@@ -58,7 +58,11 @@ class YoloDetector():
 
         self.m = darknet2pytorch.Darknet(cfgfile, inference=True)
 
-        self.m.load_state_dict(torch.load(weightfile))
+        map_location = torch.device('cpu')
+        if torch.cuda.is_available():
+            map_location = None
+
+        self.m.load_state_dict(torch.load(weightfile,map_location=map_location))
         #self.m.load_weights(weightfile)
 
         self.use_cuda = use_cuda

@@ -92,7 +92,7 @@ class config:
     """
 
     ### general paprmters
-    draw = False
+    draw = True
     detect_every_N = 1
     missing_thresh = 0.8
     use_cuda = False
