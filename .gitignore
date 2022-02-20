@@ -4,3 +4,5 @@ todo
 docs/tutorials/.ipynb_checkpoints/
 .vscode/
 .pytest_cache/
+dist/
+offlinemot.egg-info/
