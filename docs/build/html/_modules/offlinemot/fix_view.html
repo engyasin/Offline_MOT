@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>offlinemot.fix_view &mdash; OfflineMOT 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> OfflineMOT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers.html">For developers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html">Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OfflineMOT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>offlinemot.fix_view</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for offlinemot.fix_view</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">logging</span><span class="o">,</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">background_subtraction</span> <span class="k">import</span> <span class="n">BG_subtractor</span> 
+
+<span class="kn">from</span> <span class="nn">config</span> <span class="k">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">utils_</span> <span class="k">import</span> <span class="n">resize</span>
+
+<div class="viewcode-block" id="FixView"><a class="viewcode-back" href="../../generated/offlinemot.fix_view.FixView.html#offlinemot.fix_view.FixView">[docs]</a><span class="k">class</span> <span class="nc">FixView</span><span class="p">():</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to fix the frames postions in a video</span>
+<span class="sd">    that experiance shaking or random movement.</span>
+
+<span class="sd">    ...</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sift : SIFT detector object</span>
+<span class="sd">        The sift detector object that will perform the detection </span>
+<span class="sd">        on frames</span>
+<span class="sd">    flann : FLANN based matcher object</span>
+<span class="sd">        The FLANN matcher with parameters compitaple with matching</span>
+<span class="sd">        SIFT keypoints</span>
+<span class="sd">    mask_bg : numpy array</span>
+<span class="sd">        The boolean mask which determines the acceptable area</span>
+<span class="sd">        to detect keypoints from in the input image.</span>
+<span class="sd">    kps_bg : list of KeyPoint objects</span>
+<span class="sd">        The background keypoints that will be matched with </span>
+<span class="sd">        each next frame.</span>
+<span class="sd">    des_bg : numpy array</span>
+<span class="sd">        The background descriptors of the kypoints to perform </span>
+<span class="sd">        matching later</span>
+<span class="sd">    min_matches : int</span>
+<span class="sd">        Minumum Number of matches to perform transformation on fame</span>
+<span class="sd">    kernel : numpy array</span>
+<span class="sd">        The kernel array to do dilation process on the foreground</span>
+<span class="sd">        to form the mask</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    get_good_matches(list) -&gt; list</span>
+<span class="sd">        Filter the matches objects according to the distance and distance ratio test.</span>
+
+<span class="sd">    fix_view(numpy array,numpy array) -&gt; numpy array</span>
+<span class="sd">        Process the frame by detecting the 2D affine motion, and transform it</span>
+<span class="sd">        if it is found with enough number of matches points </span>
+<span class="sd">    </span>
+<span class="sd">    set_new_bg(numpy array, numpy array) -&gt; None</span>
+<span class="sd">        Set a new background image, keypoints and descriptors according to the</span>
+<span class="sd">        forground if provided</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">bg_rgb</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bg_rgb : numpy array</span>
+<span class="sd">            The background image that all the next frames will be refrenced to,</span>
+<span class="sd">            whether they need transformation or not.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Initiate SIFT detector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sift</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">SIFT_create</span><span class="p">(</span><span class="n">nfeatures</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+
+        <span class="n">FLANN_INDEX_KDTREE</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">index_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">algorithm</span> <span class="o">=</span> <span class="n">FLANN_INDEX_KDTREE</span><span class="p">,</span> <span class="n">trees</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">search_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">checks</span> <span class="o">=</span> <span class="mi">500</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">flann</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">FlannBasedMatcher</span><span class="p">(</span><span class="n">index_params</span><span class="p">,</span><span class="n">search_params</span><span class="p">)</span>
+
+        <span class="n">bg</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">bg_rgb</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
+
+        <span class="c1"># taking from the border to avoid, foreground</span>
+        <span class="n">mask</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">bg</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+        <span class="n">borders_</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">mask</span><span class="p">[:</span><span class="n">borders_</span><span class="p">,:]</span> <span class="o">=</span> <span class="mi">255</span>
+        <span class="n">mask</span><span class="p">[</span><span class="o">-</span><span class="n">borders_</span><span class="p">:,:]</span> <span class="o">=</span> <span class="mi">255</span>
+        <span class="n">mask</span><span class="p">[:,:</span><span class="n">borders_</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+        <span class="n">mask</span><span class="p">[:,</span><span class="o">-</span><span class="n">borders_</span><span class="p">:]</span> <span class="o">=</span> <span class="mi">255</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_bg</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">kps_bg</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">des_bg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sift</span><span class="o">.</span><span class="n">detectAndCompute</span><span class="p">(</span><span class="n">bg</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">mask_bg</span><span class="p">)</span>
+
+        <span class="c1">#dilation for mask of the frames</span>
+        <span class="n">kernel_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">fixing_dilation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_ELLIPSE</span><span class="p">,(</span><span class="n">kernel_size</span><span class="p">,</span><span class="n">kernel_size</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_matches</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">min_matches</span>
+
+<div class="viewcode-block" id="FixView.get_good_matches"><a class="viewcode-back" href="../../generated/offlinemot.fix_view.FixView.get_good_matches.html#offlinemot.fix_view.FixView.get_good_matches">[docs]</a>    <span class="k">def</span> <span class="nf">get_good_matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">matches</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Filter the matches objects according to the distance and distance ratio test</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        matches : list</span>
+<span class="sd">            The list of Matches objects list refering to the same descriptor and</span>
+<span class="sd">            all its matches</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            a list of the matches objects passing the distance ratio and sorted</span>
+<span class="sd">            according to the distance of length no more than 500</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">good</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">mn</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mn</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+                <span class="n">m</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="n">mn</span>
+                <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">distance</span> <span class="o">&lt;</span> <span class="mf">0.7</span><span class="o">*</span><span class="n">n</span><span class="o">.</span><span class="n">distance</span><span class="p">:</span>
+                    <span class="n">good</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1">#try adding anyway, to be later tested with distance</span>
+                <span class="n">good</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mn</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># take only the best 500</span>
+        <span class="n">good</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">good</span><span class="p">,</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">distance</span><span class="p">)[:</span><span class="mi">500</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">good</span></div>
+
+<div class="viewcode-block" id="FixView.fix_view"><a class="viewcode-back" href="../../generated/offlinemot.fix_view.FixView.fix_view.html#offlinemot.fix_view.FixView.fix_view">[docs]</a>    <span class="k">def</span> <span class="nf">fix_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">fgmask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process the frame by detecting the 2D affine motion,</span>
+<span class="sd">        and transform it if it is found with enough number of matches </span>
+<span class="sd">        points </span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frame : numpy array</span>
+<span class="sd">            The frame that should be transformed to the fixed postion</span>
+<span class="sd">        fgmask : numpy array, optional</span>
+<span class="sd">            The mask defining where to detect the frame keypoints </span>
+<span class="sd">            and descriptors to match with</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy array</span>
+<span class="sd">            The transformed frame if the conditions apply.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">fgmask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_bg</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fg_img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">dilate</span><span class="p">(</span><span class="n">fgmask</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span><span class="n">iterations</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">fg_img</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+            <span class="n">mask</span><span class="p">[</span><span class="n">fg_img</span><span class="o">==</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+
+        <span class="n">gray</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
+        <span class="n">kps</span><span class="p">,</span> <span class="n">des</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sift</span><span class="o">.</span><span class="n">detectAndCompute</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span><span class="n">mask</span><span class="p">)</span>
+
+        <span class="n">matches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flann</span><span class="o">.</span><span class="n">knnMatch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">des_bg</span><span class="p">,</span><span class="n">des</span><span class="p">,</span><span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">good</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_good_matches</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">good</span><span class="p">)</span><span class="o">&gt;</span><span class="bp">self</span><span class="o">.</span><span class="n">min_matches</span><span class="p">:</span>
+            <span class="n">src_pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">([</span> <span class="bp">self</span><span class="o">.</span><span class="n">kps_bg</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">queryIdx</span><span class="p">]</span><span class="o">.</span><span class="n">pt</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">good</span> <span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">dst_pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">([</span> <span class="n">kps</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">trainIdx</span><span class="p">]</span><span class="o">.</span><span class="n">pt</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">good</span> <span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="n">M</span><span class="p">,</span><span class="n">dummy</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">estimateAffine2D</span><span class="p">(</span><span class="n">dst_pts</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:],</span><span class="n">src_pts</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:])</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">M</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dummy</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">&gt;</span><span class="bp">self</span><span class="o">.</span><span class="n">min_matches</span><span class="p">:</span>
+                <span class="n">frame</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">warpAffine</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">gray</span><span class="o">.</span><span class="n">shape</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">flags</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_CUBIC</span><span class="p">,</span><span class="n">borderValue</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Not transformed, there is low number of correcr matches&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span> <span class="s2">&quot;Not enough matches are found - </span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">good</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_matches</span><span class="p">)</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">frame</span></div>
+
+<div class="viewcode-block" id="FixView.set_new_bg"><a class="viewcode-back" href="../../generated/offlinemot.fix_view.FixView.set_new_bg.html#offlinemot.fix_view.FixView.set_new_bg">[docs]</a>    <span class="k">def</span> <span class="nf">set_new_bg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">bg_rgb</span><span class="p">,</span><span class="n">fg_mask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set a new background image, keypoints and descriptors</span>
+<span class="sd">        according to the forground if provided</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bg_rgb : numpy array</span>
+<span class="sd">            The new background to match each frame with</span>
+<span class="sd">        fg_mask : numpy array, optional</span>
+<span class="sd">            The mask defining where to detect the background keypoints </span>
+<span class="sd">            and descriptors</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bg</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">bg_rgb</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fg_mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_bg</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fg_img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">dilate</span><span class="p">(</span><span class="n">fg_mask</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span><span class="n">iterations</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">fg_img</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+            <span class="n">mask</span><span class="p">[</span><span class="n">fg_img</span><span class="o">==</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kps_bg</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">des_bg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sift</span><span class="o">.</span><span class="n">detectAndCompute</span><span class="p">(</span><span class="n">bg</span><span class="p">,</span><span class="n">mask</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;sample.mp4&#39;</span><span class="p">))</span>
+    <span class="n">frame_id</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">cap</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">frame_id</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ret</span><span class="p">,</span><span class="n">bg_rgb</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">Fix_obj</span> <span class="o">=</span> <span class="n">FixView</span><span class="p">(</span><span class="n">bg_rgb</span><span class="p">)</span>
+    <span class="n">BG_s</span> <span class="o">=</span> <span class="n">BG_subtractor</span><span class="p">(</span><span class="n">bg_rgb</span><span class="p">)</span>
+
+    <span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">fg_img</span><span class="o">=</span> <span class="n">BG_s</span><span class="o">.</span><span class="n">bg_substract</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">ret</span><span class="p">):</span>
+
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">Fix_obj</span><span class="o">.</span><span class="n">fix_view</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">fg_img</span><span class="p">)</span>
+
+        <span class="n">fg_img</span> <span class="o">=</span> <span class="n">BG_s</span><span class="o">.</span><span class="n">bg_substract</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+
+        <span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s1">&#39;fgmask&#39;</span><span class="p">,</span> <span class="n">resize</span><span class="p">(</span><span class="n">fg_img</span><span class="p">,</span><span class="mf">0.2</span><span class="p">))</span> 
+        <span class="nb">print</span><span class="p">(</span><span class="n">frame_id</span><span class="p">)</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xff</span>
+        <span class="c1">#prv_regions = []</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">27</span><span class="p">:</span> 
+            <span class="k">break</span>
+
+        <span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">frame_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span> 
+    <span class="n">cv2</span><span class="o">.</span><span class="n">destroyAllWindows</span><span class="p">()</span> 
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yasin Yousif.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

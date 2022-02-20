@@ -1,0 +1,8 @@
+:orphan:
+
+offlinemot.utils.save\_tracks
+=============================
+
+.. currentmodule:: offlinemot.utils
+
+.. autofunction:: save_tracks

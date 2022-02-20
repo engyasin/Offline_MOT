@@ -18,7 +18,7 @@ import os
 
 import argparse
 from config import config
-from utils import read_tracks, resize
+from utils_ import read_tracks, resize
 
 # read video from args
 
@@ -29,7 +29,12 @@ from utils import read_tracks, resize
 
 
 
-def main(args):
+def main(args=os.path.join(config.cwd,'model','sample.mp4')):
+
+    # check wether called directly
+    if type(args) is str:
+        args = {"video":args}
+
     # read video file
     v_obj = cv2.VideoCapture(args["video"])
 
@@ -49,7 +54,7 @@ def main(args):
     #ret, frame = v_obj.read()
     if config.save_out_video:
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')  
-        video_2_save = os.path.join('outputs',video_name+'.mp4')
+        video_2_save = os.path.join(config.cwd,'output_'+video_name+'.mp4')
         out = cv2.VideoWriter(video_2_save,fourcc, 30.0, tuple(frame.shape[:-1][::-1]))
     while ret:#frame is not None:
 

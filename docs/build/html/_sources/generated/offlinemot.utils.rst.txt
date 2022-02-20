@@ -1,0 +1,32 @@
+﻿offlinemot.utils
+================
+
+.. rubric:: Description
+
+.. automodule:: offlinemot.utils
+
+.. currentmodule:: offlinemot.utils
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    
+    check_box
+    
+    detect_overlaping
+    
+    find_overlap
+    
+    read_tracks
+    
+    resize
+    
+    save_tracks
+    
+    transform_detection
+    
+

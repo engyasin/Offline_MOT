@@ -224,10 +224,13 @@ def post_processing(img, conf_thresh, nms_thresh, output):
 
     t3 = time.time()
 
+    """
     print('-----------------------------------')
     print('       max and argmax : %f' % (t2 - t1))
     print('                  nms : %f' % (t3 - t2))
     print('Post processing total : %f' % (t3 - t1))
-    print('-----------------------------------')
+    print('-----------------------------------')   
+    """
+
     
     return bboxes_batch

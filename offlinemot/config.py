@@ -1,4 +1,4 @@
-
+import os,sys
 class config:
 
     """
@@ -15,7 +15,7 @@ class config:
         The frequency of the detection with Yolov4 network in the
         video. 
     missing_thresh : float
-        Maximum percentage of correct tracking and detection for any
+        Maximum percentage of correct tracking and detection for any 
         object to continue tracking it
     use_cuda : boolean
         Whether to perform detection on GPU or CPU 
@@ -50,7 +50,6 @@ class config:
     fixing_dilation : int
         The kernel size to do dilation to a mask from which matching with
         a reference image will be done for esitimating the transformation
-        
     min_matches : int
         The minimum number of matches to transform the image according to
         a reference image postion 
@@ -115,9 +114,11 @@ class config:
 
 
     ### Detection paramters
-    model_name = 'model/Yolov4_epoch300.pth'
-    model_config = 'model/yolov4-obj.cfg'
-    classes_file_name = 'model/obj.names'
+    cwd = os.path.dirname(os.path.realpath(__file__))
+    model_name       = os.path.join(cwd,'model','Yolov4_epoch300.pth')
+    model_config     = os.path.join(cwd,'model','yolov4-obj.cfg')
+    classes_file_name= os.path.join(cwd,'model','obj.names')
+
     detect_thresh = 0.3 #Yolo detection
     # distance to the nearst match between detection and tracking
     # output in pixels

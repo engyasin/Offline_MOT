@@ -5,7 +5,7 @@ from tool.utils import *
 from tool.torch_utils import *
 
 from config import config
-from utils import find_overlap, transform_detection
+from utils_ import find_overlap, transform_detection
 # from tool.darknet2pytorch import Darknet
 import cv2
 
@@ -188,9 +188,9 @@ class YoloDetector():
 
 if __name__ == '__main__':
 
-    detector  = YoloDetector('model/yolov4-obj.cfg','model/Yolov4-epoch300.pth',use_cuda=False)
-    r = detector.detect('model/00120.jpg')
-
+    detector  = YoloDetector(os.path.join(config.cwd,'model','yolov4-obj.cfg'),
+                        os.path.join(config.cwd,'model','Yolov4_epoch300.pth'),use_cuda=False)
+    r = detector.detect(os.path.join(config.cwd,'model','00120.jpg'))
 
     print(r)
     print(detector.m)

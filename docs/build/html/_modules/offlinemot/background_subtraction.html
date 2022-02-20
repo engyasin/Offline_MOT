@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>offlinemot.background_subtraction &mdash; OfflineMOT 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> OfflineMOT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers.html">For developers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html">Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OfflineMOT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>offlinemot.background_subtraction</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for offlinemot.background_subtraction</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Python code for Background subtraction using OpenCV </span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> 
+<span class="kn">import</span> <span class="nn">cv2</span> 
+<span class="kn">from</span> <span class="nn">skimage.measure</span> <span class="k">import</span> <span class="n">label</span><span class="p">,</span> <span class="n">regionprops</span>
+<span class="kn">from</span> <span class="nn">utils_</span> <span class="k">import</span> <span class="n">resize</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">config</span> <span class="k">import</span> <span class="n">config</span>
+
+<div class="viewcode-block" id="BG_subtractor"><a class="viewcode-back" href="../../generated/offlinemot.background_subtraction.BG_subtractor.html#offlinemot.background_subtraction.BG_subtractor">[docs]</a><span class="k">class</span> <span class="nc">BG_subtractor</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to perform background subtraction on videos</span>
+<span class="sd">    based on opencv implementation.</span>
+
+<span class="sd">    ...</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    history : int</span>
+<span class="sd">        Number of frames to calculate the background from.</span>
+<span class="sd">    thresh : int</span>
+<span class="sd">        Threshold on the squared distance between the pixel </span>
+<span class="sd">        and the sample to decide whether a pixel is close to that </span>
+<span class="sd">        sample. This parameter does not affect the background </span>
+<span class="sd">        update.</span>
+<span class="sd">    shadows : bool</span>
+<span class="sd">        whether to detect the shadows or not.</span>
+<span class="sd">    fgbg : class instance</span>
+<span class="sd">        The background subtraction object of type KNN</span>
+<span class="sd">    bg : numpy array</span>
+<span class="sd">        The current calculated background</span>
+<span class="sd">    kernel : numpy array</span>
+<span class="sd">        The kernel array to do erosion process on the resulting foreground</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    bg_substract(numpy array) -&gt; numpy array</span>
+<span class="sd">        Process a new frame to find the foreground</span>
+
+<span class="sd">    get_big_objects(numpy array,numpy array) -&gt; (numpy array,list)</span>
+<span class="sd">        Process a foreground with its frame to get the group</span>
+<span class="sd">        of the different background objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">bg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bg : numpy array</span>
+<span class="sd">            The background object for the first time</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">bgs_history</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thresh</span>  <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">bgs_threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shadows</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">bgs_shadows</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fgbg</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">createBackgroundSubtractorKNN</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">thresh</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">shadows</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bg</span> <span class="o">=</span> <span class="n">bg</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">kernel_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">bgs_erosion_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">MORPH_ELLIPSE</span><span class="p">,(</span><span class="n">kernel_size</span><span class="p">,</span><span class="n">kernel_size</span><span class="p">))</span>
+
+<div class="viewcode-block" id="BG_subtractor.bg_substract"><a class="viewcode-back" href="../../generated/offlinemot.background_subtraction.BG_subtractor.bg_substract.html#offlinemot.background_subtraction.BG_subtractor.bg_substract">[docs]</a>    <span class="k">def</span> <span class="nf">bg_substract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">frame</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find out the background and foreground and post process them</span>
+
+<span class="sd">        It applies the background subtraction object several times on </span>
+<span class="sd">        the background to focus more on the last changes. Then it erode</span>
+<span class="sd">        the resulting foreground.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frame : numpy array</span>
+<span class="sd">            The image whose foreground should be found.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ------</span>
+<span class="sd">        numpy array</span>
+<span class="sd">            The foreground of the frame as grayscale image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># bg is the old background</span>
+        <span class="c1"># frame is the image</span>
+        <span class="c1">#TODO use class methods instead</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="n">frame_rate</span> <span class="p">,</span><span class="n">bg_rate</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+            <span class="c1"># 4 times to learn bg more</span>
+            <span class="n">fgmask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fgbg</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">,</span><span class="n">out</span><span class="p">,</span><span class="n">learningRate</span> <span class="o">=</span> <span class="n">bg_rate</span><span class="p">)</span>
+
+        <span class="n">fgmask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fgbg</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">out</span><span class="p">,</span><span class="n">learningRate</span> <span class="o">=</span> <span class="n">frame_rate</span><span class="p">)</span>
+
+        <span class="c1">#_,fgmask = cv2.threshold(fgmask,254,255,cv2.THRESH_BINARY)</span>
+
+        <span class="n">fgmask</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">erode</span><span class="p">(</span><span class="n">fgmask</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span><span class="n">iterations</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1">#fgmask = cv2.filter2D(fgmask,-1,smoothing_kernel)</span>
+        <span class="c1">#fgmask = cv2.medianBlur(fgmask,5)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shadows</span><span class="p">:</span>
+            <span class="n">fgmask</span><span class="p">[</span><span class="n">fgmask</span><span class="o">&lt;</span><span class="mi">255</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fgbg</span><span class="o">.</span><span class="n">getBackgroundImage</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">fgmask</span></div>
+
+<div class="viewcode-block" id="BG_subtractor.get_big_objects"><a class="viewcode-back" href="../../generated/offlinemot.background_subtraction.BG_subtractor.get_big_objects.html#offlinemot.background_subtraction.BG_subtractor.get_big_objects">[docs]</a>    <span class="k">def</span> <span class="nf">get_big_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fg_mask</span><span class="p">,</span><span class="n">frame</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find the foreground objects based on the foreground image</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fg_mask : numpy array</span>
+<span class="sd">            The forground as grayscale image</span>
+<span class="sd">        frame : numpy array</span>
+<span class="sd">            The input image related to the foreground</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (numpy array, list)</span>
+<span class="sd">            A tuple of a new foreground image, and list of foreground </span>
+<span class="sd">            objects.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">label_image</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">fg_mask</span><span class="p">)</span>
+        <span class="n">regs_str</span> <span class="o">=</span> <span class="n">regionprops</span><span class="p">(</span><span class="n">label_image</span><span class="p">,</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">new_regions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">regs_str</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">area</span> <span class="o">&lt;</span> <span class="n">config</span><span class="o">.</span><span class="n">bgs_min_area</span><span class="p">:</span>
+                <span class="n">fg_mask</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">slice</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">elif</span> <span class="n">r</span><span class="o">.</span><span class="n">extent</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">:</span>
+                <span class="n">fg_mask</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">slice</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_regions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fg_mask</span><span class="p">,</span><span class="n">new_regions</span></div></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;sample.mp4&#39;</span><span class="p">))</span>
+    <span class="n">ret</span><span class="p">,</span> <span class="n">bg</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">frame_id</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">cap</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">frame_id</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">BG_s</span> <span class="o">=</span> <span class="n">BG_subtractor</span><span class="p">(</span><span class="n">bg</span><span class="p">)</span>
+    <span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">ret</span><span class="p">:</span> 
+        <span class="n">frame_id</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">I_com</span> <span class="o">=</span> <span class="n">BG_s</span><span class="o">.</span><span class="n">bg_substract</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s1">&#39;fgmask&#39;</span><span class="p">,</span> <span class="n">resize</span><span class="p">(</span><span class="n">I_com</span><span class="p">,</span><span class="mf">0.2</span><span class="p">))</span> 
+        <span class="n">k</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xff</span>
+        <span class="c1">#prv_regions = []</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">27</span><span class="p">:</span> 
+            <span class="k">break</span>
+        <span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span> 
+    <span class="n">cv2</span><span class="o">.</span><span class="n">destroyAllWindows</span><span class="p">()</span> 
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yasin Yousif.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

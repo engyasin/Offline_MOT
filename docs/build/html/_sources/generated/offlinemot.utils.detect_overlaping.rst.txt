@@ -1,0 +1,8 @@
+:orphan:
+
+offlinemot.utils.detect\_overlaping
+===================================
+
+.. currentmodule:: offlinemot.utils
+
+.. autofunction:: detect_overlaping

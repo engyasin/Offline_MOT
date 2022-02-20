@@ -1,0 +1,26 @@
+# .github/workflows/app.yaml
+name: PyTest
+on: [push,pull_request]
+
+jobs:
+  test:
+    runs-on: [macOS-latest, ubuntu-latest]
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      # Setup Python (faster than using Python container)
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: [3.7, 3.8]
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install -r requirements.txt
+      - name: Run test suite
+        run: |
+          pytest --exitfirst --verbose --failed-first 

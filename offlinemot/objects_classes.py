@@ -1,8 +1,10 @@
 import cv2
 import numpy as np
+import logging
+
 from config import config
 
-from utils import check_box
+from utils_ import check_box
 
 class TrafficObj():
     """
@@ -29,7 +31,7 @@ class TrafficObj():
     trust_level : list
         list of three values rows where each value refer to a boolean,
         indicating the sucess of detection, tracking and background
-        substraction respectively
+        subtraction respectively
     tracker_class : Tracker function
         The function that will build the tracker object (default: TrackerKCF_create)
     tracker : Tracker object
@@ -87,7 +89,7 @@ class TrafficObj():
         save the result of the current detection. 
 
     set_bg_substract(ok)
-        save the result of the current background substraction.
+        save the result of the current background subtraction.
 
     set_track_id(id_)
         set track id for the object once it has a detected class
@@ -125,7 +127,7 @@ class TrafficObj():
             car (default is -1)
         detection_way : int, optional
             The way the object is detected, detection network, 
-            tracking or background substraction (default is 1)
+            tracking or background subtraction (default is 1)
         detect_prob : float, optional
             The probabilty that the network detected the 
             object with (default is 0.0)
@@ -296,15 +298,15 @@ class TrafficObj():
             #if object is still, (detection error) or not much detections
             if sum_traj_state<(config.min_history+3):
                 # at least three time movement or detection
-                print('Object ',self.track_id,' deleted because of missing matching steps')
+                logging.info('Object ',self.track_id,' deleted because of missing matching steps')
                 return False,False
             elif all(traj_state):
                 # keep tracking if detected enough
                 return True,False
             elif (sum(traj_state)/len(traj_state))<config.missing_thresh:
                 #delete
-                print('Object ',self.track_id,' deleted because of low detection rate')
-                print(sum(traj_state),len(traj_state))
+                logging.info('Object ',self.track_id,' deleted because of low detection rate')
+                #print(sum(traj_state),len(traj_state))
                 return False,True
             #else:
                 # error in first steps , delete all
@@ -377,7 +379,7 @@ class TrafficObj():
             else:
                 self.boxes.append(box)
             if self.class_id == -1: 
-                print('now is turned to ',obj_item[3])
+                logging.info('Object ',self.track_id,' now is turned to ',obj_item[3])
             self.class_id = obj_item[3]
             self.box = box
             self.class_ids[obj_item[3]] += (1/(1-obj_item[2]))
@@ -458,7 +460,7 @@ class TrafficObj():
         self.trust_level[-1][0] = int(ok)
 
     def set_bg_substract(self,ok):
-        """save the result of the current background substraction.
+        """save the result of the current background subtraction.
 
         Parameters
         ----------

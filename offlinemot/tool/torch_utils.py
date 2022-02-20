@@ -93,11 +93,14 @@ def do_detect(model, img, conf_thresh, nms_thresh, use_cuda=1):
 
     output = model(img)
     t2 = time.time()
+    """
 
     print('-----------------------------------')
     print('           Preprocess : %f' % (t1 - t0))
     print('      Model Inference : %f' % (t2 - t1))
     print('-----------------------------------')
+    """
+
 
     return utils.post_processing(img, conf_thresh, nms_thresh, output)
 

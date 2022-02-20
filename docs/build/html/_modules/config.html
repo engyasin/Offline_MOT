@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>config &mdash; OfflineMOT 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> OfflineMOT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/A_Working_Example.html">A Working Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers.html">For developers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Tracking_Example.html">Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/offlinemot.config.html">offlinemot.config</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OfflineMOT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      <li>config</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for config</h1><div class="highlight"><pre>
+<div class="viewcode-block" id="config"><a class="viewcode-back" href="../generated/offlinemot.config.html#offlinemot.config">[docs]</a><span></span><span class="k">class</span> <span class="nc">config</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class used to set parameters for offline traffic objects detection</span>
+<span class="sd">    and tracking from drone bird-eye videos.</span>
+
+<span class="sd">    ...</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    draw : boolean</span>
+<span class="sd">        Whether to show tracking results as it&#39;s calculated </span>
+<span class="sd">    detect_every_N : int</span>
+<span class="sd">        The frequency of the detection with Yolov4 network in the</span>
+<span class="sd">        video. </span>
+<span class="sd">    missing_thresh : float</span>
+<span class="sd">        Maximum percentage of correct tracking and detection for any </span>
+<span class="sd">        object to continue tracking it</span>
+<span class="sd">    use_cuda : boolean</span>
+<span class="sd">        Whether to perform detection on GPU or CPU </span>
+<span class="sd">    resize_scale: float</span>
+<span class="sd">        The resizing scale of the image to show while processing.</span>
+<span class="sd">        1 means the same as the true size</span>
+<span class="sd">    bgs_history : int</span>
+<span class="sd">        The number of frames needed for background substractor</span>
+<span class="sd">        before esitimating the background </span>
+<span class="sd">    bgs_threshold : int</span>
+<span class="sd">        The distance from which two objects are considered one</span>
+<span class="sd">        in background substraction result </span>
+<span class="sd">    bgs_shadows : boolean</span>
+<span class="sd">        Detect the shadows in a different color grade </span>
+<span class="sd">        in background substraction </span>
+<span class="sd">    bgs_learning : float</span>
+<span class="sd">        The rate which the background is learned </span>
+<span class="sd">        in background substraction </span>
+<span class="sd">    bgs_erosion_size : int</span>
+<span class="sd">        The kernel size to do erosion with on the</span>
+<span class="sd">        background substraction result </span>
+<span class="sd">    bgs_min_area : int</span>
+<span class="sd">        The minimum area in pixel for the objects in the result of</span>
+<span class="sd">        background substraction </span>
+<span class="sd">    bgs_broder_margin : float</span>
+<span class="sd">        The margin around the objects already detected from which</span>
+<span class="sd">        overlapping with other objects from background substraction</span>
+<span class="sd">        is ok. This is represented as percentage of the width and height</span>
+<span class="sd">        of the object.</span>
+<span class="sd">    do_fix : boolean</span>
+<span class="sd">        Whether to perform fixing the view or not </span>
+<span class="sd">    fixing_dilation : int</span>
+<span class="sd">        The kernel size to do dilation to a mask from which matching with</span>
+<span class="sd">        a reference image will be done for esitimating the transformation</span>
+<span class="sd">    min_matches : int</span>
+<span class="sd">        The minimum number of matches to transform the image according to</span>
+<span class="sd">        a reference image postion </span>
+<span class="sd">    model_name : str</span>
+<span class="sd">        The filename of the trained Yolo model</span>
+<span class="sd">    model_config : str</span>
+<span class="sd">        The filename of the configuration file of the trained model</span>
+<span class="sd">    classes_file_name : str</span>
+<span class="sd">        The filename where the list of output classes are list. normaly,</span>
+<span class="sd">        there are three types (cyclists, pedestrians and vehicles)</span>
+<span class="sd">    detect_thresh : float</span>
+<span class="sd">        The minimum probability to consider a detection result from Yolo</span>
+<span class="sd">        model ok. </span>
+<span class="sd">    dist_thresh : int</span>
+<span class="sd">        The maximum distance between tracked object position</span>
+<span class="sd">        and a detected position to consider a correction </span>
+<span class="sd">        for its position </span>
+<span class="sd">    detect_scale: float</span>
+<span class="sd">        How much focus on the image for detection, higher values</span>
+<span class="sd">        would take the whole image, while 0 value would focus on the</span>
+<span class="sd">        previously detected objects.</span>
+<span class="sd">    min_history : int</span>
+<span class="sd">        The smallest time steps length that could be saved as a</span>
+<span class="sd">        traffic object in the result </span>
+<span class="sd">    overlap_thresh : float</span>
+<span class="sd">        The minimum percentage of objects area overlapping with another</span>
+<span class="sd">        to choose one of them as duplicate and delete it </span>
+<span class="sd">    do_smooth : boolean</span>
+<span class="sd">        Whether to smooth the tracking trajectories points</span>
+<span class="sd">        according to Savitzky-Golay algorithm. </span>
+<span class="sd">    window_size : int</span>
+<span class="sd">        The window size for the smoothing algorithm </span>
+<span class="sd">    polydegree : int</span>
+<span class="sd">        The polydegree for the smoothin algorithm, it must be</span>
+<span class="sd">        smaller than window_size </span>
+<span class="sd">    save_out_video : bool</span>
+<span class="sd">        Whether to save the output video in mp4 format with the</span>
+<span class="sd">        tracking data overlaid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">### general paprmters</span>
+    <span class="n">draw</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">detect_every_N</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">missing_thresh</span> <span class="o">=</span> <span class="mf">0.8</span>
+    <span class="n">use_cuda</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">resize_scale</span> <span class="o">=</span> <span class="mf">0.4</span>
+
+    <span class="c1">### background substractor parameters</span>
+    <span class="n">bgs_history</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">bgs_threshold</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">bgs_shadows</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">bgs_learning</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">bgs_erosion_size</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">bgs_min_area</span> <span class="o">=</span> <span class="mi">300</span>
+    <span class="n">bgs_broder_margin</span> <span class="o">=</span>  <span class="mf">0.45</span>    <span class="c1"># bigger would give boxes near the detected boxes with yolo</span>
+
+
+    <span class="c1">### fix view paramers</span>
+    <span class="n">do_fix</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">fixing_dilation</span> <span class="o">=</span> <span class="mi">13</span>
+    <span class="n">min_matches</span>     <span class="o">=</span> <span class="mi">15</span>
+
+
+    <span class="c1">### Detection paramters</span>
+    <span class="n">model_name</span> <span class="o">=</span> <span class="s1">&#39;model/Yolov4_epoch300.pth&#39;</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="s1">&#39;model/yolov4-obj.cfg&#39;</span>
+    <span class="n">classes_file_name</span> <span class="o">=</span> <span class="s1">&#39;model/obj.names&#39;</span>
+    <span class="n">detect_thresh</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="c1">#Yolo detection</span>
+    <span class="c1"># distance to the nearst match between detection and tracking</span>
+    <span class="c1"># output in pixels</span>
+    <span class="n">dist_thresh</span> <span class="o">=</span> <span class="mi">25</span>
+    <span class="n">size_thresh</span> <span class="o">=</span> <span class="mi">25</span>
+    <span class="n">detect_scale</span> <span class="o">=</span> <span class="mf">4.0</span>
+
+
+    <span class="c1">### Filtering Objects:</span>
+    <span class="n">min_history</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">overlap_thresh</span> <span class="o">=</span> <span class="mf">0.7</span>
+
+
+    <span class="c1">### Smoothing for post processing</span>
+    <span class="n">do_smooth</span>   <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">window_size</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">polydegree</span>  <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">save_out_video</span> <span class="o">=</span> <span class="kc">False</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yasin Yousif.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

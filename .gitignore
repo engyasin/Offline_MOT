@@ -1,5 +1,6 @@
 Old/
 __pycache__/
 todo
-docs/.ipynb_checkpoints
+docs/tutorials/.ipynb_checkpoints/
 .vscode/
+.pytest_cache/

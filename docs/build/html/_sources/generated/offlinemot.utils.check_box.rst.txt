@@ -1,0 +1,8 @@
+:orphan:
+
+offlinemot.utils.check\_box
+===========================
+
+.. currentmodule:: offlinemot.utils
+
+.. autofunction:: check_box

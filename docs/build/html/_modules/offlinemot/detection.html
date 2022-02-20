@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>offlinemot.detection &mdash; OfflineMOT 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> OfflineMOT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers.html">For developers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html">Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OfflineMOT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>offlinemot.detection</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for offlinemot.detection</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">tool</span> <span class="k">import</span> <span class="n">darknet2pytorch</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">from</span> <span class="nn">tool.utils</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">tool.torch_utils</span> <span class="k">import</span> <span class="o">*</span>
+
+<span class="kn">from</span> <span class="nn">config</span> <span class="k">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">utils_</span> <span class="k">import</span> <span class="n">find_overlap</span><span class="p">,</span> <span class="n">transform_detection</span>
+<span class="c1"># from tool.darknet2pytorch import Darknet</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+
+<div class="viewcode-block" id="YoloDetector"><a class="viewcode-back" href="../../generated/offlinemot.detection.YoloDetector.html#offlinemot.detection.YoloDetector">[docs]</a><span class="k">class</span> <span class="nc">YoloDetector</span><span class="p">():</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to load trained Yolov4 model from memory,</span>
+<span class="sd">    and perform detection on frames.</span>
+
+<span class="sd">    ...</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    m : Pytorch Model class instance </span>
+<span class="sd">        A model of Yolov4 architecture</span>
+<span class="sd">    </span>
+<span class="sd">    use_cude : bool</span>
+<span class="sd">        Run on CPU if False or GPU if True</span>
+
+<span class="sd">    class_names : list</span>
+<span class="sd">        list of class names from which detection performed</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    detect(numpy array) -&gt; list,(int,int)</span>
+<span class="sd">        Process a new frame to find the detections along with</span>
+<span class="sd">        their positions and probabilities</span>
+
+<span class="sd">    better_detection(numpy array, list) -&gt; list,(int,int)</span>
+<span class="sd">        Detect the classes within the image at the proposed areas</span>
+<span class="sd">        based on the previous detections.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cfgfile</span><span class="p">,</span> <span class="n">weightfile</span><span class="p">,</span> <span class="n">use_cuda</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">namesfile</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">classes_file_name</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cfgfile : str</span>
+<span class="sd">            The filename of the configuration file of the Yolov4 model</span>
+
+<span class="sd">        weightfile : str</span>
+<span class="sd">            The filename of the network model (Yolov4)</span>
+
+<span class="sd">        use_cuda : bool</span>
+<span class="sd">            Run on CPU if False or GPU if True (default is True)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">darknet2pytorch</span><span class="o">.</span><span class="n">Darknet</span><span class="p">(</span><span class="n">cfgfile</span><span class="p">,</span> <span class="n">inference</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">map_location</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+            <span class="n">map_location</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">weightfile</span><span class="p">,</span><span class="n">map_location</span><span class="o">=</span><span class="n">map_location</span><span class="p">))</span>
+        <span class="c1">#self.m.load_weights(weightfile)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_cuda</span> <span class="o">=</span> <span class="n">use_cuda</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_cuda</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">class_names</span> <span class="o">=</span> <span class="n">load_class_names</span><span class="p">(</span><span class="n">namesfile</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="YoloDetector.detect"><a class="viewcode-back" href="../../generated/offlinemot.detection.YoloDetector.detect.html#offlinemot.detection.YoloDetector.detect">[docs]</a>    <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">imgfile</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Detect the classes within the image</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        imgfile : str or numpy array</span>
+<span class="sd">            The input image that could be a string filename or a numpy </span>
+<span class="sd">            array</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list,(int,int)</span>
+<span class="sd">            A list of detection positions and classes and the shape of</span>
+<span class="sd">            the original image. The list has the following shape </span>
+<span class="sd">            [top-left point, bottom-right point,probabilty, class id]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">imgfile</span><span class="p">)</span><span class="o">==</span><span class="nb">str</span><span class="p">:</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">imgfile</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">imgfile</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">sized</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">height</span><span class="p">))</span>
+        <span class="n">sized</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">sized</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+
+        <span class="c1"># 0.4 is the tresh</span>
+        <span class="n">boxes</span> <span class="o">=</span> <span class="n">do_detect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="n">sized</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_cuda</span><span class="p">)</span>
+
+        <span class="c1">#print(boxes)</span>
+        <span class="n">h</span><span class="p">,</span><span class="n">w</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxes</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">p1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">w</span><span class="p">)</span> <span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">h</span><span class="p">)</span>
+            <span class="n">p2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">w</span><span class="p">)</span> <span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="n">h</span><span class="p">)</span>
+            <span class="n">prob</span> <span class="o">=</span> <span class="n">box</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+            <span class="n">class_id</span> <span class="o">=</span> <span class="n">box</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="c1"># 0 reserved to error code, so +1</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">p1</span><span class="p">,</span><span class="n">p2</span><span class="p">,</span><span class="n">prob</span><span class="p">,</span><span class="n">class_id</span><span class="p">))</span>
+            <span class="c1">#print(&#39;class id: &#39;,class_id)</span>
+        <span class="c1">#print(&#39;**********&#39;)</span>
+
+        <span class="k">return</span> <span class="n">results</span><span class="p">,(</span><span class="n">w</span><span class="p">,</span><span class="n">h</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="YoloDetector.better_detection"><a class="viewcode-back" href="../../generated/offlinemot.detection.YoloDetector.better_detection.html#offlinemot.detection.YoloDetector.better_detection">[docs]</a>    <span class="k">def</span> <span class="nf">better_detection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">imgfile</span><span class="p">,</span> <span class="n">additional_objs</span><span class="o">=</span><span class="p">[]):</span>
+
+        <span class="sd">&quot;&quot;&quot;Detect the classes within the image at the proposed areas</span>
+<span class="sd">        based on the previous detections. This will make yolo network</span>
+<span class="sd">        take higher resolution input. Additionally the full scale </span>
+<span class="sd">        detections are included.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        imgfile : str or numpy array</span>
+<span class="sd">            The input image that could be a string filename or a numpy </span>
+<span class="sd">            array</span>
+<span class="sd">        additional_objs : list</span>
+<span class="sd">            The list of current tracked and moving objects boxes. These</span>
+<span class="sd">            will form the cropped parts that the model will perfrom </span>
+<span class="sd">            detections on.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list,(int,int)</span>
+<span class="sd">            A list of detection positions and classes and the shape of</span>
+<span class="sd">            the original image. The list has the following shape </span>
+<span class="sd">            [top-left point, bottom-right point,probabilty, class id]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">results</span><span class="p">,(</span><span class="n">w</span><span class="p">,</span><span class="n">h</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">imgfile</span><span class="p">)</span>
+        <span class="n">results_</span> <span class="o">=</span> <span class="n">results</span><span class="p">[:]</span>
+
+        <span class="n">results</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">obj</span><span class="o">.</span><span class="n">get_detection_format</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">additional_objs</span><span class="p">])</span>
+        <span class="c1"># [top-left point, bottom-right point,probabilty, class id]</span>
+        <span class="c1"># add margin to each box (equal its max dimination) of all sides</span>
+        <span class="n">new_boxes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">detections</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">max_dim</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">detect_scale</span><span class="o">*</span><span class="nb">max</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="c1"># new box: x,y,w,h</span>
+            <span class="n">new_box</span> <span class="o">=</span> <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">max_dim</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="nb">max</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">max_dim</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+                        <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">max_dim</span><span class="p">,</span>
+                        <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">max_dim</span><span class="p">]</span>
+
+            <span class="c1"># testing if the new box is overlapping with any</span>
+            <span class="c1"># if yes then join them and add</span>
+            <span class="n">new_boxes_copy</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">pre_box</span> <span class="ow">in</span> <span class="n">new_boxes</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">find_overlap</span><span class="p">(</span><span class="n">new_box</span><span class="p">,</span><span class="n">pre_box</span><span class="p">):</span>
+                    <span class="c1"># unite them</span>
+                    <span class="n">top_left</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">new_box</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">pre_box</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="nb">min</span><span class="p">(</span><span class="n">new_box</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">pre_box</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">new_box</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">top_left</span><span class="p">,</span>
+                               <span class="nb">max</span><span class="p">((</span><span class="n">new_box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">new_box</span><span class="p">[</span><span class="mi">2</span><span class="p">]),(</span><span class="n">pre_box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">pre_box</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span><span class="o">-</span><span class="n">top_left</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                               <span class="nb">max</span><span class="p">((</span><span class="n">new_box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">new_box</span><span class="p">[</span><span class="mi">3</span><span class="p">]),(</span><span class="n">pre_box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">pre_box</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span><span class="o">-</span><span class="n">top_left</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">new_boxes_copy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pre_box</span><span class="p">)</span>
+
+            <span class="n">new_boxes_copy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_box</span><span class="p">)</span>
+            <span class="n">new_boxes</span> <span class="o">=</span> <span class="n">new_boxes_copy</span><span class="p">[:]</span>
+        <span class="c1"># splitting the overlapping groups of boxes</span>
+        <span class="c1"># for each group find the bounding box and redetect on them</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">imgfile</span><span class="p">)</span><span class="o">==</span><span class="nb">str</span><span class="p">:</span>
+            <span class="n">imgfile</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">imgfile</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">new_boxes</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">w_</span><span class="p">,</span><span class="n">h_</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+            <span class="n">cropped_img</span> <span class="o">=</span> <span class="n">imgfile</span><span class="p">[</span><span class="n">y</span><span class="p">:</span><span class="n">y</span><span class="o">+</span><span class="n">h_</span><span class="p">,</span><span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="o">+</span><span class="n">w_</span><span class="p">]</span>
+            <span class="n">new_detections</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">cropped_img</span><span class="p">)</span>
+            <span class="n">p0</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">detections</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">transform_detection</span><span class="p">(</span><span class="n">p0</span><span class="p">,</span><span class="n">new_detections</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">results_</span><span class="o">+</span><span class="n">detections</span><span class="p">,(</span><span class="n">w</span><span class="p">,</span><span class="n">h</span><span class="p">)</span></div></div>
+        <span class="c1"># calculate the final detection and return it</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="n">detector</span>  <span class="o">=</span> <span class="n">YoloDetector</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;yolov4-obj.cfg&#39;</span><span class="p">),</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;Yolov4_epoch300.pth&#39;</span><span class="p">),</span><span class="n">use_cuda</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">detector</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;00120.jpg&#39;</span><span class="p">))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">detector</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yasin Yousif.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

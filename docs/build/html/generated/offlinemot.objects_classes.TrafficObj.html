@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>offlinemot.objects_classes.TrafficObj &mdash; OfflineMOT 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> OfflineMOT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/A_Working_Example.html">A Working Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers.html">For developers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Tracking_Example.html">Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="offlinemot.config.html">offlinemot.config</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OfflineMOT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>offlinemot.objects_classes.TrafficObj</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/offlinemot.objects_classes.TrafficObj.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="offlinemot-objects-classes-trafficobj">
+<h1>offlinemot.objects_classes.TrafficObj<a class="headerlink" href="#offlinemot-objects-classes-trafficobj" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="offlinemot.objects_classes.TrafficObj">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">offlinemot.objects_classes.</span></span><span class="sig-name descname"><span class="pre">TrafficObj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracker=&lt;built-in</span> <span class="pre">function</span> <span class="pre">TrackerKCF_create&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_id=-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detection_way=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detect_prob=0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/offlinemot/objects_classes.html#TrafficObj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.objects_classes.TrafficObj" title="Permalink to this definition"></a></dt>
+<dd><p>A class used to represent any traffic entity, with its full track
+across frame until it gets lost.</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>~TrafficObj.box</strong> (<em>list</em>) – a box is list of [x,y,w,h] where x,y is the top-left point
+coordinates and w,h are the width and height of the bounding box
+unrotated.</p></li>
+<li><p><strong>~TrafficObj.boxes</strong> (<em>list</em>) – a list of box lists for every time step saved in time_steps</p></li>
+<li><p><strong>~TrafficObj.true_wh_max</strong> (<em>tuple</em>) – the width and height when the object is moving horizontally,
+vertically or the nearst to these directions</p></li>
+<li><p><strong>~TrafficObj.tracking_state</strong> (<em>list</em>) – the list of the tracking success variable</p></li>
+<li><p><strong>~TrafficObj.time_steps</strong> (<em>list</em>) – list of frames where object is tested for detection or tracking.</p></li>
+<li><p><strong>~TrafficObj.trust_level</strong> (<em>list</em>) – list of three values rows where each value refer to a boolean,
+indicating the sucess of detection, tracking and background
+subtraction respectively</p></li>
+<li><p><strong>~TrafficObj.tracker_class</strong> (<em>Tracker function</em>) – The function that will build the tracker object (default: TrackerKCF_create)</p></li>
+<li><p><strong>~TrafficObj.tracker</strong> (<em>Tracker object</em>) – the tracker object that will perform the tracking</p></li>
+<li><p><strong>~TrafficObj.class_id</strong> (<em>int</em>) – an integer representing the type of object whether it is
+-1: unknown (default), 1 pedistrains, 2 cyclist, 3 cars.</p></li>
+<li><p><strong>~TrafficObj.colors_map</strong> (<em>list</em>) – what color to draw each traffic object</p></li>
+<li><p><strong>~TrafficObj.track_id</strong> (<em>int</em>) – a unique id assigned to each traffic object</p></li>
+<li><p><strong>~TrafficObj.last_detect_prob</strong> (<em>float</em>) – the probabilty of the last detection.
+it is needed to solve overlaping conflict (default:0)</p></li>
+<li><p><strong>~TrafficObj.img_wh</strong> (<em>tuple</em>) – the width and height of the frame</p></li>
+<li><p><strong>~TrafficObj.angels</strong> (<em>list</em>) – a placeholder list to calculate the angle of direction at
+the end for the object.</p></li>
+<li><p><strong>~TrafficObj.centers</strong> (<em>list</em>) – a placeholder list to calculate the centers of the boxes
+at the end for the object.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="offlinemot.objects_classes.TrafficObj.find_center">
+<span class="sig-name descname"><span class="pre">find_center</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/offlinemot/objects_classes.html#TrafficObj.find_center"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.objects_classes.TrafficObj.find_center" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the current center for the box.
+the output is integers</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="offlinemot.objects_classes.TrafficObj.track">
+<span class="sig-name descname"><span class="pre">track</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/offlinemot/objects_classes.html#TrafficObj.track"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.objects_classes.TrafficObj.track" title="Permalink to this definition"></a></dt>
+<dd><p>Track the object in the new frame, save the result,
+and update the true size</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="offlinemot.objects_classes.TrafficObj.re_init_tracker">
+<span class="sig-name descname"><span class="pre">re_init_tracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/offlinemot/objects_classes.html#TrafficObj.re_init_tracker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.objects_classes.TrafficObj.re_init_tracker" title="Permalink to this definition"></a></dt>
+<dd><p>start a new tracker object in the frame provided with
+the current box</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="offlinemot.objects_classes.TrafficObj.draw">
+<span class="sig-name descname"><span class="pre">draw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_frame=numpy</span> <span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/offlinemot/objects_classes.html#TrafficObj.draw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.objects_classes.TrafficObj.draw" title="Permalink to this definition"></a></dt>
+<dd><p>Draw the current box position with color code and track ID
+on the frame</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="offlinemot.objects_classes.TrafficObj.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/offlinemot/objects_classes.html#TrafficObj.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.objects_classes.TrafficObj.update" title="Permalink to this definition"></a></dt>
+<dd><p>Test the object if still need to be tracked, or it
+is lost so if it needs to be deleted</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="offlinemot.objects_classes.TrafficObj.filter_by_detections_dist">
+<span class="sig-name descname"><span class="pre">filter_by_detections_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">detections</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/offlinemot/objects_classes.html#TrafficObj.filter_by_detections_dist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.objects_classes.TrafficObj.filter_by_detections_dist" title="Permalink to this definition"></a></dt>
+<dd><p>It assigns the object to one of the detections in the frame
+if a minimum distance and detection probability is found.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="offlinemot.objects_classes.TrafficObj.filter_by_bg_objs">
+<span class="sig-name descname"><span class="pre">filter_by_bg_objs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bg_objs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/offlinemot/objects_classes.html#TrafficObj.filter_by_bg_objs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.objects_classes.TrafficObj.filter_by_bg_objs" title="Permalink to this definition"></a></dt>
+<dd><p>check if the object is within a minimum distance
+to any moving area.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="offlinemot.objects_classes.TrafficObj.set_detection">
+<span class="sig-name descname"><span class="pre">set_detection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ok</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/offlinemot/objects_classes.html#TrafficObj.set_detection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.objects_classes.TrafficObj.set_detection" title="Permalink to this definition"></a></dt>
+<dd><p>save the result of the current detection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="offlinemot.objects_classes.TrafficObj.set_bg_substract">
+<span class="sig-name descname"><span class="pre">set_bg_substract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ok</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/offlinemot/objects_classes.html#TrafficObj.set_bg_substract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.objects_classes.TrafficObj.set_bg_substract" title="Permalink to this definition"></a></dt>
+<dd><p>save the result of the current background subtraction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="offlinemot.objects_classes.TrafficObj.set_track_id">
+<span class="sig-name descname"><span class="pre">set_track_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id_</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/offlinemot/objects_classes.html#TrafficObj.set_track_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.objects_classes.TrafficObj.set_track_id" title="Permalink to this definition"></a></dt>
+<dd><p>set track id for the object once it has a detected class</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="offlinemot.objects_classes.TrafficObj.find_true_size">
+<span class="sig-name descname"><span class="pre">find_true_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_box</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/offlinemot/objects_classes.html#TrafficObj.find_true_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.objects_classes.TrafficObj.find_true_size" title="Permalink to this definition"></a></dt>
+<dd><p>Test evey box of the current position whether it moves
+in the horizontal or vertical direction or the closest
+to that and save the current size if so.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="offlinemot.objects_classes.TrafficObj.get_detection_format">
+<span class="sig-name descname"><span class="pre">get_detection_format</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/offlinemot/objects_classes.html#TrafficObj.get_detection_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.objects_classes.TrafficObj.get_detection_format" title="Permalink to this definition"></a></dt>
+<dd><p>Get the bounding box in (top-left point, bottom-right) point
+format and add class_id and dummy probabilty.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yasin Yousif.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

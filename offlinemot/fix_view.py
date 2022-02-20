@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
-from background_substraction import BG_substractor 
+import logging, os
+from background_subtraction import BG_subtractor 
 
 from config import config
-from utils import resize
+from utils_ import resize
 
 class FixView():
 
@@ -159,9 +160,9 @@ class FixView():
             if dummy.sum()>self.min_matches:
                 frame = cv2.warpAffine(frame,M,gray.shape[::-1],flags=cv2.INTER_CUBIC,borderValue=0)
             else:
-                print("Not transformed, there is low number of correcr matches")
+                logging.warning("Not transformed, there is low number of correcr matches")
         else:
-            print( "Not enough matches are found - {}/{}".format(len(good), self.min_matches) )
+            logging.warning( "Not enough matches are found - {}/{}".format(len(good), self.min_matches) )
 
         return frame
 
@@ -190,13 +191,13 @@ class FixView():
 
 if __name__ == '__main__':
 
-    cap = cv2.VideoCapture('../../DJI_0148.mp4')#Dataset_Drone/DJI_0134.mp4')
+    cap = cv2.VideoCapture(os.path.join(config.cwd,'model','sample.mp4'))
     frame_id = 1
     cap.set(1, frame_id-1)
     ret,bg_rgb = cap.read()
 
     Fix_obj = FixView(bg_rgb)
-    BG_s = BG_substractor(bg_rgb)
+    BG_s = BG_subtractor(bg_rgb)
 
     ret, frame = cap.read()
 
