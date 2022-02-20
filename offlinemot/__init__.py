@@ -4,8 +4,11 @@ The main package directory
 """
 
 import pathlib, sys,os
+
 sys.path.append(str(pathlib.Path(__file__).parent))
 
+import utils_ 
+utils_.load_model()
 
 
 
@@ -17,7 +20,7 @@ import fix_view
 import objects_classes 
 
 import post_process 
-import utils_ 
+
 import show_results
 import main 
 

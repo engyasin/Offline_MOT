@@ -32,6 +32,7 @@ setup(
           'scikit-image',
           'torch',
           'scipy',
+          'gdown',
       ],
   include_package_data=True,
   classifiers=[

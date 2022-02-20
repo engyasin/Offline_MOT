@@ -6,3 +6,4 @@ docs/tutorials/.ipynb_checkpoints/
 .pytest_cache/
 dist/
 offlinemot.egg-info/
+*.pth

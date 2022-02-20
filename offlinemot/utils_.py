@@ -3,6 +3,7 @@ import numpy as np
 
 from config import config
 import os
+import gdown
 
 
 def resize(img,scale=1):
@@ -249,3 +250,12 @@ def transform_detection(p0,detections):
     
     return output
 
+
+def load_model():
+    """Download the Yolo network pretrained file for the example for
+    the first time
+    """
+    output = os.path.join(config.cwd,"model","Yolov4_epoch300.pth")
+    if not(os.path.exists(output)) :
+        url= "https://drive.google.com/uc?id=1rhDaY7aVSeETP8rHgqZTewp4QkWlr3fb"
+        gdown.download(url, output, quiet=False)

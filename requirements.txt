@@ -1,5 +1,7 @@
 numpy
 opencv-contrib-python
 scikit-image
+--find-links https://download.pytorch.org/whl/torch_stable.html
 torch
 scipy
+gdown
