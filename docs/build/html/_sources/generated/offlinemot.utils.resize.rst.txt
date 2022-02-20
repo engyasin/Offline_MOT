@@ -1,8 +1,0 @@
-:orphan:
-
-offlinemot.utils.resize
-=======================
-
-.. currentmodule:: offlinemot.utils
-
-.. autofunction:: resize

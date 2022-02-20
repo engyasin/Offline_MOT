@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>offlinemot.post_process &mdash; OfflineMOT 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> OfflineMOT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers.html">For developers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html">Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OfflineMOT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>offlinemot.post_process</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for offlinemot.post_process</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">savgol_filter</span>
+<span class="c1">#from scipy.interpolate import splev, splrep</span>
+
+<span class="kn">from</span> <span class="nn">config</span> <span class="k">import</span> <span class="n">config</span>
+
+<span class="c1"># find centers</span>
+<span class="c1"># smooth cenetrs (Apply a Savitzky-Golay filter to an array.)</span>
+<span class="c1"># change the boxes (recalculate top-left corner based on new size and center)</span>
+<span class="c1"># find thetas</span>
+
+<div class="viewcode-block" id="find_cntrs"><a class="viewcode-back" href="../../generated/offlinemot.post_process.find_cntrs.html#offlinemot.post_process.find_cntrs">[docs]</a><span class="k">def</span> <span class="nf">find_cntrs</span><span class="p">(</span><span class="n">boxes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the centers of the list of boxes in the input.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    boxes : list</span>
+<span class="sd">        The list of the boxes where each box is</span>
+<span class="sd">        [x,y,width,height] where x,y is the coordinates</span>
+<span class="sd">        of the top-left point</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        Centers of each box where each row is a list of</span>
+<span class="sd">        two float numbers (x,y).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># box is : x,y,w,h</span>
+    <span class="n">centers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">box</span> <span class="ow">in</span> <span class="n">boxes</span><span class="p">:</span>
+        <span class="n">centers</span><span class="o">.</span><span class="n">append</span><span class="p">([(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">)),(</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">))])</span>
+    <span class="k">return</span> <span class="n">centers</span></div>
+
+
+<div class="viewcode-block" id="tracks_angels"><a class="viewcode-back" href="../../generated/offlinemot.post_process.tracks_angels.html#offlinemot.post_process.tracks_angels">[docs]</a><span class="k">def</span> <span class="nf">tracks_angels</span><span class="p">(</span><span class="n">track</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find the orientation of point that lead to the next one</span>
+<span class="sd">    in the track input.</span>
+
+<span class="sd">    The last orientation is repated to set orientation to the last point.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tracks : list</span>
+<span class="sd">        The track list of 2D points, representing the centers</span>
+<span class="sd">        of the tracked target</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        a list of angels in degrees related to each point</span>
+<span class="sd">        in the track in the same order.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># track is a list of (x,y)</span>
+    <span class="n">angels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1">#change happen on langer time period than 1 frame (1/30 second)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">track</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">p1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">track</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">N</span><span class="p">]):</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="n">track</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">N</span><span class="p">]</span>
+        <span class="c1"># (y2-y1)/(x2-x1)</span>
+        <span class="n">ang</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">((</span><span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]),(</span><span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">ang</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">ang</span><span class="p">)</span>
+        <span class="n">angels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ang</span><span class="p">)</span>
+        <span class="c1"># in deg</span>
+    <span class="n">angels</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">angels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">*</span><span class="n">N</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">angels</span></div>
+
+<div class="viewcode-block" id="repair_traj"><a class="viewcode-back" href="../../generated/offlinemot.post_process.repair_traj.html#offlinemot.post_process.repair_traj">[docs]</a><span class="k">def</span> <span class="nf">repair_traj</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Perfrom linear interpolation for a track with missing </span>
+<span class="sd">    steps (where there&#39;s no detection or tracking).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    obj : TrafficObj instance</span>
+<span class="sd">        The traffic object instance whose track should be interpolated</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        a list of the object center coordinates, where the missing</span>
+<span class="sd">        postions are interpolated lineary using the surrounding positions</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">j</span><span class="p">,</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span>
+    <span class="n">new_centers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="n">i</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">trust_level</span><span class="p">)</span> <span class="ow">and</span> <span class="n">j</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">centers</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">trust_level</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+            <span class="n">new_centers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">centers</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">state2</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">trust_level</span><span class="p">[</span><span class="n">i</span><span class="p">:]:</span>
+                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">state2</span><span class="p">):</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">c</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="n">dx</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">centers</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">obj</span><span class="o">.</span><span class="n">centers</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">dy</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">centers</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">obj</span><span class="o">.</span><span class="n">centers</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="n">c</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">new_centers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">obj</span><span class="o">.</span><span class="n">centers</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">dx</span><span class="o">*</span><span class="n">x</span><span class="p">,</span><span class="n">obj</span><span class="o">.</span><span class="n">centers</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">dy</span><span class="o">*</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">new_centers</span></div>
+
+<div class="viewcode-block" id="post_process"><a class="viewcode-back" href="../../generated/offlinemot.post_process.post_process.html#offlinemot.post_process.post_process">[docs]</a><span class="k">def</span> <span class="nf">post_process</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;perform post processing steps on the tracking data.</span>
+
+<span class="sd">    The processing contains:</span>
+<span class="sd">    1) finding and interpolating the centers of boxes</span>
+<span class="sd">    2) smoothing the track of centers</span>
+<span class="sd">    3) recalculating the boxes</span>
+<span class="sd">    4) finding the orientations</span>
+<span class="sd">    5) smoothing the orientations</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    obj : TrafficObj class instance</span>
+<span class="sd">        The target instance which contains the boxes and detection data</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    TrafficObj class instance</span>
+<span class="sd">        The target instance after recalculating and smoothing the </span>
+<span class="sd">        orientations and centers</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    postProcessAll : loop over all obejcts for post processing.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">obj</span><span class="o">.</span><span class="n">centers</span> <span class="o">=</span> <span class="n">find_cntrs</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">boxes</span><span class="p">)</span>
+    <span class="n">obj</span><span class="o">.</span><span class="n">centers</span> <span class="o">=</span> <span class="n">repair_traj</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="c1"># smooth</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">do_smooth</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">centers</span><span class="p">)</span><span class="o">&gt;=</span><span class="n">config</span><span class="o">.</span><span class="n">window_size</span><span class="p">:</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">centers</span> <span class="o">=</span> <span class="n">savgol_filter</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">centers</span><span class="p">,</span><span class="n">config</span><span class="o">.</span><span class="n">window_size</span><span class="p">,</span><span class="n">config</span><span class="o">.</span><span class="n">polydegree</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1">#spl = splrep(x, y, s=0.5) #Larger s means more smoothing </span>
+        <span class="c1">#y2 = splev(x2, spl)</span>
+        <span class="c1"># maybe smooth on x also</span>
+        
+    <span class="c1"># change boxes</span>
+    <span class="n">w</span><span class="p">,</span><span class="n">h</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">true_wh_max</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">obj</span><span class="o">.</span><span class="n">true_wh_max</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">obj</span><span class="o">.</span><span class="n">boxes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">cntr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">centers</span><span class="p">):</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">boxes</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">cntr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="p">(</span><span class="n">w</span><span class="o">/</span><span class="mi">2</span><span class="p">)),</span><span class="nb">int</span><span class="p">(</span><span class="n">cntr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="p">(</span><span class="n">h</span><span class="o">/</span><span class="mi">2</span><span class="p">)),</span><span class="n">w</span><span class="p">,</span><span class="n">h</span><span class="p">])</span>
+    <span class="c1"># find angels</span>
+    <span class="n">obj</span><span class="o">.</span><span class="n">angels</span>  <span class="o">=</span> <span class="n">tracks_angels</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">centers</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">obj</span></div>
+
+<div class="viewcode-block" id="postProcessAll"><a class="viewcode-back" href="../../generated/offlinemot.post_process.postProcessAll.html#offlinemot.post_process.postProcessAll">[docs]</a><span class="k">def</span> <span class="nf">postProcessAll</span><span class="p">(</span><span class="n">tracks_objs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;It loops over all the objects in the input list for post processing</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tracks_objs : list</span>
+<span class="sd">        The list of all the taregts class objects</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        a list of the new post processed tracked objects</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    post_process : perform post processing steps on the tracking data. </span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">tracks_objs</span><span class="p">:</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">post_process</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yasin Yousif.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

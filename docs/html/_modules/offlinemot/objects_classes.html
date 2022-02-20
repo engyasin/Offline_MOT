@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>offlinemot.objects_classes &mdash; OfflineMOT 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> OfflineMOT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers.html">For developers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html">Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OfflineMOT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>offlinemot.objects_classes</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for offlinemot.objects_classes</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">config</span> <span class="k">import</span> <span class="n">config</span>
+
+<span class="kn">from</span> <span class="nn">utils_</span> <span class="k">import</span> <span class="n">check_box</span>
+
+<div class="viewcode-block" id="TrafficObj"><a class="viewcode-back" href="../../generated/offlinemot.objects_classes.TrafficObj.html#offlinemot.objects_classes.TrafficObj">[docs]</a><span class="k">class</span> <span class="nc">TrafficObj</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class used to represent any traffic entity, with its full track </span>
+<span class="sd">    across frame until it gets lost.</span>
+
+<span class="sd">    ...</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    box : list</span>
+<span class="sd">        a box is list of [x,y,w,h] where x,y is the top-left point</span>
+<span class="sd">        coordinates and w,h are the width and height of the bounding box</span>
+<span class="sd">        unrotated.</span>
+<span class="sd">    boxes : list</span>
+<span class="sd">        a list of box lists for every time step saved in time_steps</span>
+<span class="sd">    true_wh_max : tuple</span>
+<span class="sd">        the width and height when the object is moving horizontally,</span>
+<span class="sd">        vertically or the nearst to these directions</span>
+<span class="sd">    tracking_state : list</span>
+<span class="sd">        the list of the tracking success variable</span>
+<span class="sd">    time_steps : list</span>
+<span class="sd">        list of frames where object is tested for detection or tracking.</span>
+<span class="sd">    trust_level : list</span>
+<span class="sd">        list of three values rows where each value refer to a boolean,</span>
+<span class="sd">        indicating the sucess of detection, tracking and background</span>
+<span class="sd">        subtraction respectively</span>
+<span class="sd">    tracker_class : Tracker function</span>
+<span class="sd">        The function that will build the tracker object (default: TrackerKCF_create)</span>
+<span class="sd">    tracker : Tracker object</span>
+<span class="sd">        the tracker object that will perform the tracking</span>
+<span class="sd">    class_id : int</span>
+<span class="sd">        an integer representing the type of object whether it is</span>
+<span class="sd">        -1: unknown (default), 1 pedistrains, 2 cyclist, 3 cars.</span>
+<span class="sd">    colors_map : list</span>
+<span class="sd">        what color to draw each traffic object</span>
+<span class="sd">    track_id : int</span>
+<span class="sd">        a unique id assigned to each traffic object</span>
+<span class="sd">    last_detect_prob : float</span>
+<span class="sd">        the probabilty of the last detection.</span>
+<span class="sd">        it is needed to solve overlaping conflict (default:0)</span>
+<span class="sd">    img_wh : tuple</span>
+<span class="sd">        the width and height of the frame</span>
+<span class="sd">    angels : list</span>
+<span class="sd">        a placeholder list to calculate the angle of direction at</span>
+<span class="sd">        the end for the object.</span>
+<span class="sd">    centers : list</span>
+<span class="sd">        a placeholder list to calculate the centers of the boxes</span>
+<span class="sd">        at the end for the object.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    find_center()</span>
+<span class="sd">        Calculate the current center for the box. </span>
+<span class="sd">        the output is integers</span>
+
+<span class="sd">    track(new_frame,frame_id)</span>
+<span class="sd">        Track the object in the new frame, save the result,</span>
+<span class="sd">        and update the true size</span>
+
+<span class="sd">    re_init_tracker(frame)</span>
+<span class="sd">        start a new tracker object in the frame provided with</span>
+<span class="sd">        the current box</span>
+
+<span class="sd">    draw(new_frame=numpy array)</span>
+<span class="sd">        Draw the current box position with color code and track ID</span>
+<span class="sd">        on the frame</span>
+
+<span class="sd">    update()</span>
+<span class="sd">        Test the object if still need to be tracked, or it</span>
+<span class="sd">        is lost so if it needs to be deleted</span>
+
+<span class="sd">    filter_by_detections_dist(detections,check=False)</span>
+<span class="sd">        It assigns the object to one of the detections in the frame</span>
+<span class="sd">        if a minimum distance and detection probability is found.</span>
+
+<span class="sd">    filter_by_bg_objs(bg_objs)</span>
+<span class="sd">        check if the object is within a minimum distance</span>
+<span class="sd">        to any moving area. </span>
+
+<span class="sd">    set_detection(ok)</span>
+<span class="sd">        save the result of the current detection. </span>
+
+<span class="sd">    set_bg_substract(ok)</span>
+<span class="sd">        save the result of the current background subtraction.</span>
+
+<span class="sd">    set_track_id(id_)</span>
+<span class="sd">        set track id for the object once it has a detected class</span>
+
+<span class="sd">    find_true_size(new_box)</span>
+<span class="sd">        Test evey box of the current position whether it moves</span>
+<span class="sd">        in the horizontal or vertical direction or the closest</span>
+<span class="sd">        to that and save the current size if so.</span>
+
+<span class="sd">    get_detection_format()</span>
+<span class="sd">        Get the bounding box in (top-left point, bottom-right) point</span>
+<span class="sd">        format and add class_id and dummy probabilty.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">,</span><span class="n">box</span><span class="p">,</span><span class="n">track_id</span><span class="p">,</span><span class="n">tracker</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">TrackerKCF_create</span><span class="p">,</span><span class="n">class_id</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">detection_way</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">detect_prob</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frame : numpy array</span>
+<span class="sd">            The image of the first occurrence of the object</span>
+<span class="sd">        frame_id : int</span>
+<span class="sd">            The frame order in the video</span>
+<span class="sd">        box : int</span>
+<span class="sd">            The current bounding box of the object, represented as</span>
+<span class="sd">            [x,y,w,h], where x,y is the top left corner, and</span>
+<span class="sd">            w,h are the width and height.</span>
+<span class="sd">        track_id : int</span>
+<span class="sd">            The object unique identifier</span>
+<span class="sd">        tracker : function</span>
+<span class="sd">            The builder function for the tracker object </span>
+<span class="sd">            (default is cv2.TrackerKCF_create)</span>
+<span class="sd">        class_id : int, optional</span>
+<span class="sd">            The class type of the object,unknown, pedestrain, cyclist or </span>
+<span class="sd">            car (default is -1)</span>
+<span class="sd">        detection_way : int, optional</span>
+<span class="sd">            The way the object is detected, detection network, </span>
+<span class="sd">            tracking or background subtraction (default is 1)</span>
+<span class="sd">        detect_prob : float, optional</span>
+<span class="sd">            The probabilty that the network detected the </span>
+<span class="sd">            object with (default is 0.0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># -1 for class id means unkonwn</span>
+
+        <span class="c1"># detection way:</span>
+        <span class="c1"># 1 for detection</span>
+        <span class="c1"># 2 tracking</span>
+        <span class="c1"># 3 bg substract</span>
+
+        <span class="c1">## Tracking part</span>
+        <span class="c1"># box is : x,y,w,h</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">box</span> <span class="o">=</span> <span class="n">box</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">box</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">true_wh_max</span> <span class="o">=</span> <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracking_state</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span> <span class="o">=</span> <span class="p">[</span><span class="n">frame_id</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trust_level</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trust_level</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">detection_way</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1">#TODO add another list for detection confirm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracker_class</span> <span class="o">=</span> <span class="n">tracker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracker_class</span><span class="p">()</span>
+        <span class="c1"># cv2.TrackerKCF_create())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">box</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">class_id</span> <span class="o">=</span> <span class="n">class_id</span>
+
+        <span class="c1"># length is not standard (class,prob)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">class_ids</span> <span class="o">=</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">:</span><span class="mi">0</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">class_ids</span><span class="p">[</span><span class="n">class_id</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">detect_prob</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">colors_map</span> <span class="o">=</span> <span class="p">[</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">),</span> <span class="c1"># error</span>
+                            <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="c1"># ped</span>
+                            <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="c1"># cyclist</span>
+                            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="c1"># cars</span>
+                            <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">)]</span> <span class="c1"># unknown</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">track_id</span> <span class="o">=</span> <span class="n">track_id</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_detect_prob</span> <span class="o">=</span> <span class="n">detect_prob</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">img_wh</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># to be used in postprocess</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angels</span>  <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">centers</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="TrafficObj.find_center"><a class="viewcode-back" href="../../generated/offlinemot.objects_classes.TrafficObj.find_center.html#offlinemot.objects_classes.TrafficObj.find_center">[docs]</a>    <span class="k">def</span> <span class="nf">find_center</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the current center for the box. </span>
+<span class="sd">        the output is integers</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            a tuple of the center x and y as rounded integers</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">)),</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="TrafficObj.track"><a class="viewcode-back" href="../../generated/offlinemot.objects_classes.TrafficObj.track.html#offlinemot.objects_classes.TrafficObj.track">[docs]</a>    <span class="k">def</span> <span class="nf">track</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">new_frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Track the object in the new frame, save the result,</span>
+<span class="sd">        and update the true size</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        new_frame : numpy array</span>
+<span class="sd">            The frame to do the tracking in</span>
+<span class="sd">        frame_id : int</span>
+<span class="sd">            The current frame order in the video</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">state</span><span class="p">,</span> <span class="n">box</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_frame</span><span class="p">)</span>
+        <span class="c1">#print(state)</span>
+        <span class="k">if</span> <span class="n">state</span><span class="p">:</span>
+            <span class="c1">#update boxes list</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">box</span> <span class="o">=</span> <span class="n">box</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">find_true_size</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">box</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracking_state</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frame_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trust_level</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">state</span><span class="p">),</span><span class="mi">0</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="TrafficObj.re_init_tracker"><a class="viewcode-back" href="../../generated/offlinemot.objects_classes.TrafficObj.re_init_tracker.html#offlinemot.objects_classes.TrafficObj.re_init_tracker">[docs]</a>    <span class="k">def</span> <span class="nf">re_init_tracker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">frame</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;start a new tracker object in the provided frame with</span>
+<span class="sd">        the current box</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frame : numpy array</span>
+<span class="sd">            The current frame to initilize the tracking in</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># tracker may have errors</span>
+        <span class="c1"># re init with detections</span>
+        <span class="c1"># done after filter by detection</span>
+        <span class="c1">#print(self.box)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracker_class</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracker</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TrafficObj.draw"><a class="viewcode-back" href="../../generated/offlinemot.objects_classes.TrafficObj.draw.html#offlinemot.objects_classes.TrafficObj.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">new_frame</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Draw the current box position with color code and track ID</span>
+<span class="sd">        on the frame</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        new_frame : numpy array</span>
+<span class="sd">            The current frame to draw the object in</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy array</span>
+<span class="sd">            The new frame that should be shown with the object</span>
+<span class="sd">            data drawn in it.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># object that is being tracked</span>
+        <span class="c1"># TODO five color code (3 classes, unknown and error) </span>
+        <span class="n">color_code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colors_map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">class_id</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">tracking_state</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="c1">#color_code = [(1, 0, 255),(0, 255, 0)][self.tracking_state[-1]]</span>
+
+        <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">]</span>
+
+
+        <span class="c1">################################</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">track_id</span><span class="o">&gt;-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">cv2</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">new_frame</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">color_code</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+            <span class="n">cv2</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">new_frame</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">track_id</span><span class="p">),(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">),</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">color_code</span><span class="p">,</span><span class="n">thickness</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># moving obj</span>
+            <span class="n">cv2</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">new_frame</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">color_code</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+
+        <span class="k">return</span> <span class="n">new_frame</span></div>
+
+
+<div class="viewcode-block" id="TrafficObj.update"><a class="viewcode-back" href="../../generated/offlinemot.objects_classes.TrafficObj.update.html#offlinemot.objects_classes.TrafficObj.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test the object if still need to be tracked, or it</span>
+<span class="sd">        is lost so if it needs to be deleted</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            a tuple of two boolean varaible, the first to test if </span>
+<span class="sd">            the object are lost and the second to test if it was</span>
+<span class="sd">            real object or noise.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># history length</span>
+        <span class="n">under_prosses</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trust_level</span><span class="p">)</span><span class="o">&lt;</span><span class="n">config</span><span class="o">.</span><span class="n">min_history</span>
+
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">under_prosses</span><span class="p">):</span>
+            <span class="c1"># min detection</span>
+            <span class="c1">#if self.class_id == -1:</span>
+                <span class="c1"># after some history and still no detection --&gt; delete</span>
+            <span class="c1">#    return False,False</span>
+
+            <span class="n">traj_state</span><span class="p">,</span><span class="n">sum_traj_state</span> <span class="o">=</span> <span class="p">[]</span> <span class="p">,</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trust_level</span><span class="p">:</span>
+                <span class="n">traj_state</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">state</span><span class="p">))</span>
+                <span class="n">sum_traj_state</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+            <span class="c1">#if object is still, (detection error) or not much detections</span>
+            <span class="k">if</span> <span class="n">sum_traj_state</span><span class="o">&lt;</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">min_history</span><span class="o">+</span><span class="mi">3</span><span class="p">):</span>
+                <span class="c1"># at least three time movement or detection</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Object &#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">track_id</span><span class="p">,</span><span class="s1">&#39; deleted because of missing matching steps&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span><span class="kc">False</span>
+            <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="n">traj_state</span><span class="p">):</span>
+                <span class="c1"># keep tracking if detected enough</span>
+                <span class="k">return</span> <span class="kc">True</span><span class="p">,</span><span class="kc">False</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">traj_state</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">traj_state</span><span class="p">))</span><span class="o">&lt;</span><span class="n">config</span><span class="o">.</span><span class="n">missing_thresh</span><span class="p">:</span>
+                <span class="c1">#delete</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Object &#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">track_id</span><span class="p">,</span><span class="s1">&#39; deleted because of low detection rate&#39;</span><span class="p">)</span>
+                <span class="c1">#print(sum(traj_state),len(traj_state))</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span><span class="kc">True</span>
+            <span class="c1">#else:</span>
+                <span class="c1"># error in first steps , delete all</span>
+            <span class="c1">#    return False,False</span>
+                <span class="c1">#save only history true longer than n_history</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span></div>
+        <span class="c1">##Return: Track, Save</span>
+
+
+<div class="viewcode-block" id="TrafficObj.filter_by_detections_dist"><a class="viewcode-back" href="../../generated/offlinemot.objects_classes.TrafficObj.filter_by_detections_dist.html#offlinemot.objects_classes.TrafficObj.filter_by_detections_dist">[docs]</a>    <span class="k">def</span> <span class="nf">filter_by_detections_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detections</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Assign the object to one of the detections in the frame</span>
+<span class="sd">        if a minimum distance and detection probability are found.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        detections : list</span>
+<span class="sd">            A list for the detections in the current frame as</span>
+<span class="sd">            it is the output from the detection network</span>
+<span class="sd">        check : bool, optional</span>
+<span class="sd">            A flag used to add the result as new point or just update</span>
+<span class="sd">            the last position (default False)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            a tuple of two elements, where the first is boolean whether</span>
+<span class="sd">            a match of the detection are found. The second is the </span>
+<span class="sd">            detection list after removing the matched detection.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obj_cntr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_center</span><span class="p">()</span>
+        <span class="n">detections_dists</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">detections_size</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">obj_item</span> <span class="ow">in</span> <span class="n">detections</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">obj_item</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;</span><span class="n">config</span><span class="o">.</span><span class="n">detect_thresh</span><span class="p">:</span>
+                <span class="n">detections_dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1e9</span><span class="p">)</span>
+                <span class="n">detections_size</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1e9</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(((</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">//</span><span class="mi">2</span> <span class="o">-</span> <span class="n">obj_cntr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                    <span class="p">(</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span><span class="o">//</span><span class="mi">2</span> <span class="o">-</span> <span class="n">obj_cntr</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+            <span class="n">size_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(((</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                                   <span class="p">(</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+            <span class="c1">#if (obj_item[3] not in self.class_ids) and (self.class_id != -1):</span>
+            <span class="c1">#    if dist &lt; config.dist_thresh: self.class_ids.append(obj_item[3])</span>
+            <span class="c1">#    detections_dists.append(1e9)</span>
+            <span class="c1">#    continue</span>
+
+            <span class="n">detections_dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+            <span class="n">detections_size</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">size_</span><span class="p">)</span>
+
+        <span class="n">detections_dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1e9</span><span class="p">)</span>
+        <span class="n">detections_size</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1e9</span><span class="p">)</span>
+        <span class="n">Ok</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">detections_dists</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">dist_thresh</span><span class="p">)</span><span class="c1"># )</span>
+        <span class="n">Ok</span> <span class="o">*=</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">detections_size</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">size_thresh</span><span class="o">*</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">1.6</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">class_id</span><span class="o">==-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="c1">#if self.track_id == 4:</span>
+        <span class="c1">#    print(detections_dists)</span>
+        <span class="c1">#    print([ob[2] for ob in detections])</span>
+        <span class="c1">#    print([ob[3] for ob in detections])</span>
+        <span class="k">if</span> <span class="n">Ok</span><span class="p">:</span>
+            <span class="n">obj_item</span> <span class="o">=</span> <span class="n">detections</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">detections_dists</span><span class="p">))</span>
+            <span class="n">box</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">obj_item</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">obj_item</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">find_true_size</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">check</span><span class="p">:</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">box</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">class_id</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span> 
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Object &#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">track_id</span><span class="p">,</span><span class="s1">&#39; now is turned to &#39;</span><span class="p">,</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">class_id</span> <span class="o">=</span> <span class="n">obj_item</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">box</span> <span class="o">=</span> <span class="n">box</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">class_ids</span><span class="p">[</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_detect_prob</span> <span class="o">=</span> <span class="n">obj_item</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+            <span class="c1">#self.need_redetect = not(check_box(box,self.img_wh))</span>
+
+        <span class="k">return</span> <span class="n">Ok</span><span class="p">,</span> <span class="n">detections</span> </div>
+
+
+<div class="viewcode-block" id="TrafficObj.filter_by_bg_objs"><a class="viewcode-back" href="../../generated/offlinemot.objects_classes.TrafficObj.filter_by_bg_objs.html#offlinemot.objects_classes.TrafficObj.filter_by_bg_objs">[docs]</a>    <span class="k">def</span> <span class="nf">filter_by_bg_objs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bg_objs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if the object is within a minimum distance</span>
+<span class="sd">        of any moving area.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bg_objs : list</span>
+<span class="sd">            The list of moving object in the current frame, as</span>
+<span class="sd">            regions class instances of skimage library</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            a tuple of two elements, where the first is boolean whether a</span>
+<span class="sd">            match with one of the moving objects are found. The second is</span>
+<span class="sd">            the list of moving objects after removing the matched object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obj_cntr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_center</span><span class="p">()</span>
+        <span class="n">detections_dists</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">detections_size</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">obj_item</span> <span class="ow">in</span> <span class="n">bg_objs</span><span class="p">:</span>
+
+            <span class="c1">#if (obj_item[3] != self.class_id) and (self.class_id != -1):</span>
+            <span class="c1">#    detections_dists.append(1e9)</span>
+            <span class="c1">#</span>
+            <span class="c1">#    continue</span>
+
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">((</span><span class="n">obj_item</span><span class="o">.</span><span class="n">centroid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">obj_cntr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                   <span class="n">obj_item</span><span class="o">.</span><span class="n">centroid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">obj_cntr</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+            <span class="n">size_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(((</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">-</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                                   <span class="p">(</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+
+            <span class="n">detections_dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+            <span class="n">detections_size</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">size_</span><span class="p">)</span>
+
+        <span class="n">Ok</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">bg_objs</span><span class="p">:</span>
+            <span class="n">Ok</span> <span class="o">=</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">detections_dists</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">dist_thresh</span><span class="o">-</span><span class="mi">12</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">detections_size</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">size_thresh</span><span class="o">-</span><span class="mi">12</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">Ok</span><span class="p">:</span>
+
+            <span class="n">obj_item</span> <span class="o">=</span> <span class="n">bg_objs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">detections_dists</span><span class="p">))</span>
+            <span class="c1"># no need to assign boxes, unless</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracking_state</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span> <span class="c1"># and not detected</span>
+
+                <span class="n">box</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">-</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+                <span class="c1">#box = [obj_item[0][0], obj_item[0][1], obj_item[1][0]-obj_item[0][0],obj_item[1][1]-obj_item[0][1]]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">box</span> <span class="o">=</span> <span class="n">box</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">find_true_size</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+
+            <span class="c1">#if self.class_id == -1: </span>
+            <span class="c1">#    self.class_id = obj_item[3]</span>
+
+        <span class="k">return</span> <span class="n">Ok</span><span class="p">,</span> <span class="n">bg_objs</span> </div>
+
+<div class="viewcode-block" id="TrafficObj.set_detection"><a class="viewcode-back" href="../../generated/offlinemot.objects_classes.TrafficObj.set_detection.html#offlinemot.objects_classes.TrafficObj.set_detection">[docs]</a>    <span class="k">def</span> <span class="nf">set_detection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ok</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;save the result of the current detection. </span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ok : boolean</span>
+<span class="sd">            Whether detection found or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trust_level</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ok</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TrafficObj.set_bg_substract"><a class="viewcode-back" href="../../generated/offlinemot.objects_classes.TrafficObj.set_bg_substract.html#offlinemot.objects_classes.TrafficObj.set_bg_substract">[docs]</a>    <span class="k">def</span> <span class="nf">set_bg_substract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ok</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;save the result of the current background subtraction.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ok : boolean</span>
+<span class="sd">            Whether moving object found or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trust_level</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ok</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TrafficObj.set_track_id"><a class="viewcode-back" href="../../generated/offlinemot.objects_classes.TrafficObj.set_track_id.html#offlinemot.objects_classes.TrafficObj.set_track_id">[docs]</a>    <span class="k">def</span> <span class="nf">set_track_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">id_</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;set track id for the object once it has a detected class</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        id_ : int</span>
+<span class="sd">            The id to set for the object if it does not have one yet</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">track_id</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">track_id</span> <span class="o">=</span> <span class="n">id_</span></div>
+
+
+<div class="viewcode-block" id="TrafficObj.find_true_size"><a class="viewcode-back" href="../../generated/offlinemot.objects_classes.TrafficObj.find_true_size.html#offlinemot.objects_classes.TrafficObj.find_true_size">[docs]</a>    <span class="k">def</span> <span class="nf">find_true_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">new_box</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test evey box of the current position whether it moves</span>
+<span class="sd">        in the horizontal or vertical direction or the closest</span>
+<span class="sd">        to that and save the current size if so.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        new_box : list</span>
+<span class="sd">            The current box to test its direction of movement</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if the view is bird-view sizes should be fixed</span>
+        <span class="c1"># box is : x,y,w,h</span>
+        <span class="k">if</span> <span class="n">check_box</span><span class="p">(</span><span class="n">new_box</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">img_wh</span><span class="p">):</span>
+            <span class="n">center</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_center</span><span class="p">()</span>
+            <span class="n">new_center</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">new_box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="p">(</span><span class="n">new_box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">)),</span><span class="nb">int</span><span class="p">(</span><span class="n">new_box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="p">(</span><span class="n">new_box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+            <span class="n">d_x</span><span class="p">,</span><span class="n">d_y</span> <span class="o">=</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">new_center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">new_center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># max difference between d_x,d_y is needed, means angels near 0,90,180,270,360</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">d_x</span><span class="o">-</span><span class="n">d_y</span><span class="p">)</span><span class="o">&gt;</span><span class="bp">self</span><span class="o">.</span><span class="n">true_wh_max</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">true_wh_max</span> <span class="o">=</span> <span class="n">new_box</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span><span class="nb">abs</span><span class="p">(</span><span class="n">d_x</span><span class="o">-</span><span class="n">d_y</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TrafficObj.get_detection_format"><a class="viewcode-back" href="../../generated/offlinemot.objects_classes.TrafficObj.get_detection_format.html#offlinemot.objects_classes.TrafficObj.get_detection_format">[docs]</a>    <span class="k">def</span> <span class="nf">get_detection_format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the bounding box in (top-left point, bottom-right point)</span>
+<span class="sd">        format and add class_id and dummy probabilty to get a similar</span>
+<span class="sd">        format to the output of Yolo</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span>
+                <span class="mf">0.5</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">class_id</span><span class="p">]</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yasin Yousif.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

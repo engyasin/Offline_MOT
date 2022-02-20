@@ -1,8 +1,0 @@
-:orphan:
-
-offlinemot.utils.transform\_detection
-=====================================
-
-.. currentmodule:: offlinemot.utils
-
-.. autofunction:: transform_detection

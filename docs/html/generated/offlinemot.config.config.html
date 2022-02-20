@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>offlinemot.config.config &mdash; OfflineMOT 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> OfflineMOT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/A_Working_Example.html">A Working Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers.html">For developers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Tracking_Example.html">Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OfflineMOT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>offlinemot.config.config</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/offlinemot.config.config.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="offlinemot-config-config">
+<h1>offlinemot.config.config<a class="headerlink" href="#offlinemot-config-config" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="offlinemot.config.config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">offlinemot.config.</span></span><span class="sig-name descname"><span class="pre">config</span></span><a class="reference internal" href="../_modules/offlinemot/config.html#config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.config.config" title="Permalink to this definition"></a></dt>
+<dd><p>A class used to set parameters for offline traffic objects detection
+and tracking from drone bird-eye videos.</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>~config.draw</strong> (<em>boolean</em>) – Whether to show tracking results as it’s calculated</p></li>
+<li><p><strong>~config.detect_every_N</strong> (<em>int</em>) – The frequency of the detection with Yolov4 network in the
+video.</p></li>
+<li><p><strong>~config.missing_thresh</strong> (<em>float</em>) – Maximum percentage of correct tracking and detection for any
+object to continue tracking it</p></li>
+<li><p><strong>~config.use_cuda</strong> (<em>boolean</em>) – Whether to perform detection on GPU or CPU</p></li>
+<li><p><strong>~config.resize_scale</strong> (<em>float</em>) – The resizing scale of the image to show while processing.
+1 means the same as the true size</p></li>
+<li><p><strong>~config.bgs_history</strong> (<em>int</em>) – The number of frames needed for background substractor
+before esitimating the background</p></li>
+<li><p><strong>~config.bgs_threshold</strong> (<em>int</em>) – The distance from which two objects are considered one
+in background substraction result</p></li>
+<li><p><strong>~config.bgs_shadows</strong> (<em>boolean</em>) – Detect the shadows in a different color grade
+in background substraction</p></li>
+<li><p><strong>~config.bgs_learning</strong> (<em>float</em>) – The rate which the background is learned
+in background substraction</p></li>
+<li><p><strong>~config.bgs_erosion_size</strong> (<em>int</em>) – The kernel size to do erosion with on the
+background substraction result</p></li>
+<li><p><strong>~config.bgs_min_area</strong> (<em>int</em>) – The minimum area in pixel for the objects in the result of
+background substraction</p></li>
+<li><p><strong>~config.bgs_broder_margin</strong> (<em>float</em>) – The margin around the objects already detected from which
+overlapping with other objects from background substraction
+is ok. This is represented as percentage of the width and height
+of the object.</p></li>
+<li><p><strong>~config.do_fix</strong> (<em>boolean</em>) – Whether to perform fixing the view or not</p></li>
+<li><p><strong>~config.fixing_dilation</strong> (<em>int</em>) – The kernel size to do dilation to a mask from which matching with
+a reference image will be done for esitimating the transformation</p></li>
+<li><p><strong>~config.min_matches</strong> (<em>int</em>) – The minimum number of matches to transform the image according to
+a reference image postion</p></li>
+<li><p><strong>~config.model_name</strong> (<em>str</em>) – The filename of the trained Yolo model</p></li>
+<li><p><strong>~config.model_config</strong> (<em>str</em>) – The filename of the configuration file of the trained model</p></li>
+<li><p><strong>~config.classes_file_name</strong> (<em>str</em>) – The filename where the list of output classes are list. normaly,
+there are three types (cyclists, pedestrians and vehicles)</p></li>
+<li><p><strong>~config.detect_thresh</strong> (<em>float</em>) – The minimum probability to consider a detection result from Yolo
+model ok.</p></li>
+<li><p><strong>~config.dist_thresh</strong> (<em>int</em>) – The maximum distance between tracked object position
+and a detected position to consider a correction
+for its position</p></li>
+<li><p><strong>~config.detect_scale</strong> (<em>float</em>) – How much focus on the image for detection, higher values
+would take the whole image, while 0 value would focus on the
+previously detected objects.</p></li>
+<li><p><strong>~config.min_history</strong> (<em>int</em>) – The smallest time steps length that could be saved as a
+traffic object in the result</p></li>
+<li><p><strong>~config.overlap_thresh</strong> (<em>float</em>) – The minimum percentage of objects area overlapping with another
+to choose one of them as duplicate and delete it</p></li>
+<li><p><strong>~config.do_smooth</strong> (<em>boolean</em>) – Whether to smooth the tracking trajectories points
+according to Savitzky-Golay algorithm.</p></li>
+<li><p><strong>~config.window_size</strong> (<em>int</em>) – The window size for the smoothing algorithm</p></li>
+<li><p><strong>~config.polydegree</strong> (<em>int</em>) – The polydegree for the smoothin algorithm, it must be
+smaller than window_size</p></li>
+<li><p><strong>~config.save_out_video</strong> (<em>bool</em>) – Whether to save the output video in mp4 format with the
+tracking data overlaid</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yasin Yousif.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

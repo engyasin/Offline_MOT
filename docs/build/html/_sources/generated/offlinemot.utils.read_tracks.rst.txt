@@ -1,8 +1,0 @@
-:orphan:
-
-offlinemot.utils.read\_tracks
-=============================
-
-.. currentmodule:: offlinemot.utils
-
-.. autofunction:: read_tracks

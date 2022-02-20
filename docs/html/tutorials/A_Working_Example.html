@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Working Example &mdash; OfflineMOT 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="For developers" href="../developers.html" />
+    <link rel="prev" title="Installing" href="../installing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> OfflineMOT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">A Working Example</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#The-detection-part">The detection part</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Config-file-content">Config file content</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Detection-and-general-parameters">Detection and general parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Fixing-and-smoothing">Fixing and smoothing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Background-subtraction-parameters">Background subtraction parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Filering-parameters">Filering parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#How-to-run">How to run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#How-to-show-result">How to show result</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Output-structure">Output structure</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developers.html">For developers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tracking_Example.html">Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tracking_Example.html#Main-loop">Main loop</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OfflineMOT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>A Working Example</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/A_Working_Example.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="A-Working-Example">
+<h1>A Working Example<a class="headerlink" href="#A-Working-Example" title="Permalink to this headline"></a></h1>
+<p>This example shows :</p>
+<p>1 - how to run the program for some video</p>
+<p>2 - how to set some important parameters for the detection, fixing and post processing</p>
+<p>3 - how to show the result</p>
+<section id="The-detection-part">
+<h2>The detection part<a class="headerlink" href="#The-detection-part" title="Permalink to this headline"></a></h2>
+<p>The detection part is seprarted by loading a pretrained YOLOv4 network. The training should be done separately before running this tracking program.</p>
+<p>The library that load the structure of YOLO is part of the project (<a class="reference external" href="https://github.com/Tianxiaomo/pytorch-YOLOv4">https://github.com/Tianxiaomo/pytorch-YOLOv4</a>)</p>
+<p>Using other detection trained model is also possible, it just need to be loaded within the class <code class="docutils literal notranslate"><span class="pre">YoloDetector</span></code> with making corresponding changes to its methods.</p>
+<p>To load all the libraries shown below, the directory should be at the root of the project folder. If this is ran in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> directory, then one can run</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE :To add path of the main files</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">Dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="k">if</span> <span class="n">Dir</span> <span class="o">==</span><span class="s1">&#39;docs&#39;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;../offlinemot&#39;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">Dir</span> <span class="o">==</span> <span class="s1">&#39;Offline_MOT&#39;</span><span class="p">:</span>
+    <span class="o">%</span><span class="k">cd</span> &#39;docs&#39;
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;offlinemot&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">detection</span> <span class="k">import</span> <span class="n">YoloDetector</span>
+</pre></div>
+</div>
+</div>
+<p>This class can take several input parameters, like the YOLO configuration file, the model file (in pytorch format) and lastly a flag to wheather to use GPU or CPU</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">detector</span>  <span class="o">=</span> <span class="n">YoloDetector</span><span class="p">(</span><span class="s1">&#39;../model/yolov4-obj.cfg&#39;</span><span class="p">,</span><span class="s1">&#39;../model/Yolov4_epoch300.pth&#39;</span><span class="p">,</span><span class="n">use_cuda</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">namesfile</span><span class="o">=</span><span class="s1">&#39;../model/obj.names&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+convalution havn&#39;t activate linear
+convalution havn&#39;t activate linear
+convalution havn&#39;t activate linear
+</pre></div></div>
+</div>
+<p>Detection is only performed every <em>N</em> frame. Where <em>N</em> is set according to <code class="docutils literal notranslate"><span class="pre">config.py</span></code> file. The following is a detailed description of all the paramers and its effects.</p>
+<p><strong>Note</strong> A several testing with the parameters values maybe needed for certain type of videos. Once a working set of values is found then all the similar videos can use the same set.</p>
+</section>
+<section id="Config-file-content">
+<h2>Config file content<a class="headerlink" href="#Config-file-content" title="Permalink to this headline"></a></h2>
+<p>With this variable: <code class="docutils literal notranslate"><span class="pre">detect_every_N</span></code>, the number of detections frequency is determined. If high accuracy is needed then a value of 1 is optimal. Bigger values are less accurate but faster to run.</p>
+<section id="Detection-and-general-parameters">
+<h3>Detection and general parameters<a class="headerlink" href="#Detection-and-general-parameters" title="Permalink to this headline"></a></h3>
+<p>Other paramters influencing the detection and the general settings are:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">### general paprmters</span>
+<span class="n">draw</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">detect_every_N</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">missing_thresh</span> <span class="o">=</span> <span class="mf">0.8</span>
+<span class="n">use_cuda</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">resize_scale</span> <span class="o">=</span> <span class="mf">0.4</span>
+
+<span class="c1">### Detection paramters</span>
+<span class="n">model_name</span> <span class="o">=</span> <span class="s1">&#39;model/Yolov4_epoch300.pth&#39;</span>
+<span class="n">model_config</span> <span class="o">=</span> <span class="s1">&#39;model/yolov4-obj.cfg&#39;</span>
+<span class="n">classes_file_name</span> <span class="o">=</span> <span class="s1">&#39;model/obj.names&#39;</span>
+<span class="n">detect_thresh</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="c1">#Yolo detection</span>
+<span class="c1"># distance to the nearst match between detection and tracking</span>
+<span class="c1"># output in pixels</span>
+<span class="n">dist_thresh</span> <span class="o">=</span> <span class="mi">25</span>
+<span class="n">size_thresh</span> <span class="o">=</span> <span class="mi">25</span>
+<span class="n">detect_scale</span> <span class="o">=</span> <span class="mf">4.0</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The darwing flag <code class="docutils literal notranslate"><span class="pre">darw</span></code>, whether to draw or not.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">missing_thresh</span></code>parameter is for determining when to delete an object if it keeps failing tracking and detetcion, it should be between 0 and 1, with 0 means never delete, and 1 delete on the first failure. A value of 0.9 means delete if 10% of result is failed, keep otherwise.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">use_cuda</span></code> flag is whether to use GPU for detection or CPU.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">resize_scale</span></code> is just for display (if <code class="docutils literal notranslate"><span class="pre">draw</span></code> flag is True), to determine how much the image should be rescaled.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">model_name</span></code> is for the trained model file name</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">model_config</span></code> is for setting the parameters of the Yolo network, if a different structure is trained then a different file should be given here.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">class_file_name</span></code> is a text file contining the names of the pridected classes from the detection network.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">detect_thresh</span></code> is used to put a threshold on YOLO probabilty output for each detected class. The lower this value is the more detections it will give but with less accuracy.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">dist_thresh</span></code> is for matching each detection with already detected object, it shouldn’t be too big because it represent the minmum distance to match. Otherwise, False matching will be given.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">size_thresh</span></code> is another distance but to the change in width and height between a detection and a nearby object. It is used because the same object from bird’s eye view should have the same dimensions.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">detect_scale</span></code> is for smaller objects detection. sometimes the drone is too high and the objects are small, so we need to <em>zoom in</em> to detect in a better way. one solution here is to detect in two levels: full scale image in the ordinary case and smaller proposed cropped areas. This parameter control how small these areas are. Higher values will make the areas bigger.</p></li>
+</ul>
+</section>
+<section id="Fixing-and-smoothing">
+<h3>Fixing and smoothing<a class="headerlink" href="#Fixing-and-smoothing" title="Permalink to this headline"></a></h3>
+<p>In <code class="docutils literal notranslate"><span class="pre">config.py</span></code> file the following are the parameters for the part of fixing the view. The first boolean is for whether to do fixing or not. It will slow the processing, so if the video is stationary without noise then no need for it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">### fix view paramers</span>
+<span class="n">do_fix</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">fixing_dilation</span> <span class="o">=</span> <span class="mi">13</span>
+<span class="n">min_matches</span>     <span class="o">=</span> <span class="mi">15</span>
+</pre></div>
+</div>
+<p>The part for doing the smoothing is also included in the same file as follows. The first boolean is whether to do the smoothing or not, the other two are related to Savitzky-Golay filter from <code class="docutils literal notranslate"><span class="pre">scipy</span></code> library.</p>
+<p>The last boolean flag <code class="docutils literal notranslate"><span class="pre">save_out_video</span></code> will save a new mp4 file in the <code class="docutils literal notranslate"><span class="pre">outputs</span></code>folder with the same name for the processed file if set to True.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">### Smoothing for post processing</span>
+<span class="n">do_smooth</span>   <span class="o">=</span> <span class="bp">True</span>
+<span class="n">window_size</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="n">polydegree</span>  <span class="o">=</span> <span class="mi">3</span>
+<span class="n">save_out_video</span> <span class="o">=</span> <span class="bp">False</span>
+</pre></div>
+</div>
+<p>Other steps (along with smoothing) are included in the <code class="docutils literal notranslate"><span class="pre">postprocess.py</span></code> file, namely, the orientation calculation and interpolation of missing positions in the tracks. The orientation is calculated from the trajectory itself where the next point in the trajectory determines the current point heading.</p>
+</section>
+<section id="Background-subtraction-parameters">
+<h3>Background subtraction parameters<a class="headerlink" href="#Background-subtraction-parameters" title="Permalink to this headline"></a></h3>
+<p>Many parmeters are avaliable for background subtraction, as follows,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">### background subtractor parameters</span>
+<span class="n">bgs_history</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">bgs_threshold</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">bgs_shadows</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">bgs_learning</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">bgs_erosion_size</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">bgs_min_area</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">bgs_broder_margin</span> <span class="o">=</span>  <span class="mf">0.45</span>    <span class="c1"># bigger would give boxes near the detected boxes with yolo</span>
+</pre></div>
+</div>
+<p>The most important of them are:</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">bgs_history</span></code> determines how many frames are used to calculate the background</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">bgs_threshold</span></code> is realted to the sensativaty of the subtraction , lower values will give more sensativity to movements</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">bgs_erosion_size</span></code> is the síze of the mask to perform erosion on the forground. higher values will give thiner objects</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">bgs_min_area</span></code> determines the minmum area of pixels that will be considered as object, otherwise it will be deleted.</p></li>
+<li><p>THe <code class="docutils literal notranslate"><span class="pre">bgs_broder_margin</span></code> determines how mush overlapping is allowed between already detected objects and newly found forground. this number is considered a percentage of the detected object dimensions that objects are allowed to be in. For example a value of 0.5 will mean everywhere is allowed, because half of the dimension on all the objects means all the objects’ area.</p></li>
+</ul>
+</section>
+<section id="Filering-parameters">
+<h3>Filering parameters<a class="headerlink" href="#Filering-parameters" title="Permalink to this headline"></a></h3>
+<p>Additionally, in the <code class="docutils literal notranslate"><span class="pre">config</span></code> file, there’s parameters that will determine when to delete the detected objects.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">### Filtering Objects:</span>
+<span class="n">min_history</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">overlap_thresh</span> <span class="o">=</span> <span class="mf">0.7</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">min_hisory</span></code> is the minmum number of frames that the objects will start to be tested for percentage of correct tracking (with <code class="docutils literal notranslate"><span class="pre">missing_thresh</span></code>).</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">overlap_thresh</span></code> is for the minmum area percentage of overlapping between confirmed objects to delete one of them.</p></li>
+</ul>
+</section>
+</section>
+<section id="How-to-run">
+<h2>How to run<a class="headerlink" href="#How-to-run" title="Permalink to this headline"></a></h2>
+<p>To run the full program, you need to run the <code class="docutils literal notranslate"><span class="pre">main.py</span></code> script with the <code class="docutils literal notranslate"><span class="pre">-v</span></code> flag set to the name and directory of the video in the base directory of the project.</p>
+<p>Try to run the following command to see the result on the sample video:</p>
+<p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">main.py</span> <span class="pre">-v</span> <span class="pre">docs\sample.mp4</span></code></p>
+</section>
+<section id="How-to-show-result">
+<h2>How to show result<a class="headerlink" href="#How-to-show-result" title="Permalink to this headline"></a></h2>
+<p>After running the program on your video, a txt file will be saved in the <strong>outputs</strong> directory with the same name as the provided video.</p>
+<p><em>Note</em> if your videos are named with similar names (for example numbers), you should copy the last result to other folder before start tracking a new video, because any new file with similar name will overwrite the previous one without warning.</p>
+<p>If you want to show the result with angles and smoothing for the sample video above, you can run the command:</p>
+<p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">show_results.py</span> <span class="pre">-v</span> <span class="pre">docs\sample.mp4</span></code></p>
+<p>The directory after the -v flag is the same as the one from which the video were processed.</p>
+</section>
+<section id="Output-structure">
+<h2>Output structure<a class="headerlink" href="#Output-structure" title="Permalink to this headline"></a></h2>
+<p>in the output text file, each line is structured as follows,</p>
+<p><em>Frame_id</em> —- [ top_left_x —– top_left_y —– width height] —– <em>class_id</em> —– <em>track_id</em> —– <em>angel</em></p>
+<p>Example of one line:</p>
+<p>´39 [3748, 964, 169, 73] 2 5 138´</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../installing.html" class="btn btn-neutral float-left" title="Installing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../developers.html" class="btn btn-neutral float-right" title="For developers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yasin Yousif.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
