@@ -12,10 +12,11 @@ This contains the following functions:
     * bgObjs_to_objs - transform background subtraction objects to traffic objects
     * FirstFrame - initilize the detector and return the objects in the first frame if they fall within the image borders
     * detections_to_objects - Transfrom a group of detection results in one frame to traffic objects instances
-
+    * set_params - Open the configuration file in a text editor to set parameters
 """
 
 import argparse ,logging ,os
+import webbrowser
 import numpy as np
 import cv2
 
@@ -150,6 +151,13 @@ def FirstFrame(frame):
 
     return output, detector
 
+
+def set_params():
+    """Open the configuration file in a text editor
+    to set parameters
+    """
+    webbrowser.open(os.path.join(config.cwd,'config.py'))
+
 def main(args=os.path.join(config.cwd,'model','sample.mp4')):
     """The main loop to detect and track traffic objects in the video
     and save the result after post processing to a text file.
@@ -260,6 +268,7 @@ def main(args=os.path.join(config.cwd,'model','sample.mp4')):
                 obj.tracking_state[-1] = True
 
             br_w,br_h = int(obj.box[2]*br),int(obj.box[3]*br)
+            obj.box = tuple([int(b) for b in obj.box])
             curr_fg[obj.box[1]+br_h:obj.box[1]+obj.box[3]-br_h,obj.box[0]+br_w:obj.box[0]+obj.box[2]-br_w] = 1
             # deal with the newly not detected with spical logic
 

@@ -5,7 +5,7 @@ from tool.utils import *
 from tool.torch_utils import *
 
 from config import config
-from utils_ import find_overlap, transform_detection
+from utils_ import find_overlap, transform_detection, load_model
 # from tool.darknet2pytorch import Darknet
 import cv2
 
@@ -40,7 +40,7 @@ class YoloDetector():
 
     """
 
-    def __init__(self,cfgfile, weightfile, use_cuda=True,namesfile = config.classes_file_name):
+    def __init__(self,cfgfile=config.model_config, weightfile=config.model_name, use_cuda=True,namesfile = config.classes_file_name):
 
         """
         Parameters
@@ -58,9 +58,14 @@ class YoloDetector():
 
         self.m = darknet2pytorch.Darknet(cfgfile, inference=True)
 
+        # if GPU not avaliable then CPU
         map_location = torch.device('cpu')
         if torch.cuda.is_available():
             map_location = None
+
+        # if example network loaded for the first time,
+        if "Yolov4_epoch300.pth" in weightfile:
+            load_model()
 
         self.m.load_state_dict(torch.load(weightfile,map_location=map_location))
         #self.m.load_weights(weightfile)

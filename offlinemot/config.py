@@ -22,6 +22,10 @@ class config:
     resize_scale: float
         The resizing scale of the image to show while processing.
         1 means the same as the true size
+    color_map : list
+        list of RGB colors to represent each detected class while
+        drawing (red and white are reserved). It depends on number
+        of output classes in yolo config
     bgs_history : int
         The number of frames needed for background substractor
         before esitimating the background 
@@ -90,12 +94,15 @@ class config:
         tracking data overlaid
     """
 
-    ### general paprmters
+    ### general parameters
     draw = True
     detect_every_N = 1
     missing_thresh = 0.8
     use_cuda = False
     resize_scale = 0.4
+    colors_map = [ (0,255,0), # ped
+                   (255,0,0), # cyclist
+                   (0, 0, 0)] # cars
 
     ### background substractor parameters
     bgs_history = 5

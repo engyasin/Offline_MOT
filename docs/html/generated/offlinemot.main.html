@@ -68,7 +68,7 @@
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
       <li>offlinemot.main</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/generated/offlinemot.main.rst.txt" rel="nofollow"> View page source</a>
+              <a href="https://github.com/engyasin/Offline_MOT/blob/main/docs/source/generated/offlinemot.main.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -116,6 +116,7 @@ background subtraction is done.</p>
 <li><p>bgObjs_to_objs - transform background subtraction objects to traffic objects</p></li>
 <li><p>FirstFrame - initilize the detector and return the objects in the first frame if they fall within the image borders</p></li>
 <li><p>detections_to_objects - Transfrom a group of detection results in one frame to traffic objects instances</p></li>
+<li><p>set_params - Open the configuration file in a text editor to set parameters</p></li>
 </ul>
 </div></blockquote>
 <p class="rubric">Functions</p>
@@ -137,7 +138,10 @@ background subtraction is done.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="offlinemot.main.main.html#offlinemot.main.main" title="offlinemot.main.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>([args])</p></td>
 <td><p>The main loop to detect and track traffic objects in the video and save the result after post processing to a text file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="offlinemot.main.track_objs.html#offlinemot.main.track_objs" title="offlinemot.main.track_objs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">track_objs</span></code></a>(frame, frame_id, objects)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="offlinemot.main.set_params.html#offlinemot.main.set_params" title="offlinemot.main.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>()</p></td>
+<td><p>Open the configuration file in a text editor to set parameters</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="offlinemot.main.track_objs.html#offlinemot.main.track_objs" title="offlinemot.main.track_objs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">track_objs</span></code></a>(frame, frame_id, objects)</p></td>
 <td><p>Perfrom tracking on every object in the frame</p></td>
 </tr>
 </tbody>

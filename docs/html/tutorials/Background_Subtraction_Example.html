@@ -48,12 +48,12 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Background Subtraction for Detection and Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#Main-loop">Main loop</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Background Subtraction for Detection and Tracking Example</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Main-loop">Main loop</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Tracking_Example.html">Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Tracking_Example.html#Main-loop">Main loop</a></li>
 </ul>
 
         </div>
@@ -72,7 +72,7 @@
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
       <li>Background Subtraction for Detection and Tracking Example</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/tutorials/Background_Subtraction_Example.ipynb.txt" rel="nofollow"> View page source</a>
+              <a href="https://github.com/engyasin/Offline_MOT/blob/main/docs/source/tutorials/Background_Subtraction_Example.ipynb" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -353,52 +353,35 @@ div.rendered_html tbody tr:hover {
 <section id="Background-Subtraction-for-Detection-and-Tracking-Example">
 <h1>Background Subtraction for Detection and Tracking Example<a class="headerlink" href="#Background-Subtraction-for-Detection-and-Tracking-Example" title="Permalink to this headline"></a></h1>
 <p>In the following example with the sample video the movement should be detected frame by frame.</p>
-<p>All the background subtraction parameters are in config.py file.</p>
-<p>First of all, all the required libraries should be imported.</p>
+<p>All the background subtraction parameters are in <code class="docutils literal notranslate"><span class="pre">config.py</span></code> file.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE :To add path of the main files</span>
-
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">os</span>
-
-<span class="n">Dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-<span class="k">if</span> <span class="n">Dir</span> <span class="o">==</span><span class="s1">&#39;docs&#39;</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;../offlinemot&#39;</span><span class="p">)</span>
-<span class="k">elif</span> <span class="n">Dir</span> <span class="o">==</span> <span class="s1">&#39;Offline_MOT&#39;</span><span class="p">:</span>
-    <span class="o">%</span><span class="k">cd</span> &#39;docs&#39;
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;offlinemot&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">utils</span> <span class="k">import</span> <span class="n">resize</span>
-<span class="kn">from</span> <span class="nn">background_subtraction</span> <span class="k">import</span> <span class="n">BG_subtractor</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">offlinemot.utils_</span> <span class="kn">import</span> <span class="n">resize</span>
+<span class="kn">from</span> <span class="nn">offlinemot.background_subtraction</span> <span class="kn">import</span> <span class="n">BG_subtractor</span>
+<span class="kn">from</span> <span class="nn">offlinemot.config</span> <span class="kn">import</span> <span class="n">config</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">os</span>
 </pre></div>
 </div>
 </div>
-<p>Now the sample video should be read with a video reader object from Opencv liberary</p>
+<p>Now the sample video should be read with a video reader object from Opencv library</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="s1">&#39;sample.mp4&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;sample.mp4&#39;</span><span class="p">))</span>
 <span class="n">ret</span><span class="p">,</span> <span class="n">bg</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c1"># read the first frame</span>
 </pre></div>
 </div>
 </div>
-<p>The first frame is considered the default background at the start to compare it with the next frames in the video in order to detect the motion.</p>
+<p>The first frame is considered the default background at the start, and is used to compare with the next frames in the video in order to detect the motion.</p>
 <p>In the case where we want to start the movement detection at some later frame, rather than the first one. We could write</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">frame_id</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># the frame that should we start from</span>
@@ -407,7 +390,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -415,9 +398,9 @@ div.rendered_html tbody tr:hover {
 True
 </pre></div></div>
 </div>
-<p>Then we intilize the background substarctor object</p>
+<p>Then we intilize the background subtarctor object</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">BG_s</span> <span class="o">=</span> <span class="n">BG_subtractor</span><span class="p">(</span><span class="n">bg</span><span class="p">)</span>
@@ -425,13 +408,12 @@ True
 </pre></div>
 </div>
 </div>
-</section>
 <section id="Main-loop">
-<h1>Main loop<a class="headerlink" href="#Main-loop" title="Permalink to this headline"></a></h1>
+<h2>Main loop<a class="headerlink" href="#Main-loop" title="Permalink to this headline"></a></h2>
 <p>Now everything are ready to start the background subtarction loop. The result will be shown in a new window</p>
-<p>The video will keep running until you hit <strong>ESC</strong> or the video end</p>
+<p>The video will keep running until you hit <strong>ESC</strong> or the video ends</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">while</span> <span class="n">ret</span><span class="p">:</span>
@@ -452,17 +434,18 @@ True
 </pre></div>
 </div>
 </div>
-<p>As it was shown, the result has some problems, The moving cyclists are detected but not perfectly. Additionally the trees and part of the road are detected as moving objects.</p>
+<p>As it was shown, the result has some problems, The moving cyclists are detected but not perfectly. Additionally the trees and parts of the road are detected as moving objects.</p>
 <p>A resonable step would be to filter the video from the small noisy objects by deleting the small blobs. we can test that using other method of the class, namely: <code class="docutils literal notranslate"><span class="pre">get_big_objects</span></code></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="s1">&#39;sample.mp4&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;sample.mp4&#39;</span><span class="p">))</span>
 <span class="n">ret</span><span class="p">,</span> <span class="n">bg</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="c1"># read the first frame</span>
 
 <span class="n">BG_s</span> <span class="o">=</span> <span class="n">BG_subtractor</span><span class="p">(</span><span class="n">bg</span><span class="p">)</span>
 <span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">frame_id</span> <span class="o">=</span> <span class="mi">0</span>
 
 <span class="k">while</span> <span class="n">ret</span><span class="p">:</span>
     <span class="n">frame_id</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -495,8 +478,9 @@ True
 </pre></div>
 </div>
 </div>
+<p>if you don’t have <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> installed, you can install it with pip. or just view the below cell, (if not ran interactively)</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
@@ -505,22 +489,23 @@ True
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.image.AxesImage at 0x2afc1e48748&gt;
+&lt;matplotlib.image.AxesImage at 0x1c490472d08&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/tutorials_Background_Subtraction_Example_17_1.png" src="../_images/tutorials_Background_Subtraction_Example_17_1.png" />
+<img alt="../_images/tutorials_Background_Subtraction_Example_16_1.png" src="../_images/tutorials_Background_Subtraction_Example_16_1.png" />
 </div>
 </div>
-<p>This final result shows much better the results are (although there is still some noise from the moving trees but it is smaller)</p>
+<p>This final result shows much better output (although there is still some noise from the moving trees but it is smaller)</p>
+</section>
 </section>
 
 

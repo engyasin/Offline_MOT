@@ -1,10 +1,12 @@
-
 Multiple objects detection and tracking from bird view stationary drone videos
 =========
+[![GH Actions Status](https://github.com/engyasin/Offline_MOT/workflows/PyTest/badge.svg)](https://github.com/engyasin/Offline_MOT/actions?query=branch%3Amain)
 
-This project is used to extract trajectories as precise as possible for different entities in a mixed traffic scene, from drone videos taken while hovering in the same position (stationary).
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-The project needs a pretrained network for detection, which should be trained separately. The network included with this library is Yolov4 in a pytorch format. The loading and running of Yolo model is done with the help of scripts taken from [this project](https://github.com/Tianxiaomo/pytorch-YOLOv4) (All of them are in *offlinemot/tool* subfolder)
+`OfflineMOT` is a package for multi objects tracking from bird's eye view stationary videos. The accuracy has priority over runtime in this package, therefore it is better suited for offline processing rather than real time applications, hence the name of the package.
+
+A pretrained Yolo network is used for detection in this package and it should be trained separately. The network included with this library is Yolo v4 in a pytorch format (trained to detect pedestrians, cyclists and cars). The loading and running of Yolo model is done with the help of scripts taken from [this project](https://github.com/Tianxiaomo/pytorch-YOLOv4) (All of them are in *offlinemot/tool* subfolder)
 
 Example output for a sample video, taken from [**Vehicle-Crowd Interaction  (VCI) - CITR Dataset**](https://github.com/dongfang-steven-yang/vci-dataset-citr) :
 
@@ -13,103 +15,95 @@ Example output for a sample video, taken from [**Vehicle-Crowd Interaction  (VCI
 
 ***This example shows some minor problems because the scene, the background and the drone's camera are outside the detection network training set (never seen before by the detection network).***
 
-***However, the application of this project (including the Yolo network training) was targeted for a Cyclists dataset videos [to be cited later], where all the trajectories where extracted successfully.***
+***However, the application of this project (including the Yolo network training) was targeted for a Cyclists dataset videos [to be cited later].***
 
+--------------------
 
-## Features of this work:
+## Installation
 
-Drone videos are subject to some random movements due to a few factors like noise in the control or wind. For that a fixing step for all the affected frames is needed. 
+The package can be installed on python 3.x simply using the `pip` command:
 
-Additionally running the detection for every frame is slow and can be substituted by the usage of a background subtracting method to detect all moving objects. If the video are stationary (like the assumption here) then the background is the same for the whole video.
+```
+pip install offlinemot
+```
+--------------------
+## Documentation
 
-At the end and because the work is offline, additional filtering steps can be done to find: 
+The documentation includes some example and guides to run this package and it is available here https://engyasin.github.io/Offline_MOT/
 
-- The true size of each object (which should be the same because it is taken from bird's eye view)
-- The orientation of all the objects in each frame
-- Solving the errors of misclassifying some objects by assigning the highest and most probable detected class to them. 
-- Smoothing the trajectories.
-
-All this is feasible because of the specific features of the problem, namely (bird's eye view, offline and 
-stationary camera)
-
+--------------------
 ## Getting Started
 
-The source code contains big files for the trained Yolo network.  In case you want to run the examples with the pretrained networks, then **git lfs** (large files storage) is required to be installed first. Instructions for installing *git lfs* are found in [this website](https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage).
+After installing the library, and in order to test the example provided with it, the following lines can be used in as python commands:
 
-Alternativaly, the model file `Yolov4_epoch300.pth` can be downloaded from [google drive here](https://drive.google.com/file/d/1rhDaY7aVSeETP8rHgqZTewp4QkWlr3fb/view?usp=sharing). It should be placed in the */model* subfolder of the package.
+```python
+In [1]: import offlinemot
 
-After cloning this project, and changing the detection model (in case you need to detect other objects than cyclists, pedestrians and cars), the requirements packages should be installed, so simply, cd to the root of this project and run:
-
-```
-pip install -r requirements.txt
+In [2]: offlinemot.main.main() # no input to run the example video
 ```
 
-### Parameters Tunning
+For the first time this is ran, the example network model will be downloaded (around 250MB). And a window for the example video with the tracked objects will be shown.
 
-There are many parameters that should be tuned before running the tracking on a new video. All of them are in the `offline_mot/config.py` file. 
+The tracked objects will be surrounded with boxes in 5 different colors. Each color has a spicific meaning:
 
-A detailed explanation for all of them is available on the same file above as well as in the docs folder, namely [Working example](./docs/A_Working_Example.ipynb)
+- <span style="color:green">Green</span>: Pedestrian is detected.
+- <span style="color:blue">Blue</span>: Cyclist is detected.
+- <span style="color:black">Black</span>: Car is detected.
+- <span style="color:red">Red</span>: The tracked object has failed the tracking step for the current frame
+- <span style="color:white">White</span>: The object is moving but still not classified to a class.
 
-It is recommended to make a few tests with these parameters, in order to find the most suitable set for the requested video.
+Of course, for a different case, the colors can be changed from the `cofig.py` file. This also depends on the number of classes to predict.
+
+to control these parameters and many others, the commands to be run are:
+
+```python
+offlinemot.main.set_params()
+```
+
+Then a new text editor with the `config.py` file containing all the parameters is shown.
+
+Note: It's highly recommended to set all the parameters when running on a new video. A detailed description for their meaning is available in the `config` file. Additionally, a complete example for parameters tuning is available in the [documentation here](https://engyasin.github.io/Offline_MOT/html/tutorials/A_Working_Example.html)
 
 ### Running
 
 Then to run it on some video, the command is:
 
+```python
+offlinemot.main.main('path_to_video') 
+#[directory of the videos, leave empty to run the example video]
 ```
-python offline_mot\main.py -v [directory of the videos, ex: docs\sample.mp4]
-```
-to show the result on the same video after post processing, just replace `main.py` by `show_results.py` in the previous command. i.e:
+to show the result on the same video after post processing, use the command:
 
-```
-python offline_mot\show_results.py -v [directory of the videos, ex: docs\sample.mp4]
+```python
+offlinemot.show_results.main('path_to_same_video')
+#[directory of the videos, leave empty to run the example video]
 ```
 
-### Usage cases
+Finally, to change the yolo network used in the package, the complete directory to 3 files need to be assigned inside the `config.py`:
+
+- *.pth* for the model weights
+- *.cfg* for the Yolo configuration.
+- *.names* for a simple text file containing the names of the classes.
+
+---------------------
+## Use cases
 
 This project can be used for:
 
-* Traffic trajectories extraction from videos (It was applied successfully to extract trajectories from the cyclists datasets for traffic modelling research recorded in TU-Clausthal).
+* Traffic trajectories extraction from videos (It is originally built to extract trajectories for a cyclist's dataset for traffic modelling research recorded in TU-Clausthal).
 
 * Tracking other objects (like animals) from bird's eye view in an offline manner.
-
-
-## Workflow
-
-Three methods are applied for the detection and tracking in this project. They are ,in the order of their priority:
-
-* Background Subtraction: This method are used on every frame to detect the foreground objects which contain any moving object. If these objects are already tracked then nothing happen. Otherwise, it would be added and tracked as candidate objects (white boxes)
-
-* Tracking with a filter like KCF (Kernelized Correlation Filter), which only needs the first bounding box of the object to track. These objects will continue to be tracked as long as the tracker keep giving results successfully. Otherwise, the object will not be updated to a new position and a detection step is performed
-
-* Detection with a network model like Yolo: This is performed only for every *N* frame as set in the `config.py` file. If the object is already tracked then it is confirmed and set to a class type, otherwise nothing happen (only a message saying that something is detected but wasn't there previously)
-
-All these three steps are done for every object and the result is recorded for every frame. If one object keep failing all the steps then it will be deleted after a defined number of times.
-
-## Examples and Documentation
-
-There are a few jupyter notebook showcases for the different tracking and detection handling programs, and an additional working example for how to run and set the different parameters, Namely:
-
-1. Background subtraction  example [here](./docs/Background_Subtraction_Example.ipynb)
-
-2. Tracking example [here](./docs/Tracking_Example.ipynb)
-
-3. Fixing the view example [here](./docs/Fixing_the_view.ipynb)
-
-4. A general working example [here](./docs/A_Working_Example.ipynb)
-
-It is recommend to go through them if a deeper understanding of the steps is needed.
 
 --------------------
 
 ## Testing
 
-There are a number of test units for this project. To run the tests use the command:
+There are a number of test units for this project. If a development of the package is intended then they can be run after cloning this repo with the command:
 ```
-$ python -m pytest tests
+$ pytest -v /offlinemot/tests
 ```
 
-For the previous command  `pytest` library is needed to be installed.
+For the previous command `pytest` library is needed to be installed.
 
 --------------------
 
@@ -119,16 +113,16 @@ If you have any questions or comments, or if you find any bugs, please open an i
 to fork the project, and create a pull request, if you have any improvements or bug fixes. 
 Additionally, the [contribution instructions](CONTRIBUTING.md) has further details.
 
-
-
 --------------------
+
 ## Citation Info
 To be added
 
+--------------------
 ## Stars
 
 Please star this repository if you find it useful, or use it as part of your research.
 
+--------------------
 ## License
-
-[MIT License](https://choosealicense.com/licenses/mit/)
+`OfflineMOT` is free software and is licensed under the [MIT License](https://choosealicense.com/licenses/mit/). Copyright (c) 2022, Yasin Yousif 

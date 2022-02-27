@@ -142,7 +142,7 @@ class TrafficObj():
         ## Tracking part
         # box is : x,y,w,h
 
-        self.box = box
+        self.box = tuple(box)
         self.boxes = [box]
         self.true_wh_max = box[2:],1
         self.tracking_state = [1]
@@ -154,18 +154,15 @@ class TrafficObj():
         self.tracker_class = tracker
         self.tracker = self.tracker_class()
         # cv2.TrackerKCF_create())
-        self.tracker.init(frame,box)
+        self.tracker.init(frame,self.box)
         self.class_id = class_id
 
         # length is not standard (class,prob)
         self.class_ids = {-1:0,1:0,2:0,3:0}
         self.class_ids[class_id] += (1/(1-detect_prob))
 
-        self.colors_map = [ (0,0,255), # error
-                            (0,255,0), # ped
-                            (255,0,0), # cyclist
-                            (0, 0, 0), # cars
-                            (255,255,255)] # unknown
+        # error + color_code + unknown
+        self.colors_map = [(0,0,255)] + config.colors_map + [(255,255,255)] 
 
         self.track_id = track_id
 
@@ -227,7 +224,7 @@ class TrafficObj():
         # done after filter by detection
         #print(self.box)
         self.tracker = self.tracker_class()
-        self.tracker.init(frame,self.box)
+        self.tracker.init(frame,tuple(self.box))
 
     def draw(self,new_frame):
 
@@ -440,7 +437,7 @@ class TrafficObj():
                 box = [obj_item.bbox[1],obj_item.bbox[0],obj_item.bbox[3]-obj_item.bbox[1],obj_item.bbox[2]-obj_item.bbox[0]]
 
                 #box = [obj_item[0][0], obj_item[0][1], obj_item[1][0]-obj_item[0][0],obj_item[1][1]-obj_item[0][1]]
-                self.box = box
+                self.box = tuple(box)
                 self.find_true_size(box)
                 self.boxes.append(box)
 

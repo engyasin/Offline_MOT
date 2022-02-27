@@ -21,6 +21,8 @@
     
     find_overlap
     
+    load_model
+    
     read_tracks
     
     resize

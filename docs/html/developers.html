@@ -43,19 +43,18 @@
 <li class="toctree-l1"><a class="reference internal" href="installing.html">Installing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/A_Working_Example.html">A Working Example</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">For developers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#how-the-package-will-be-structured">How the package will be structured</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#contributing-to-offlinemot">Contributing to OfflineMOT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contributing-to-offline-multi-objects-detection-and-tracking">Contributing to Offline Multi Objects Detection and Tracking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#current-status">Current status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-contribute">How to contribute</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-and-code-quality">Testing and code quality</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/Tracking_Example.html">Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
 </ul>
 
         </div>
@@ -74,7 +73,7 @@
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
       <li>For developers</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/developers.rst.txt" rel="nofollow"> View page source</a>
+              <a href="https://github.com/engyasin/Offline_MOT/blob/main/docs/source/developers.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -108,12 +107,39 @@
 </style>
 <section id="for-developers">
 <h1>For developers<a class="headerlink" href="#for-developers" title="Permalink to this headline"></a></h1>
-<section id="how-the-package-will-be-structured">
-<h2>How the package will be structured<a class="headerlink" href="#how-the-package-will-be-structured" title="Permalink to this headline"></a></h2>
-</section>
-<section id="contributing-to-offlinemot">
-<h2>Contributing to OfflineMOT<a class="headerlink" href="#contributing-to-offlinemot" title="Permalink to this headline"></a></h2>
 <p>First of all, thank you for considering making this project better.</p>
+<section id="contributing-to-offline-multi-objects-detection-and-tracking">
+<h2>Contributing to Offline Multi Objects Detection and Tracking<a class="headerlink" href="#contributing-to-offline-multi-objects-detection-and-tracking" title="Permalink to this headline"></a></h2>
+<p>The OfflineMOT project is dedicated to solve the problem of
+trajectories extraction out of drone stationary videos. Of course
+there are many things to be done regarding enhancing accuracy or even
+speed (even though this is not a priority). It is a research effort
+aimed to help other researchers who need to collect and analysis movement data
+in multiple fields.</p>
+</section>
+<section id="current-status">
+<h2>Current status<a class="headerlink" href="#current-status" title="Permalink to this headline"></a></h2>
+<p>The software can now detect and track with occasional mistakes, mainly due
+to imperfection on the detection network training model. Among some ideas
+for future work, one can list:</p>
+<ul class="simple">
+<li><p>Better smoothing and post processing methods (including extrapolation and interpolation)</p></li>
+<li><p>Matching detections with object regarding other metrics (than only distance)</p></li>
+<li><p>Interface with other object detection network model, such Mask-RCNN</p></li>
+</ul>
+</section>
+<section id="how-to-contribute">
+<h2>How to contribute<a class="headerlink" href="#how-to-contribute" title="Permalink to this headline"></a></h2>
+<p>If you have any questions or comments, or if you find any bugs, please open an issue in this project.</p>
+<p>Please feel free to fork the project, and create a pull request, if you have any improvements or bug fixes.</p>
+</section>
+<section id="testing-and-code-quality">
+<h2>Testing and code quality<a class="headerlink" href="#testing-and-code-quality" title="Permalink to this headline"></a></h2>
+<p>The code is fully documented and has good testing. In order to run the
+testing scripts, you can refer to <strong>readme</strong> for that.</p>
+<p>&lt;!—
+Style Guide
+–&gt;</p>
 </section>
 </section>
 

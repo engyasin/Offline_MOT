@@ -79,8 +79,9 @@
 <span></span><span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">config</span> <span class="k">import</span> <span class="n">config</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">gdown</span>
 
 
 <div class="viewcode-block" id="resize"><a class="viewcode-back" href="../../generated/offlinemot.utils_.resize.html#offlinemot.utils_.resize">[docs]</a><span class="k">def</span> <span class="nf">resize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -327,6 +328,16 @@
     
     <span class="k">return</span> <span class="n">output</span></div>
 
+
+<div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../generated/offlinemot.utils_.load_model.html#offlinemot.utils_.load_model">[docs]</a><span class="k">def</span> <span class="nf">load_model</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Download the Yolo network pretrained file for the example for</span>
+<span class="sd">    the first time</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s2">&quot;model&quot;</span><span class="p">,</span><span class="s2">&quot;Yolov4_epoch300.pth&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output</span><span class="p">))</span> <span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Downloading the example pretrained network (Only once)&quot;</span><span class="p">)</span>
+        <span class="n">url</span><span class="o">=</span> <span class="s2">&quot;https://drive.google.com/uc?id=1rhDaY7aVSeETP8rHgqZTewp4QkWlr3fb&quot;</span>
+        <span class="n">gdown</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

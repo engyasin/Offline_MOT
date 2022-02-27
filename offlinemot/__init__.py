@@ -8,8 +8,6 @@ import pathlib, sys,os
 sys.path.append(str(pathlib.Path(__file__).parent))
 
 import utils_ 
-utils_.load_model()
-
 
 
 import background_subtraction 

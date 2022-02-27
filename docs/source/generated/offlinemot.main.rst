@@ -23,6 +23,8 @@
     
     main
     
+    set_params
+    
     track_objs
     
 

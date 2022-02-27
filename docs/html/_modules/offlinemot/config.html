@@ -100,6 +100,10 @@
 <span class="sd">    resize_scale: float</span>
 <span class="sd">        The resizing scale of the image to show while processing.</span>
 <span class="sd">        1 means the same as the true size</span>
+<span class="sd">    color_map : list</span>
+<span class="sd">        list of RGB colors to represent each detected class while</span>
+<span class="sd">        drawing (red and white are reserved). It depends on number</span>
+<span class="sd">        of output classes in yolo config</span>
 <span class="sd">    bgs_history : int</span>
 <span class="sd">        The number of frames needed for background substractor</span>
 <span class="sd">        before esitimating the background </span>
@@ -168,12 +172,15 @@
 <span class="sd">        tracking data overlaid</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1">### general paprmters</span>
+    <span class="c1">### general parameters</span>
     <span class="n">draw</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">detect_every_N</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">missing_thresh</span> <span class="o">=</span> <span class="mf">0.8</span>
     <span class="n">use_cuda</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">resize_scale</span> <span class="o">=</span> <span class="mf">0.4</span>
+    <span class="n">colors_map</span> <span class="o">=</span> <span class="p">[</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="c1"># ped</span>
+                   <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="c1"># cyclist</span>
+                   <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span> <span class="c1"># cars</span>
 
     <span class="c1">### background substractor parameters</span>
     <span class="n">bgs_history</span> <span class="o">=</span> <span class="mi">5</span>

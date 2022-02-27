@@ -90,23 +90,24 @@
 <span class="sd">    * bgObjs_to_objs - transform background subtraction objects to traffic objects</span>
 <span class="sd">    * FirstFrame - initilize the detector and return the objects in the first frame if they fall within the image borders</span>
 <span class="sd">    * detections_to_objects - Transfrom a group of detection results in one frame to traffic objects instances</span>
-
+<span class="sd">    * set_params - Open the configuration file in a text editor to set parameters</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">argparse</span> <span class="o">,</span><span class="nn">logging</span> <span class="o">,</span><span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">webbrowser</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">cv2</span>
 
 
-<span class="kn">from</span> <span class="nn">config</span> <span class="k">import</span> <span class="n">config</span>
-<span class="kn">from</span> <span class="nn">fix_view</span> <span class="k">import</span> <span class="n">FixView</span>
-<span class="kn">from</span> <span class="nn">background_subtraction</span> <span class="k">import</span> <span class="n">BG_subtractor</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">fix_view</span> <span class="kn">import</span> <span class="n">FixView</span>
+<span class="kn">from</span> <span class="nn">background_subtraction</span> <span class="kn">import</span> <span class="n">BG_subtractor</span>
 
-<span class="kn">from</span> <span class="nn">detection</span> <span class="k">import</span> <span class="n">YoloDetector</span>
-<span class="kn">from</span> <span class="nn">utils_</span> <span class="k">import</span> <span class="n">save_tracks</span><span class="p">,</span> <span class="n">resize</span><span class="p">,</span> <span class="n">check_box</span><span class="p">,</span> <span class="n">detect_overlaping</span><span class="p">,</span> <span class="n">transform_detection</span>
+<span class="kn">from</span> <span class="nn">detection</span> <span class="kn">import</span> <span class="n">YoloDetector</span>
+<span class="kn">from</span> <span class="nn">utils_</span> <span class="kn">import</span> <span class="n">save_tracks</span><span class="p">,</span> <span class="n">resize</span><span class="p">,</span> <span class="n">check_box</span><span class="p">,</span> <span class="n">detect_overlaping</span><span class="p">,</span> <span class="n">transform_detection</span>
 
-<span class="kn">from</span> <span class="nn">objects_classes</span> <span class="k">import</span>  <span class="n">TrafficObj</span>
-<span class="kn">from</span> <span class="nn">post_process</span> <span class="k">import</span> <span class="n">postProcessAll</span>
+<span class="kn">from</span> <span class="nn">objects_classes</span> <span class="kn">import</span>  <span class="n">TrafficObj</span>
+<span class="kn">from</span> <span class="nn">post_process</span> <span class="kn">import</span> <span class="n">postProcessAll</span>
 
 
 <div class="viewcode-block" id="track_objs"><a class="viewcode-back" href="../../generated/offlinemot.main.track_objs.html#offlinemot.main.track_objs">[docs]</a><span class="k">def</span> <span class="nf">track_objs</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">,</span><span class="n">objects</span><span class="p">):</span>
@@ -228,6 +229,13 @@
 
     <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">detector</span></div>
 
+
+<div class="viewcode-block" id="set_params"><a class="viewcode-back" href="../../generated/offlinemot.main.set_params.html#offlinemot.main.set_params">[docs]</a><span class="k">def</span> <span class="nf">set_params</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Open the configuration file in a text editor</span>
+<span class="sd">    to set parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;config.py&#39;</span><span class="p">))</span></div>
+
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../generated/offlinemot.main.main.html#offlinemot.main.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;sample.mp4&#39;</span><span class="p">)):</span>
     <span class="sd">&quot;&quot;&quot;The main loop to detect and track traffic objects in the video</span>
 <span class="sd">    and save the result after post processing to a text file.</span>
@@ -338,6 +346,7 @@
                 <span class="n">obj</span><span class="o">.</span><span class="n">tracking_state</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
             <span class="n">br_w</span><span class="p">,</span><span class="n">br_h</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">br</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="n">br</span><span class="p">)</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">box</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">])</span>
             <span class="n">curr_fg</span><span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">br_h</span><span class="p">:</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">-</span><span class="n">br_h</span><span class="p">,</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">br_w</span><span class="p">:</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">br_w</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="c1"># deal with the newly not detected with spical logic</span>
 

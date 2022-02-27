@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 from config import config
-import os
+import os, logging
 import gdown
 
 
@@ -257,5 +257,6 @@ def load_model():
     """
     output = os.path.join(config.cwd,"model","Yolov4_epoch300.pth")
     if not(os.path.exists(output)) :
+        logging.info("Downloading the example pretrained network (Only once)")
         url= "https://drive.google.com/uc?id=1rhDaY7aVSeETP8rHgqZTewp4QkWlr3fb"
         gdown.download(url, output, quiet=False)

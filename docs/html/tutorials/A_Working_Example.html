@@ -46,7 +46,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">A Working Example</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#The-detection-part">The detection part</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Config-file-content">Config file content</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#Detection-and-general-parameters">Detection and general parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Detection-and-general-configuration-parameters">Detection and general configuration parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Fixing-and-smoothing">Fixing and smoothing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Background-subtraction-parameters">Background subtraction parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Filering-parameters">Filering parameters</a></li>
@@ -85,7 +85,7 @@
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
       <li>A Working Example</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/tutorials/A_Working_Example.ipynb.txt" rel="nofollow"> View page source</a>
+              <a href="https://github.com/engyasin/Offline_MOT/blob/main/docs/source/tutorials/A_Working_Example.ipynb" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -366,48 +366,122 @@ div.rendered_html tbody tr:hover {
 <section id="A-Working-Example">
 <h1>A Working Example<a class="headerlink" href="#A-Working-Example" title="Permalink to this headline"></a></h1>
 <p>This example shows :</p>
-<p>1 - how to run the program for some video</p>
-<p>2 - how to set some important parameters for the detection, fixing and post processing</p>
-<p>3 - how to show the result</p>
+<ol class="arabic simple">
+<li><p>how to run the program for some video</p></li>
+<li><p>how to set some important parameters for the detection, fixing the view and post processing</p></li>
+<li><p>how to show the result</p></li>
+</ol>
 <section id="The-detection-part">
 <h2>The detection part<a class="headerlink" href="#The-detection-part" title="Permalink to this headline"></a></h2>
-<p>The detection part is seprarted by loading a pretrained YOLOv4 network. The training should be done separately before running this tracking program.</p>
-<p>The library that load the structure of YOLO is part of the project (<a class="reference external" href="https://github.com/Tianxiaomo/pytorch-YOLOv4">https://github.com/Tianxiaomo/pytorch-YOLOv4</a>)</p>
-<p>Using other detection trained model is also possible, it just need to be loaded within the class <code class="docutils literal notranslate"><span class="pre">YoloDetector</span></code> with making corresponding changes to its methods.</p>
-<p>To load all the libraries shown below, the directory should be at the root of the project folder. If this is ran in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> directory, then one can run</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE :To add path of the main files</span>
-
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">os</span>
-
-<span class="n">Dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
-<span class="k">if</span> <span class="n">Dir</span> <span class="o">==</span><span class="s1">&#39;docs&#39;</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;../offlinemot&#39;</span><span class="p">)</span>
-<span class="k">elif</span> <span class="n">Dir</span> <span class="o">==</span> <span class="s1">&#39;Offline_MOT&#39;</span><span class="p">:</span>
-    <span class="o">%</span><span class="k">cd</span> &#39;docs&#39;
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;offlinemot&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">detection</span> <span class="k">import</span> <span class="n">YoloDetector</span>
-</pre></div>
-</div>
-</div>
-<p>This class can take several input parameters, like the YOLO configuration file, the model file (in pytorch format) and lastly a flag to wheather to use GPU or CPU</p>
+<p>The detection part is separated by loading a pretrained YOLOv4 network. The training should be done separately before running the tracking program.</p>
+<p>The library that loads the structure of YOLO is part of the project (<a class="reference external" href="https://github.com/Tianxiaomo/pytorch-YOLOv4">https://github.com/Tianxiaomo/pytorch-YOLOv4</a>)</p>
+<p>Using other detection trained model is also possible, it just needs to be loaded within the class <code class="docutils literal notranslate"><span class="pre">YoloDetector</span></code> while changing the files directories in config file for the:</p>
+<ol class="arabic simple">
+<li><p>The model directory</p></li>
+<li><p>The configuration file for Yolo network directory.</p></li>
+<li><p>The names of the classes in a new file with the extention <code class="docutils literal notranslate"><span class="pre">.names</span></code></p></li>
+</ol>
+<p>The training can be done in any library you want (tensorflow, Darknet). However, the result should be only in <code class="docutils literal notranslate"><span class="pre">.pth</span></code> format.</p>
+<p>After installing the library simply by running:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">detector</span>  <span class="o">=</span> <span class="n">YoloDetector</span><span class="p">(</span><span class="s1">&#39;../model/yolov4-obj.cfg&#39;</span><span class="p">,</span><span class="s1">&#39;../model/Yolov4_epoch300.pth&#39;</span><span class="p">,</span><span class="n">use_cuda</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">namesfile</span><span class="o">=</span><span class="s1">&#39;../model/obj.names&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install offlinemot
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Collecting offlinemot
+  Downloading offlinemot-1.0.1.tar.gz (28.1 MB)
+     ---------------------------------------- 28.1/28.1 MB 5.0 MB/s eta 0:00:00
+  Preparing metadata (setup.py): started
+  Preparing metadata (setup.py): finished with status &#39;done&#39;
+Requirement already satisfied: numpy in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from offlinemot) (1.18.5)
+Requirement already satisfied: opencv-contrib-python in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from offlinemot) (4.5.3.56)
+Requirement already satisfied: scikit-image in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from offlinemot) (0.18.1)
+Requirement already satisfied: torch in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from offlinemot) (1.10.2)
+Requirement already satisfied: scipy in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from offlinemot) (1.4.1)
+Requirement already satisfied: gdown in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from offlinemot) (4.3.1)
+Requirement already satisfied: tqdm in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from gdown-&gt;offlinemot) (4.62.3)
+Requirement already satisfied: requests[socks] in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from gdown-&gt;offlinemot) (2.25.1)
+Requirement already satisfied: filelock in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from gdown-&gt;offlinemot) (3.6.0)
+Requirement already satisfied: beautifulsoup4 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from gdown-&gt;offlinemot) (4.8.1)
+Requirement already satisfied: six in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from gdown-&gt;offlinemot) (1.14.0)
+Requirement already satisfied: tifffile&gt;=2019.7.26 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from scikit-image-&gt;offlinemot) (2021.4.8)
+Requirement already satisfied: PyWavelets&gt;=1.1.1 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from scikit-image-&gt;offlinemot) (1.1.1)
+Requirement already satisfied: matplotlib!=3.0.0,&gt;=2.0.0 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from scikit-image-&gt;offlinemot) (3.4.2)
+Requirement already satisfied: pillow!=7.1.0,!=7.1.1,&gt;=4.3.0 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from scikit-image-&gt;offlinemot) (8.2.0)
+Requirement already satisfied: networkx&gt;=2.0 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from scikit-image-&gt;offlinemot) (2.5.1)
+Requirement already satisfied: imageio&gt;=2.3.0 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from scikit-image-&gt;offlinemot) (2.9.0)
+Requirement already satisfied: typing-extensions in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from torch-&gt;offlinemot) (3.10.0.0)
+Requirement already satisfied: cycler&gt;=0.10 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from matplotlib!=3.0.0,&gt;=2.0.0-&gt;scikit-image-&gt;offlinemot) (0.10.0)
+Requirement already satisfied: pyparsing&gt;=2.2.1 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from matplotlib!=3.0.0,&gt;=2.0.0-&gt;scikit-image-&gt;offlinemot) (2.4.7)
+Requirement already satisfied: python-dateutil&gt;=2.7 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from matplotlib!=3.0.0,&gt;=2.0.0-&gt;scikit-image-&gt;offlinemot) (2.8.1)
+Requirement already satisfied: kiwisolver&gt;=1.0.1 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from matplotlib!=3.0.0,&gt;=2.0.0-&gt;scikit-image-&gt;offlinemot) (1.1.0)
+Requirement already satisfied: decorator&lt;5,&gt;=4.3 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from networkx&gt;=2.0-&gt;scikit-image-&gt;offlinemot) (4.4.1)
+Requirement already satisfied: soupsieve&gt;=1.2 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from beautifulsoup4-&gt;gdown-&gt;offlinemot) (1.9.5)
+Requirement already satisfied: chardet&lt;5,&gt;=3.0.2 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from requests[socks]-&gt;gdown-&gt;offlinemot) (4.0.0)
+Requirement already satisfied: idna&lt;3,&gt;=2.5 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from requests[socks]-&gt;gdown-&gt;offlinemot) (2.10)
+Requirement already satisfied: urllib3&lt;1.27,&gt;=1.21.1 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from requests[socks]-&gt;gdown-&gt;offlinemot) (1.26.3)
+Requirement already satisfied: certifi&gt;=2017.4.17 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from requests[socks]-&gt;gdown-&gt;offlinemot) (2020.12.5)
+Requirement already satisfied: PySocks!=1.5.7,&gt;=1.5.6 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from requests[socks]-&gt;gdown-&gt;offlinemot) (1.7.1)
+Requirement already satisfied: colorama in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from tqdm-&gt;gdown-&gt;offlinemot) (0.4.4)
+Requirement already satisfied: setuptools in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from kiwisolver&gt;=1.0.1-&gt;matplotlib!=3.0.0,&gt;=2.0.0-&gt;scikit-image-&gt;offlinemot) (59.5.0)
+Building wheels for collected packages: offlinemot
+  Building wheel for offlinemot (setup.py): started
+  Building wheel for offlinemot (setup.py): finished with status &#39;done&#39;
+  Created wheel for offlinemot: filename=offlinemot-1.0.1-py3-none-any.whl size=28142813 sha256=706894498e37923dd31df9c5c3dd7ef74cff40d72495be1193436d7d81e7cb75
+  Stored in directory: c:\users\yasin\appdata\local\pip\cache\wheels\53\b9\a8\e95b67a840f28f1b93c8a3e7f2da614fd729911ed05b9f151a
+Successfully built offlinemot
+Installing collected packages: offlinemot
+Successfully installed offlinemot-1.0.1
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING: Ignoring invalid distribution -pencv-python (c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages)
+WARNING: Ignoring invalid distribution -pencv-python (c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages)
+WARNING: Ignoring invalid distribution -pencv-python (c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages)
+WARNING: Ignoring invalid distribution -pencv-python (c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages)
+WARNING: Ignoring invalid distribution -pencv-python (c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages)
+WARNING: Ignoring invalid distribution -pencv-python (c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">offlinemot</span>
+<span class="kn">from</span> <span class="nn">offlinemot.detection</span> <span class="kn">import</span> <span class="n">YoloDetector</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Downloading...
+From: https://drive.google.com/uc?id=1rhDaY7aVSeETP8rHgqZTewp4QkWlr3fb
+To: C:\Users\yasin\AppData\Local\Programs\Python\Python37\lib\site-packages\offlinemot\model\Yolov4_epoch300.pth
+100%|██████████| 256M/256M [00:43&lt;00:00, 5.85MB/s]
+</pre></div></div>
+</div>
+<p>This class <code class="docutils literal notranslate"><span class="pre">YoloDetector</span></code> can take several input parameters, like the YOLO configuration file, the model file (in pytorch format), a flag to whether to use GPU or CPU and lastly a file containing the list of object names.</p>
+<p>If there’s not a custom model to be loaded, then the default model can be loaded (as seen below). The example model will be downloaded when loading for the first time, this may take some time depending on your internet speed.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">detector</span>  <span class="o">=</span> <span class="n">YoloDetector</span><span class="p">(</span><span class="n">use_cuda</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -421,26 +495,39 @@ convalution havn&#39;t activate linear
 convalution havn&#39;t activate linear
 </pre></div></div>
 </div>
-<p>Detection is only performed every <em>N</em> frame. Where <em>N</em> is set according to <code class="docutils literal notranslate"><span class="pre">config.py</span></code> file. The following is a detailed description of all the paramers and its effects.</p>
-<p><strong>Note</strong> A several testing with the parameters values maybe needed for certain type of videos. Once a working set of values is found then all the similar videos can use the same set.</p>
+<p>Detection is only performed every <em>N</em> frame. Where <em>N</em> is set according to <code class="docutils literal notranslate"><span class="pre">config.py</span></code> file. The following is a detailed description of all its parameters and their effects.</p>
+<div class="admonition note">
+<p class="admonition-title fa fa-exclamation-circle"><strong>Note</strong></p>
+<p>A several testing with the parameters values maybe needed for different types of videos. Once a working set of values is found then all the similar videos can use the same set.</p>
+</div>
 </section>
 <section id="Config-file-content">
 <h2>Config file content<a class="headerlink" href="#Config-file-content" title="Permalink to this headline"></a></h2>
-<p>With this variable: <code class="docutils literal notranslate"><span class="pre">detect_every_N</span></code>, the number of detections frequency is determined. If high accuracy is needed then a value of 1 is optimal. Bigger values are less accurate but faster to run.</p>
-<section id="Detection-and-general-parameters">
-<h3>Detection and general parameters<a class="headerlink" href="#Detection-and-general-parameters" title="Permalink to this headline"></a></h3>
+<p>To edit all these parameters a direct method is to run the code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">offlinemot</span>
+<span class="n">offlinemot</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">set_params</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This will open a new text editor with the conifg file, where the changes can be done and saved.</p>
+<section id="Detection-and-general-configuration-parameters">
+<h3>Detection and general configuration parameters<a class="headerlink" href="#Detection-and-general-configuration-parameters" title="Permalink to this headline"></a></h3>
 <p>Other paramters influencing the detection and the general settings are:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">### general paprmters</span>
-<span class="n">draw</span> <span class="o">=</span> <span class="bp">False</span>
-<span class="n">detect_every_N</span> <span class="o">=</span> <span class="mi">2</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">### general parameters</span>
+<span class="n">draw</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">detect_every_N</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">missing_thresh</span> <span class="o">=</span> <span class="mf">0.8</span>
-<span class="n">use_cuda</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">use_cuda</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">resize_scale</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">colors_map</span> <span class="o">=</span> <span class="p">[</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="c1"># ped</span>
+               <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="c1"># cyclist</span>
+               <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span> <span class="c1"># cars</span>
 
 <span class="c1">### Detection paramters</span>
-<span class="n">model_name</span> <span class="o">=</span> <span class="s1">&#39;model/Yolov4_epoch300.pth&#39;</span>
-<span class="n">model_config</span> <span class="o">=</span> <span class="s1">&#39;model/yolov4-obj.cfg&#39;</span>
-<span class="n">classes_file_name</span> <span class="o">=</span> <span class="s1">&#39;model/obj.names&#39;</span>
+<span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="n">model_name</span>       <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;Yolov4_epoch300.pth&#39;</span><span class="p">)</span>
+<span class="n">model_config</span>     <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;yolov4-obj.cfg&#39;</span><span class="p">)</span>
+<span class="n">classes_file_name</span><span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;obj.names&#39;</span><span class="p">)</span>
+
 <span class="n">detect_thresh</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="c1">#Yolo detection</span>
 <span class="c1"># distance to the nearst match between detection and tracking</span>
 <span class="c1"># output in pixels</span>
@@ -450,15 +537,18 @@ convalution havn&#39;t activate linear
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>The darwing flag <code class="docutils literal notranslate"><span class="pre">darw</span></code>, whether to draw or not.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">missing_thresh</span></code>parameter is for determining when to delete an object if it keeps failing tracking and detetcion, it should be between 0 and 1, with 0 means never delete, and 1 delete on the first failure. A value of 0.9 means delete if 10% of result is failed, keep otherwise.</p></li>
+<li><p>The darwing flag <code class="docutils literal notranslate"><span class="pre">draw</span></code>, whether to draw or not.</p></li>
+<li><p>With this variable: <code class="docutils literal notranslate"><span class="pre">detect_every_N</span></code>, the number of detections frequency is determined. If high accuracy is needed then a value of 1 is optimal. Bigger values are less accurate but faster to run.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">missing_thresh</span></code>parameter is for determining when to delete an object if it keeps failing tracking and detection, it should be between 0 and 1, with 0 means never delete, and 1 delete on the first failure. A value of 0.9 means delete if 10% of result is failed, keep otherwise.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">use_cuda</span></code> flag is whether to use GPU for detection or CPU.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">resize_scale</span></code> is just for display (if <code class="docutils literal notranslate"><span class="pre">draw</span></code> flag is True), to determine how much the image should be rescaled.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">model_name</span></code> is for the trained model file name</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">colors_map</span></code> list is for the color code for the different detection outputs. The first element correspond to the class with id=1 out of the Yolo network.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">cwd</span></code> is the current directory of the config file</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">model_name</span></code> is for the trained model file directory</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">model_config</span></code> is for setting the parameters of the Yolo network, if a different structure is trained then a different file should be given here.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">class_file_name</span></code> is a text file contining the names of the pridected classes from the detection network.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">class_file_name</span></code> is a text file contining the names of the predicted classes from the detection network.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">detect_thresh</span></code> is used to put a threshold on YOLO probabilty output for each detected class. The lower this value is the more detections it will give but with less accuracy.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">dist_thresh</span></code> is for matching each detection with already detected object, it shouldn’t be too big because it represent the minmum distance to match. Otherwise, False matching will be given.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">dist_thresh</span></code> is for matching each detection with already detected object, it shouldn’t be too big because it represents the minmum distance to match. Otherwise, false matching will be given.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">size_thresh</span></code> is another distance but to the change in width and height between a detection and a nearby object. It is used because the same object from bird’s eye view should have the same dimensions.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">detect_scale</span></code> is for smaller objects detection. sometimes the drone is too high and the objects are small, so we need to <em>zoom in</em> to detect in a better way. one solution here is to detect in two levels: full scale image in the ordinary case and smaller proposed cropped areas. This parameter control how small these areas are. Higher values will make the areas bigger.</p></li>
 </ul>
@@ -467,18 +557,18 @@ convalution havn&#39;t activate linear
 <h3>Fixing and smoothing<a class="headerlink" href="#Fixing-and-smoothing" title="Permalink to this headline"></a></h3>
 <p>In <code class="docutils literal notranslate"><span class="pre">config.py</span></code> file the following are the parameters for the part of fixing the view. The first boolean is for whether to do fixing or not. It will slow the processing, so if the video is stationary without noise then no need for it.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">### fix view paramers</span>
-<span class="n">do_fix</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">do_fix</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">fixing_dilation</span> <span class="o">=</span> <span class="mi">13</span>
 <span class="n">min_matches</span>     <span class="o">=</span> <span class="mi">15</span>
 </pre></div>
 </div>
 <p>The part for doing the smoothing is also included in the same file as follows. The first boolean is whether to do the smoothing or not, the other two are related to Savitzky-Golay filter from <code class="docutils literal notranslate"><span class="pre">scipy</span></code> library.</p>
-<p>The last boolean flag <code class="docutils literal notranslate"><span class="pre">save_out_video</span></code> will save a new mp4 file in the <code class="docutils literal notranslate"><span class="pre">outputs</span></code>folder with the same name for the processed file if set to True.</p>
+<p>The last boolean flag <code class="docutils literal notranslate"><span class="pre">save_out_video</span></code> will save a new mp4 file in the same folder as the video with the same name started with <em>output_</em> if set to True. This will be run only with <code class="docutils literal notranslate"><span class="pre">offlinemot.show_results.main()</span></code></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">### Smoothing for post processing</span>
-<span class="n">do_smooth</span>   <span class="o">=</span> <span class="bp">True</span>
+<span class="n">do_smooth</span>   <span class="o">=</span> <span class="kc">True</span>
 <span class="n">window_size</span> <span class="o">=</span> <span class="mi">7</span>
 <span class="n">polydegree</span>  <span class="o">=</span> <span class="mi">3</span>
-<span class="n">save_out_video</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">save_out_video</span> <span class="o">=</span> <span class="kc">False</span>
 </pre></div>
 </div>
 <p>Other steps (along with smoothing) are included in the <code class="docutils literal notranslate"><span class="pre">postprocess.py</span></code> file, namely, the orientation calculation and interpolation of missing positions in the tracks. The orientation is calculated from the trajectory itself where the next point in the trajectory determines the current point heading.</p>
@@ -489,7 +579,7 @@ convalution havn&#39;t activate linear
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">### background subtractor parameters</span>
 <span class="n">bgs_history</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="n">bgs_threshold</span> <span class="o">=</span> <span class="mi">50</span>
-<span class="n">bgs_shadows</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">bgs_shadows</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">bgs_learning</span> <span class="o">=</span> <span class="mf">0.5</span>
 <span class="n">bgs_erosion_size</span> <span class="o">=</span> <span class="mi">3</span>
 <span class="n">bgs_min_area</span> <span class="o">=</span> <span class="mi">300</span>
@@ -521,24 +611,63 @@ convalution havn&#39;t activate linear
 </section>
 <section id="How-to-run">
 <h2>How to run<a class="headerlink" href="#How-to-run" title="Permalink to this headline"></a></h2>
-<p>To run the full program, you need to run the <code class="docutils literal notranslate"><span class="pre">main.py</span></code> script with the <code class="docutils literal notranslate"><span class="pre">-v</span></code> flag set to the name and directory of the video in the base directory of the project.</p>
-<p>Try to run the following command to see the result on the sample video:</p>
-<p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">main.py</span> <span class="pre">-v</span> <span class="pre">docs\sample.mp4</span></code></p>
+<p>To run for a new video, after setting the parameters, the command will be:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">offlinemot</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">main</span><span class="p">()</span><span class="c1"># input your video path here (empty means the example video)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+convalution havn&#39;t activate linear
+convalution havn&#39;t activate linear
+convalution havn&#39;t activate linear
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:Some objects are detected but not moving or seen before
+WARNING:root:Some objects are detected but not moving or seen before
+WARNING:root:Some objects are detected but not moving or seen before
+</pre></div></div>
+</div>
+<p>and so on..</p>
+<p>To stop the program at any point, simply press <strong>ESC</strong></p>
 </section>
 <section id="How-to-show-result">
 <h2>How to show result<a class="headerlink" href="#How-to-show-result" title="Permalink to this headline"></a></h2>
-<p>After running the program on your video, a txt file will be saved in the <strong>outputs</strong> directory with the same name as the provided video.</p>
-<p><em>Note</em> if your videos are named with similar names (for example numbers), you should copy the last result to other folder before start tracking a new video, because any new file with similar name will overwrite the previous one without warning.</p>
+<p>After running the program on your video, a text file will be saved in same directory as the inputed video with the same name as well.</p>
+<div class="admonition warning">
+<p class="admonition-title fa fa-exclamation-circle"><strong>Warning</strong></p>
+<p>if there’s any text file with the same name of the video, then it will be overwritten without warning</p>
+</div>
 <p>If you want to show the result with angles and smoothing for the sample video above, you can run the command:</p>
-<p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">show_results.py</span> <span class="pre">-v</span> <span class="pre">docs\sample.mp4</span></code></p>
-<p>The directory after the -v flag is the same as the one from which the video were processed.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">offlinemot</span>
+<span class="n">offlinemot</span><span class="o">.</span><span class="n">show_results</span><span class="o">.</span><span class="n">main</span><span class="p">()</span><span class="c1">#put path of the video here (including extention, ex mp4, avi ..)</span>
+</pre></div>
+</div>
+</div>
+<p>After running this command with your video path and extention (empty for an example), a new video will be written, if that is set in <code class="docutils literal notranslate"><span class="pre">config.py</span></code>, annotated with the tracked objects.</p>
 </section>
 <section id="Output-structure">
 <h2>Output structure<a class="headerlink" href="#Output-structure" title="Permalink to this headline"></a></h2>
 <p>in the output text file, each line is structured as follows,</p>
-<p><em>Frame_id</em> —- [ top_left_x —– top_left_y —– width height] —– <em>class_id</em> —– <em>track_id</em> —– <em>angel</em></p>
-<p>Example of one line:</p>
-<p>´39 [3748, 964, 169, 73] 2 5 138´</p>
+<p><em>Frame_id</em>   [ top_left_x   top_left_y   width   height]   <em>class_id</em>   <em>track_id</em>   <em>angel</em></p>
+<p>´39   [3748,   964,   169,   73]   2   5   138´</p>
+<p>Above is an example of one line.</p>
 </section>
 </section>
 

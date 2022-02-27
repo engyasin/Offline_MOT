@@ -1,4 +1,4 @@
-offlinemot.config.config
+﻿offlinemot.config.config
 ========================
 
 .. currentmodule:: offlinemot.config
@@ -19,6 +19,7 @@ offlinemot.config.config
          config.bgs_shadows
          config.bgs_threshold
          config.classes_file_name
+         config.colors_map
          config.cwd
          config.detect_every_N
          config.detect_scale
