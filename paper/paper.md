@@ -66,6 +66,8 @@ offlinemot.main.set_params()
 
 In the following table, the most important ones of these parameters are listed along with how to tune them for a new video. 
 
+![Important parameters to tune in config.py \label{table:parameters}](table.PNG)
+<!-->
 <html>
 </br>
 </br>
@@ -154,6 +156,8 @@ In the following table, the most important ones of these parameters are listed a
     </table>
 
 </html>
+
+<-->
 
 # Scope
 
