@@ -68,6 +68,7 @@ All these three steps are done for every object and the result is recorded for e
    installing
    tutorials/A_Working_Example
    developers
+   api
 
 .. toctree::
    :maxdepth: 1
