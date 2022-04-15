@@ -9,7 +9,7 @@ from setuptools import find_packages
 short_description = __doc__.split("\n")
 
 try:
-    with open("README.md", "r") as handle:
+    with open("Readme.md", "r") as handle:
         long_description = handle.read()
 except:
     long_description = "\n".join(short_description[2:])
@@ -18,13 +18,15 @@ except:
 setup(
   name = 'offlinemot',         # How you named your package folder (MyLib)
   packages = find_packages(),   # Chose the same as "name"
-  version = '1.0.1',      # Start with a small number and increase it with every change you make
+  version = '1.0.2',      # Start with a small number and increase it with every change you make
   license='MIT',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = short_description[0],   # Give a short description about your library
+  long_description=long_description,
+  long_description_content_type='text/markdown',
   author = 'Yasin Yousif',                   # Type in your name
   author_email = 'mrhidestev@hotmail.com',      # Type in your E-Mail
-  url = 'https://github.com/engyasin',   # Provide either the link to your github or to your website
-  download_url = 'https://github.com/engyasin/Offline_MOT/archive/refs/tags/v1.0.1.tar.gz',   # I explain this later on
+  url = 'https://github.com/engyasin/Offline_MOT',   # Provide either the link to your github or to your website
+  download_url = 'https://github.com/engyasin/Offline_MOT/archive/refs/tags/v1.0.2.tar.gz',   # I explain this later on
   keywords = ['Multi Objects Tracking', 'Detection', 'Traffic Data'],   # Keywords that define your package best
   install_requires=[            # I get to this in a second
           'numpy',

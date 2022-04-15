@@ -52,7 +52,7 @@ This will open a new text editor with the ``config.py`` file containing all of t
     Additionally, a complete example for parameters tuning is available here link_ 
 
 .. _link: tutorials/A_Working_Example.ipynb
-.. _file: generated/offlinemot.config.config.html
+.. _file: generated/offlinemot.config.configs.html
 
 Running
 ----------

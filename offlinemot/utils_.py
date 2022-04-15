@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from config import config
+from config import configs
 import os, logging
 import gdown
 
@@ -220,7 +220,7 @@ def detect_overlaping(objects,overlap_thresh=0.5):
 
 
 
-def transform_detection(p0,detections):
+def transform_detection(p0,detections,detect_thresh):
     """Convert the result of the detection from a cropped part 
     of image to the original image coordinates.
 
@@ -232,6 +232,9 @@ def transform_detection(p0,detections):
         A list of lists for the detections in the cropped frame as it is the 
         output from the detection network. The list has the following
         shape [top-left point, bottom-right point,probabilty, class id]
+    detect_thresh : float
+        The minimum probability to consider a detection result from Yolo
+        model ok. 
 
     Returns
     -------
@@ -243,7 +246,7 @@ def transform_detection(p0,detections):
 
     output = []
     for detection in detections:
-        if detection[2]>config.detect_thresh:
+        if detection[2]>detect_thresh:
             output.append( [(p0[0]+detection[0][0],p0[1]+detection[0][1]),
                             (p0[0]+detection[1][0],p0[1]+detection[1][1]),
                             detection[2], detection[3]])
@@ -255,7 +258,7 @@ def load_model():
     """Download the Yolo network pretrained file for the example for
     the first time
     """
-    output = os.path.join(config.cwd,"model","Yolov4_epoch300.pth")
+    output = os.path.join(configs.cwd,"model","Yolov4_epoch300.pth")
     if not(os.path.exists(output)) :
         logging.info("Downloading the example pretrained network (Only once)")
         url= "https://drive.google.com/uc?id=1rhDaY7aVSeETP8rHgqZTewp4QkWlr3fb"

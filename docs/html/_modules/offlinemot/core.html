@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>offlinemot.core &mdash; OfflineMOT 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> OfflineMOT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers.html">For developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html">Tracking Example</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">OfflineMOT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>offlinemot.core</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for offlinemot.core</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Perform the main loop of reading the video and tracking the traffic</span>
+<span class="sd">objects in it.</span>
+
+<span class="sd">This script reads the video file frame by frame and tries to detect </span>
+<span class="sd">all the objects in it and track them. Additionally, a check with</span>
+<span class="sd">background subtraction is done.</span>
+
+<span class="sd">This contains the following functions:</span>
+
+<span class="sd">    * main - the main function of the script</span>
+<span class="sd">    * track_objs - Perfrom tracking on every object in the frame</span>
+<span class="sd">    * bgObjs_to_objs - transform background subtraction objects to traffic objects</span>
+<span class="sd">    * FirstFrame - initilize the detector and return the objects in the first frame if they fall within the image borders</span>
+<span class="sd">    * detections_to_objects - Transfrom a group of detection results in one frame to traffic objects instances</span>
+<span class="sd">    * set_params - Open the configuration file in a text editor to set parameters</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span> <span class="o">,</span><span class="nn">logging</span> <span class="o">,</span><span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">webbrowser</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+
+
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">configs</span>
+<span class="kn">from</span> <span class="nn">fix_view</span> <span class="kn">import</span> <span class="n">FixView</span>
+<span class="kn">from</span> <span class="nn">background_subtraction</span> <span class="kn">import</span> <span class="n">BG_subtractor</span>
+
+<span class="kn">from</span> <span class="nn">detection</span> <span class="kn">import</span> <span class="n">YoloDetector</span>
+<span class="kn">from</span> <span class="nn">utils_</span> <span class="kn">import</span> <span class="n">save_tracks</span><span class="p">,</span> <span class="n">resize</span><span class="p">,</span> <span class="n">check_box</span><span class="p">,</span> <span class="n">detect_overlaping</span><span class="p">,</span> <span class="n">transform_detection</span>
+
+<span class="kn">from</span> <span class="nn">objects_classes</span> <span class="kn">import</span>  <span class="n">TrafficObj</span>
+<span class="kn">from</span> <span class="nn">post_process</span> <span class="kn">import</span> <span class="n">postProcessAll</span>
+
+
+<div class="viewcode-block" id="track_objs"><a class="viewcode-back" href="../../generated/offlinemot.core.track_objs.html#offlinemot.core.track_objs">[docs]</a><span class="k">def</span> <span class="nf">track_objs</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">,</span><span class="n">objects</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Perfrom tracking on every object in the frame</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    frame : numpy array</span>
+<span class="sd">        The input image to track the objects within</span>
+<span class="sd">    frame_id : int</span>
+<span class="sd">        The order of the frame in the video</span>
+<span class="sd">    objects : list</span>
+<span class="sd">        list of the current traffic object under tracking</span>
+<span class="sd">        to check where they moved in the frame.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        a list of the traffic object classes with updated</span>
+<span class="sd">        postions according to the tracking result.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># return new object</span>
+    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">objects</span></div>
+
+
+<div class="viewcode-block" id="bgObjs_to_objs"><a class="viewcode-back" href="../../generated/offlinemot.core.bgObjs_to_objs.html#offlinemot.core.bgObjs_to_objs">[docs]</a><span class="k">def</span> <span class="nf">bgObjs_to_objs</span><span class="p">(</span><span class="n">bgObjs</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">,</span><span class="n">config</span><span class="o">=</span><span class="n">configs</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;Transform background subtraction objects to traffic objects</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bgObjs : list</span>
+<span class="sd">        a list of the new moving objects in the current frame.</span>
+<span class="sd">        excluding the objects where the objects already detected.</span>
+<span class="sd">    frame : numpy array</span>
+<span class="sd">        The input image where the objects are detected</span>
+<span class="sd">    frame_id : int</span>
+<span class="sd">        The order of the frame in the video</span>
+<span class="sd">    config : config instance </span>
+<span class="sd">        A class instance of all the configuration parameters</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        a list of traffic object instances, representing the </span>
+<span class="sd">        previous list of objects in the input if within the image</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># results : (p1,p2,prob,class_id)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">obj_item</span> <span class="ow">in</span> <span class="n">bgObjs</span><span class="p">:</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">-</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">box</span><span class="p">):</span> 
+            <span class="n">new_obj</span> <span class="o">=</span> <span class="n">TrafficObj</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">,</span><span class="n">box</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">class_id</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">detection_way</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_obj</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output</span></div>
+
+
+<div class="viewcode-block" id="detections_to_objects"><a class="viewcode-back" href="../../generated/offlinemot.core.detections_to_objects.html#offlinemot.core.detections_to_objects">[docs]</a><span class="k">def</span> <span class="nf">detections_to_objects</span><span class="p">(</span><span class="n">detections</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">last_track_id</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a list of detections out of Yolo network to traffic</span>
+<span class="sd">    object class instances.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    detections : list</span>
+<span class="sd">        A list of detections</span>
+<span class="sd">    frame : numpy array</span>
+<span class="sd">        The input image in rgb format which the detections are in</span>
+<span class="sd">    config : config instance </span>
+<span class="sd">        A class instance of all the configuration parameters</span>
+<span class="sd">    last_track_id: int</span>
+<span class="sd">        The id number from which numbering is starting from</span>
+<span class="sd">        (default 0)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        a list of the traffic object classes representing the</span>
+<span class="sd">        new detections in the input</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">Track_id</span> <span class="o">=</span> <span class="n">last_track_id</span> 
+    <span class="n">img_wh</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">obj_item</span> <span class="ow">in</span> <span class="n">detections</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">obj_item</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">config</span><span class="o">.</span><span class="n">detect_thresh</span><span class="p">:</span>
+            <span class="n">box</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">obj_item</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">obj_item</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span>
+
+            <span class="k">if</span> <span class="n">check_box</span><span class="p">(</span><span class="n">box</span><span class="p">,</span><span class="n">img_wh</span><span class="p">):</span> 
+
+                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TrafficObj</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">box</span><span class="p">,</span><span class="n">Track_id</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">class_id</span><span class="o">=</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">detection_way</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">detect_prob</span><span class="o">=</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                <span class="n">Track_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">output</span> </div>
+
+<div class="viewcode-block" id="FirstFrame"><a class="viewcode-back" href="../../generated/offlinemot.core.FirstFrame.html#offlinemot.core.FirstFrame">[docs]</a><span class="k">def</span> <span class="nf">FirstFrame</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;initilize the detector and return the objects in the first frame</span>
+<span class="sd">    if they fall within the image borders</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    frame : numpy array</span>
+<span class="sd">        The first frame of the video</span>
+<span class="sd">    config : config instance </span>
+<span class="sd">        A class instance of all the configuration parameters</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        a tuple of a list of the new detected traffic objects as the first</span>
+<span class="sd">        element and the detector instance of YOLOv4 detector as the second</span>
+<span class="sd">        element.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># detect</span>
+    <span class="n">detector</span>  <span class="o">=</span> <span class="n">YoloDetector</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="n">results</span><span class="p">,</span> <span class="n">img_wh</span> <span class="o">=</span> <span class="n">detector</span><span class="o">.</span><span class="n">better_detection</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+    <span class="c1"># create objects based on detections</span>
+    <span class="c1"># results : (p1,p2,prob,class_id)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">detections_to_objects</span><span class="p">(</span><span class="n">results</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">config</span><span class="p">)</span>
+
+
+    <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">detector</span></div>
+
+
+<div class="viewcode-block" id="set_params"><a class="viewcode-back" href="../../generated/offlinemot.core.set_params.html#offlinemot.core.set_params">[docs]</a><span class="k">def</span> <span class="nf">set_params</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Open the configuration file in a text editor</span>
+<span class="sd">    to set parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">configs</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;config.py&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="extract_paths"><a class="viewcode-back" href="../../generated/offlinemot.core.extract_paths.html#offlinemot.core.extract_paths">[docs]</a><span class="k">def</span> <span class="nf">extract_paths</span><span class="p">(</span><span class="n">vid_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">configs</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;The main loop to detect and track traffic objects in the video</span>
+<span class="sd">    and save the result after post processing to a text file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    vid_name : str</span>
+<span class="sd">        The path to the video name which should be processed</span>
+<span class="sd">    config : config instance </span>
+<span class="sd">        A class instance of all the configuration parameters</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">###### Step 1: Initilaize parmeters, video reader,</span>
+    <span class="c1">###### and classes instances</span>
+
+    <span class="c1"># read video file</span>
+    <span class="k">if</span> <span class="n">vid_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">vid_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">configs</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;sample.mp4&#39;</span><span class="p">)</span>
+
+    <span class="n">v_obj</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">vid_name</span><span class="p">)</span>
+
+    <span class="n">_</span> <span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">v_obj</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">frame_id</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># good tracks</span>
+    <span class="n">saved_tracks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">candidates_objs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">deleted_tracks</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">config</span><span class="o">.</span><span class="n">print_summary</span><span class="p">()</span>
+
+    <span class="c1"># run first frame logic</span>
+    <span class="n">objects</span><span class="p">,</span><span class="n">detector</span> <span class="o">=</span> <span class="n">FirstFrame</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Number of detected objects in first frame: &#39;</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">objects</span><span class="p">))</span>
+
+    <span class="n">previous_frame</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">bg</span> <span class="o">=</span> <span class="n">previous_frame</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">Fix_obj</span> <span class="o">=</span> <span class="n">FixView</span><span class="p">(</span><span class="n">bg</span><span class="p">,</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">BG_s</span> <span class="o">=</span> <span class="n">BG_subtractor</span><span class="p">(</span><span class="n">bg</span><span class="p">,</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">v_obj</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">foreground</span> <span class="o">=</span> <span class="n">BG_s</span><span class="o">.</span><span class="n">bg_substract</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+    <span class="c1"># for every frame and object in the list:</span>
+
+    <span class="k">while</span> <span class="n">ret</span><span class="p">:</span>
+
+        <span class="n">frame_id</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1">#frame = frame[:,:2800,:]</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Frame: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">frame_id</span><span class="p">,</span><span class="s1">&#39;Time: </span><span class="si">%s</span><span class="s1"> ,&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">frame_id</span><span class="o">/</span><span class="mi">30</span><span class="p">))</span>
+
+        <span class="c1">###### Step 2: Stabilize frame by frame</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">do_fix</span><span class="p">:</span> 
+            <span class="n">frame</span> <span class="o">=</span> <span class="n">Fix_obj</span><span class="o">.</span><span class="n">fix_view</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">fgmask</span><span class="o">=</span><span class="n">foreground</span><span class="p">)</span>
+
+        <span class="c1">######## Step 3: Backgorund Substract</span>
+        <span class="n">foreground</span> <span class="o">=</span> <span class="n">BG_s</span><span class="o">.</span><span class="n">bg_substract</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+
+        <span class="c1">######## Step 4: Track using OpenCV trackers</span>
+        <span class="n">objects</span> <span class="o">=</span> <span class="n">track_objs</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">,</span><span class="n">objects</span><span class="p">)</span>
+        <span class="n">candidates_objs</span> <span class="o">=</span> <span class="n">track_objs</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">,</span><span class="n">candidates_objs</span><span class="p">)</span>
+
+        <span class="c1">####### Step 5: Filter the small object in the background </span>
+        <span class="c1">####### subtraction result</span>
+        <span class="n">foreground</span> <span class="p">,</span> <span class="n">new_bg_objects</span> <span class="o">=</span> <span class="n">BG_s</span><span class="o">.</span><span class="n">get_big_objects</span><span class="p">(</span><span class="n">foreground</span><span class="p">,</span><span class="n">frame</span><span class="p">)</span>
+
+
+        <span class="n">done_detect</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">lost_indx</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">curr_fg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">foreground</span><span class="p">)</span>
+
+        <span class="c1"># maybe make object thiner to allow for nearby object to be detected</span>
+        <span class="n">br</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">bgs_broder_margin</span> <span class="c1"># pixels for borders</span>
+
+        <span class="c1">########## Step 6: find failing tracking cases and confirm it with a</span>
+        <span class="c1">########## a detection, confirm eveything with background subtraction</span>
+        <span class="c1">########## and build binary mask for confirmed objects.</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">objects</span><span class="o">+</span> <span class="n">candidates_objs</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">tracking_state</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span><span class="n">frame_id</span><span class="o">%</span><span class="n">config</span><span class="o">.</span><span class="n">detect_every_N</span><span class="p">):</span>
+                <span class="c1"># failed tracking</span>
+                <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">done_detect</span><span class="p">):</span>
+                    <span class="n">detections</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">detector</span><span class="o">.</span><span class="n">better_detection</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">additional_objs</span><span class="o">=</span><span class="n">candidates_objs</span><span class="o">+</span><span class="n">objects</span><span class="p">)</span>
+
+                    <span class="n">done_detect</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">ok</span><span class="p">,</span><span class="n">detections</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">filter_by_detections_dist</span><span class="p">(</span><span class="n">detections</span><span class="p">)</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">set_detection</span><span class="p">(</span><span class="n">ok</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">re_init_tracker</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">tracking_state</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">track_id</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="c1"># candidate</span>
+                        <span class="n">obj</span><span class="o">.</span><span class="n">set_track_id</span><span class="p">(</span><span class="nb">max</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">track_id</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">objects</span><span class="o">+</span><span class="n">saved_tracks</span><span class="o">+</span><span class="n">deleted_tracks</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="n">objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Creating new objects...  &#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span> 
+                    <span class="n">lost_indx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+                <span class="c1"># if not ok, it could be out of screen</span>
+            <span class="c1"># check tracking with background subtraction</span>
+
+            <span class="n">ok_bg</span><span class="p">,</span><span class="n">new_bg_objects</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">filter_by_bg_objs</span><span class="p">(</span><span class="n">new_bg_objects</span><span class="p">)</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">set_bg_substract</span><span class="p">(</span><span class="n">ok_bg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ok_bg</span> <span class="ow">and</span> <span class="ow">not</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">tracking_state</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">re_init_tracker</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">tracking_state</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="n">br_w</span><span class="p">,</span><span class="n">br_h</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">br</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="n">br</span><span class="p">)</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">box</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">])</span>
+            <span class="n">curr_fg</span><span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">br_h</span><span class="p">:</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">-</span><span class="n">br_h</span><span class="p">,</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">br_w</span><span class="p">:</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">br_w</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="c1"># deal with the newly not detected with spical logic</span>
+
+        <span class="c1">######## Step 7: Add new objects from BG subtraction</span>
+        <span class="c1">########  stage to candiatdates list</span>
+
+        <span class="k">for</span> <span class="n">n_obj</span> <span class="ow">in</span> <span class="n">bgObjs_to_objs</span><span class="p">(</span><span class="n">new_bg_objects</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">,</span><span class="n">config</span><span class="p">):</span>
+            <span class="c1"># or sum bigger than thresh</span>
+            <span class="k">if</span> <span class="n">curr_fg</span><span class="p">[</span><span class="n">n_obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">n_obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">n_obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">n_obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">n_obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">n_obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="c1"># box overlap</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;New object is added&#39;</span><span class="p">)</span>
+                <span class="n">candidates_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n_obj</span><span class="p">)</span>
+                <span class="c1">#objects.append(n_obj)</span>
+
+        <span class="c1">####### Step 8: detect every N frame, check all (objects and candidates)</span>
+        <span class="c1">####### move from candidates to objects if checked with detections.</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">frame_id</span><span class="o">%</span><span class="n">config</span><span class="o">.</span><span class="n">detect_every_N</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                
+            <span class="n">detections</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">detector</span><span class="o">.</span><span class="n">better_detection</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">additional_objs</span><span class="o">=</span><span class="n">candidates_objs</span><span class="o">+</span><span class="n">objects</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+                <span class="c1"># object deleted if not ok here:</span>
+                <span class="n">ok</span><span class="p">,</span><span class="n">detections</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">filter_by_detections_dist</span><span class="p">(</span><span class="n">detections</span><span class="p">,</span><span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">set_detection</span><span class="p">(</span><span class="n">ok</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">re_init_tracker</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+
+            <span class="c1">## check if new detection agree with bg:</span>
+
+            <span class="k">for</span> <span class="n">bg_obj</span> <span class="ow">in</span> <span class="n">candidates_objs</span><span class="p">:</span>
+
+                <span class="c1"># not taken objects? ==&gt; detect on higher scale</span>
+                <span class="c1"># frame shape is h,w,3</span>
+                <span class="c1"># maybe when first an object is created</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">detections</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> 
+                    <span class="k">break</span>
+                <span class="n">ok</span><span class="p">,</span><span class="n">detections</span> <span class="o">=</span> <span class="n">bg_obj</span><span class="o">.</span><span class="n">filter_by_detections_dist</span><span class="p">(</span><span class="n">detections</span><span class="p">,</span><span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">bg_obj</span><span class="o">.</span><span class="n">set_detection</span><span class="p">(</span><span class="n">ok</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                    <span class="n">bg_obj</span><span class="o">.</span><span class="n">re_init_tracker</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+                    <span class="n">bg_obj</span><span class="o">.</span><span class="n">set_track_id</span><span class="p">(</span><span class="nb">max</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">track_id</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">objects</span><span class="o">+</span><span class="n">saved_tracks</span><span class="o">+</span><span class="n">deleted_tracks</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Creating new objects... &#39;</span><span class="p">)</span>
+                    <span class="n">objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bg_obj</span><span class="p">)</span>
+
+            <span class="c1"># remove the detected classes</span>
+            <span class="n">candidates_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">candi_obj</span> <span class="k">for</span> <span class="n">candi_obj</span> <span class="ow">in</span> <span class="n">candidates_objs</span> <span class="k">if</span><span class="p">(</span><span class="n">candi_obj</span><span class="o">.</span><span class="n">class_id</span> <span class="o">==-</span><span class="mi">1</span><span class="p">)]</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">detections</span><span class="p">):</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Some objects are detected but not moving or seen before&#39;</span><span class="p">)</span>
+
+        <span class="c1">######### Step 9: check all objects if good enough to continue </span>
+        <span class="c1">######### tracking, to save if long and confirmed but lost, </span>
+        <span class="c1">######### or to delete.</span>
+        <span class="n">new_objs</span> <span class="p">,</span> <span class="n">new_candidates_objs</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objects</span><span class="o">+</span><span class="n">candidates_objs</span><span class="p">:</span>
+            <span class="n">Track</span><span class="p">,</span><span class="n">Save</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">Track</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">class_id</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">new_candidates_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">new_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">Save</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">class_id</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">saved_tracks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Object </span><span class="si">{}</span><span class="s1"> is deleted because of not enough detections&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">track_id</span><span class="p">))</span>
+                <span class="n">deleted_tracks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+                <span class="c1"># delete</span>
+                <span class="k">continue</span>
+
+        <span class="n">objects</span><span class="p">,</span> <span class="n">candidates_objs</span> <span class="o">=</span> <span class="n">new_objs</span><span class="p">[:],</span> <span class="n">new_candidates_objs</span><span class="p">[:],</span>
+
+        <span class="c1">######## Step 10: check if any objects are overlapping with another</span>
+        <span class="c1">######## Delete if a minmum area is found</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">to_remove</span> <span class="o">=</span> <span class="n">detect_overlaping</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span><span class="n">overlap_thresh</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">overlap_thresh</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">to_remove</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">objects</span><span class="p">[</span><span class="n">to_remove</span><span class="p">]</span><span class="o">.</span><span class="n">trust_level</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">&gt;</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">min_history</span><span class="o">+</span><span class="mi">5</span><span class="p">))</span> <span class="ow">and</span> \
+                <span class="n">objects</span><span class="p">[</span><span class="n">to_remove</span><span class="p">]</span><span class="o">.</span><span class="n">tracking_state</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="c1"># true object?</span>
+                <span class="c1"># return it to its last ok state.</span>
+                <span class="n">objects</span><span class="p">[</span><span class="n">to_remove</span><span class="p">]</span><span class="o">.</span><span class="n">box</span> <span class="o">=</span> <span class="n">objects</span><span class="p">[</span><span class="n">to_remove</span><span class="p">]</span><span class="o">.</span><span class="n">boxes</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">objects</span><span class="p">[</span><span class="n">to_remove</span><span class="p">]</span><span class="o">.</span><span class="n">boxes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">objects</span><span class="p">[</span><span class="n">to_remove</span><span class="p">]</span><span class="o">.</span><span class="n">boxes</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">objects</span><span class="p">[</span><span class="n">to_remove</span><span class="p">]</span><span class="o">.</span><span class="n">tracking_state</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            
+                <span class="k">continue</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Object </span><span class="si">{}</span><span class="s1"> is deleted because of overlaping&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">objects</span><span class="p">[</span><span class="n">to_remove</span><span class="p">]</span><span class="o">.</span><span class="n">track_id</span><span class="p">))</span>
+            <span class="n">deleted_tracks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">objects</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">to_remove</span><span class="p">))</span>
+
+        <span class="c1">######## Step 11: Draw each frame with the tracking result</span>
+        <span class="c1">######## if needed for debugging</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">draw</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objects</span><span class="o">+</span><span class="n">candidates_objs</span><span class="p">:</span>
+                <span class="n">frame</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+            <span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s1">&#39;fgmask&#39;</span><span class="p">,</span> <span class="n">resize</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">config</span><span class="o">.</span><span class="n">resize_scale</span><span class="p">))</span> 
+            <span class="n">k</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xff</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">27</span><span class="p">:</span> 
+                <span class="k">break</span>
+
+        <span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">v_obj</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="c1">###### Step 12: Take the current and saved objects,</span>
+    <span class="c1">###### smooth the trajectories, interpolate the missing points,</span>
+    <span class="c1">###### find the angels and save to text file.</span>
+    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+        <span class="n">Track</span><span class="p">,</span><span class="n">Save</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">Track</span> <span class="ow">and</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">class_id</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">saved_tracks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">deleted_tracks</span><span class="p">:</span>
+        <span class="n">Track</span><span class="p">,</span><span class="n">Save</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">Save</span> <span class="ow">and</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">class_id</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">saved_tracks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+    <span class="n">cv2</span><span class="o">.</span><span class="n">destroyAllWindows</span><span class="p">()</span>
+    <span class="n">v_obj</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+    <span class="k">del</span> <span class="n">Fix_obj</span>
+    <span class="k">del</span> <span class="n">BG_s</span>
+
+    <span class="n">saved_tracks</span> <span class="o">=</span> <span class="n">postProcessAll</span><span class="p">(</span><span class="n">saved_tracks</span><span class="p">,</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">save_tracks</span><span class="p">(</span><span class="n">saved_tracks</span><span class="p">,</span><span class="n">vid_name</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span><span class="o">==</span><span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="c1"># construct the argument parser and parse the arguments</span>
+    <span class="n">ap</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--video&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to input video file&quot;</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">ap</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
+    <span class="n">extract_paths</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;video&#39;</span><span class="p">])</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yasin Yousif.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

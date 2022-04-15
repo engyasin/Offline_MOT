@@ -1,6 +1,7 @@
 Multiple objects detection and tracking from bird view stationary drone videos
 =========
 [![GH Actions Status](https://github.com/engyasin/Offline_MOT/workflows/PyTest/badge.svg)](https://github.com/engyasin/Offline_MOT/actions?query=branch%3Amain)
+[![codecov](https://codecov.io/gh/engyasin/Offline_MOT/branch/main/graph/badge.svg)](https://codecov.io/gh/engyasin/Offline_MOT/branch/main)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 `OfflineMOT` is a package for multi objects tracking from bird's eye view stationary videos. The accuracy has priority over runtime in this package, therefore it is better suited for offline processing rather than real time applications, hence the name of the package.
@@ -38,7 +39,22 @@ After installing the library, and in order to test the example provided with it,
 ```python
 In [1]: import offlinemot
 
-In [2]: offlinemot.main.main() # no input to run the example video
+In [2]: from offlinemot.config import configs
+
+In [3]: cfg= configs() # if you have avaliable configuration file '.ini', you can pass it
+
+In [4]: cfg.print_summary() # show the current values and sections
+
+In [5]: cfg['detect_every_N'] = 3
+
+In [6]: cfg.print_section('Detection') # show parameters of single section
+
+In [7]: cfg['detect_thresh'] = 15
+
+In [8]: offlinemot.main.main(config=cfg) # no input to run the example video
+
+In [9]: cfg.write('new_config_file.ini') # to be loaded for similar videos
+
 ```
 
 For the first time this is ran, the example network model will be downloaded (around 250MB). And a window for the example video with the tracked objects will be shown.
@@ -99,7 +115,7 @@ This project can be used for:
 
 There are a number of test units for this project. If a development of the package is intended then they can be run after cloning this repo with the command:
 ```
-$ pytest -v /offlinemot/tests
+$ pytest -v ./offlinemot/tests
 ```
 
 For the previous command `pytest` library is needed to be installed.
@@ -108,9 +124,10 @@ For the previous command `pytest` library is needed to be installed.
 
 ## Support
 
-If you have any questions or comments, or if you find any bugs, please open an issue in this project. Please feel free
-to fork the project, and create a pull request, if you have any improvements or bug fixes. 
-Additionally, the [contribution instructions](CONTRIBUTING.md) has further details.
+If you like to contribute to a feature of a bug fix, please take a look at the [contribution instructions](CONTRIBUTING.md) has further details.
+
+
+Alternatively, you can contribute by creating an issue for a problem when running the program. If your issue is about the accuracy of the results (like not detecting or failing to track some objects), please tag the issue with **logic error**. Please also attach some images or gif files depicting how the error happened in running and post-running time of the video.
 
 --------------------
 

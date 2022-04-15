@@ -38,17 +38,15 @@
               <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers.html">For developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html">Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
 </ul>
 
         </div>
@@ -99,7 +97,7 @@
 <span class="kn">import</span> <span class="nn">cv2</span>
 
 
-<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">configs</span>
 <span class="kn">from</span> <span class="nn">fix_view</span> <span class="kn">import</span> <span class="n">FixView</span>
 <span class="kn">from</span> <span class="nn">background_subtraction</span> <span class="kn">import</span> <span class="n">BG_subtractor</span>
 
@@ -137,7 +135,7 @@
     <span class="k">return</span> <span class="n">objects</span></div>
 
 
-<div class="viewcode-block" id="bgObjs_to_objs"><a class="viewcode-back" href="../../generated/offlinemot.main.bgObjs_to_objs.html#offlinemot.main.bgObjs_to_objs">[docs]</a><span class="k">def</span> <span class="nf">bgObjs_to_objs</span><span class="p">(</span><span class="n">bgObjs</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">):</span>
+<div class="viewcode-block" id="bgObjs_to_objs"><a class="viewcode-back" href="../../generated/offlinemot.main.bgObjs_to_objs.html#offlinemot.main.bgObjs_to_objs">[docs]</a><span class="k">def</span> <span class="nf">bgObjs_to_objs</span><span class="p">(</span><span class="n">bgObjs</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">,</span><span class="n">config</span><span class="o">=</span><span class="n">configs</span><span class="p">()):</span>
     <span class="sd">&quot;&quot;&quot;Transform background subtraction objects to traffic objects</span>
 
 <span class="sd">    Parameters</span>
@@ -149,6 +147,8 @@
 <span class="sd">        The input image where the objects are detected</span>
 <span class="sd">    frame_id : int</span>
 <span class="sd">        The order of the frame in the video</span>
+<span class="sd">    config : config instance </span>
+<span class="sd">        A class instance of all the configuration parameters</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -163,19 +163,23 @@
         <span class="n">box</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">-</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">obj_item</span><span class="o">.</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
 
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">box</span><span class="p">):</span> 
-            <span class="n">new_obj</span> <span class="o">=</span> <span class="n">TrafficObj</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">,</span><span class="n">box</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">class_id</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">detection_way</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">new_obj</span> <span class="o">=</span> <span class="n">TrafficObj</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">,</span><span class="n">box</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">class_id</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">detection_way</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
             <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_obj</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">output</span></div>
 
 
-<div class="viewcode-block" id="detections_to_objects"><a class="viewcode-back" href="../../generated/offlinemot.main.detections_to_objects.html#offlinemot.main.detections_to_objects">[docs]</a><span class="k">def</span> <span class="nf">detections_to_objects</span><span class="p">(</span><span class="n">detections</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">last_track_id</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="detections_to_objects"><a class="viewcode-back" href="../../generated/offlinemot.main.detections_to_objects.html#offlinemot.main.detections_to_objects">[docs]</a><span class="k">def</span> <span class="nf">detections_to_objects</span><span class="p">(</span><span class="n">detections</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">last_track_id</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Convert a list of detections out of Yolo network to traffic</span>
 <span class="sd">    object class instances.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
+<span class="sd">    detections : list</span>
+<span class="sd">        A list of detections</span>
 <span class="sd">    frame : numpy array</span>
 <span class="sd">        The input image in rgb format which the detections are in</span>
+<span class="sd">    config : config instance </span>
+<span class="sd">        A class instance of all the configuration parameters</span>
 <span class="sd">    last_track_id: int</span>
 <span class="sd">        The id number from which numbering is starting from</span>
 <span class="sd">        (default 0)</span>
@@ -196,12 +200,12 @@
 
             <span class="k">if</span> <span class="n">check_box</span><span class="p">(</span><span class="n">box</span><span class="p">,</span><span class="n">img_wh</span><span class="p">):</span> 
 
-                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TrafficObj</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">box</span><span class="p">,</span><span class="n">Track_id</span><span class="p">,</span><span class="n">class_id</span><span class="o">=</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">detection_way</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">detect_prob</span><span class="o">=</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TrafficObj</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">box</span><span class="p">,</span><span class="n">Track_id</span><span class="p">,</span><span class="n">config</span><span class="p">,</span><span class="n">class_id</span><span class="o">=</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">detection_way</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">detect_prob</span><span class="o">=</span><span class="n">obj_item</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
                 <span class="n">Track_id</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="k">return</span> <span class="n">output</span> </div>
 
-<div class="viewcode-block" id="FirstFrame"><a class="viewcode-back" href="../../generated/offlinemot.main.FirstFrame.html#offlinemot.main.FirstFrame">[docs]</a><span class="k">def</span> <span class="nf">FirstFrame</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
+<div class="viewcode-block" id="FirstFrame"><a class="viewcode-back" href="../../generated/offlinemot.main.FirstFrame.html#offlinemot.main.FirstFrame">[docs]</a><span class="k">def</span> <span class="nf">FirstFrame</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;initilize the detector and return the objects in the first frame</span>
 <span class="sd">    if they fall within the image borders</span>
 
@@ -209,6 +213,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    frame : numpy array</span>
 <span class="sd">        The first frame of the video</span>
+<span class="sd">    config : config instance </span>
+<span class="sd">        A class instance of all the configuration parameters</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -219,12 +225,12 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># detect</span>
-    <span class="n">detector</span>  <span class="o">=</span> <span class="n">YoloDetector</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">model_config</span><span class="p">,</span><span class="n">config</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span><span class="n">use_cuda</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">use_cuda</span><span class="p">)</span>
+    <span class="n">detector</span>  <span class="o">=</span> <span class="n">YoloDetector</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
-    <span class="n">results</span><span class="p">,</span><span class="n">img_wh</span> <span class="o">=</span> <span class="n">detector</span><span class="o">.</span><span class="n">better_detection</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+    <span class="n">results</span><span class="p">,</span> <span class="n">img_wh</span> <span class="o">=</span> <span class="n">detector</span><span class="o">.</span><span class="n">better_detection</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
     <span class="c1"># create objects based on detections</span>
     <span class="c1"># results : (p1,p2,prob,class_id)</span>
-    <span class="n">output</span> <span class="o">=</span> <span class="n">detections_to_objects</span><span class="p">(</span><span class="n">results</span><span class="p">,</span><span class="n">frame</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">detections_to_objects</span><span class="p">(</span><span class="n">results</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">config</span><span class="p">)</span>
 
 
     <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">detector</span></div>
@@ -234,28 +240,29 @@
     <span class="sd">&quot;&quot;&quot;Open the configuration file in a text editor</span>
 <span class="sd">    to set parameters</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;config.py&#39;</span><span class="p">))</span></div>
+    <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">configs</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;config.py&#39;</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../generated/offlinemot.main.main.html#offlinemot.main.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;sample.mp4&#39;</span><span class="p">)):</span>
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../generated/offlinemot.main.main.html#offlinemot.main.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">vid_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">configs</span><span class="p">()):</span>
     <span class="sd">&quot;&quot;&quot;The main loop to detect and track traffic objects in the video</span>
 <span class="sd">    and save the result after post processing to a text file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    args : dict</span>
-<span class="sd">        The input parameters as dictionary with values for keys such as</span>
-<span class="sd">        video name. (default {&#39;video&#39;:&#39;sample.mp4&#39;})</span>
+<span class="sd">    vid_name : str</span>
+<span class="sd">        The path to the video name which should be processed</span>
+<span class="sd">    config : config instance </span>
+<span class="sd">        A class instance of all the configuration parameters</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># check wether called directly</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;video&quot;</span><span class="p">:</span><span class="n">args</span><span class="p">}</span>
 
     <span class="c1">###### Step 1: Initilaize parmeters, video reader,</span>
     <span class="c1">###### and classes instances</span>
 
     <span class="c1"># read video file</span>
-    <span class="n">v_obj</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">vid_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">vid_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">configs</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;sample.mp4&#39;</span><span class="p">)</span>
+
+    <span class="n">v_obj</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">vid_name</span><span class="p">)</span>
 
     <span class="n">_</span> <span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">v_obj</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="n">frame_id</span> <span class="o">=</span> <span class="mi">0</span>
@@ -265,16 +272,18 @@
     <span class="n">candidates_objs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">deleted_tracks</span> <span class="o">=</span> <span class="p">[]</span>
 
+    <span class="n">config</span><span class="o">.</span><span class="n">print_summary</span><span class="p">()</span>
+
     <span class="c1"># run first frame logic</span>
-    <span class="n">objects</span><span class="p">,</span><span class="n">detector</span> <span class="o">=</span> <span class="n">FirstFrame</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+    <span class="n">objects</span><span class="p">,</span><span class="n">detector</span> <span class="o">=</span> <span class="n">FirstFrame</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">config</span><span class="p">)</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Number of detected objects in first frame: &#39;</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">objects</span><span class="p">))</span>
 
     <span class="n">previous_frame</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">bg</span> <span class="o">=</span> <span class="n">previous_frame</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-    <span class="n">Fix_obj</span> <span class="o">=</span> <span class="n">FixView</span><span class="p">(</span><span class="n">bg</span><span class="p">)</span>
-    <span class="n">BG_s</span> <span class="o">=</span> <span class="n">BG_subtractor</span><span class="p">(</span><span class="n">bg</span><span class="p">)</span>
+    <span class="n">Fix_obj</span> <span class="o">=</span> <span class="n">FixView</span><span class="p">(</span><span class="n">bg</span><span class="p">,</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">BG_s</span> <span class="o">=</span> <span class="n">BG_subtractor</span><span class="p">(</span><span class="n">bg</span><span class="p">,</span><span class="n">config</span><span class="p">)</span>
 
     <span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">v_obj</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
@@ -353,7 +362,7 @@
         <span class="c1">######## Step 7: Add new objects from BG subtraction</span>
         <span class="c1">########  stage to candiatdates list</span>
 
-        <span class="k">for</span> <span class="n">n_obj</span> <span class="ow">in</span> <span class="n">bgObjs_to_objs</span><span class="p">(</span><span class="n">new_bg_objects</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">n_obj</span> <span class="ow">in</span> <span class="n">bgObjs_to_objs</span><span class="p">(</span><span class="n">new_bg_objects</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">,</span><span class="n">config</span><span class="p">):</span>
             <span class="c1"># or sum bigger than thresh</span>
             <span class="k">if</span> <span class="n">curr_fg</span><span class="p">[</span><span class="n">n_obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">n_obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">n_obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">n_obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">n_obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">n_obj</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
                 <span class="c1"># box overlap</span>
@@ -471,9 +480,8 @@
     <span class="k">del</span> <span class="n">Fix_obj</span>
     <span class="k">del</span> <span class="n">BG_s</span>
 
-    <span class="n">saved_tracks</span> <span class="o">=</span> <span class="n">postProcessAll</span><span class="p">(</span><span class="n">saved_tracks</span><span class="p">)</span>
-    <span class="n">save_tracks</span><span class="p">(</span><span class="n">saved_tracks</span><span class="p">,</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;video&#39;</span><span class="p">])</span></div>
-
+    <span class="n">saved_tracks</span> <span class="o">=</span> <span class="n">postProcessAll</span><span class="p">(</span><span class="n">saved_tracks</span><span class="p">,</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">save_tracks</span><span class="p">(</span><span class="n">saved_tracks</span><span class="p">,</span><span class="n">vid_name</span><span class="p">)</span></div>
 
 <span class="k">if</span> <span class="vm">__name__</span><span class="o">==</span><span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
 
@@ -484,7 +492,7 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to input video file&quot;</span><span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">ap</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
-    <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;video&#39;</span><span class="p">])</span>
 </pre></div>
 
            </div>

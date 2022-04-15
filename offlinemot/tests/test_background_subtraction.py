@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 
 from offlinemot.background_subtraction import BG_subtractor
+from offlinemot.config import configs
 
 from tests.example_data import *
 
@@ -16,7 +17,7 @@ class Test_background_subtraction(unittest.TestCase):
     def test_bg_substract(self):
 
         bg_=np.uint8(np.random.rand(700,700,3)*200)
-        example_obj = BG_subtractor(bg=bg_)
+        example_obj = BG_subtractor(bg=bg_,config=configs)
 
         bg_[100:400,100:400,:] = 255
         fg = example_obj.bg_substract(frame=bg_)
@@ -26,7 +27,7 @@ class Test_background_subtraction(unittest.TestCase):
     
     def test_get_big_objects(self):
         bg_=np.random.rand(2000,2000,3)*200
-        example_obj = BG_subtractor(bg=bg_)
+        example_obj = BG_subtractor(bg=bg_,config=configs)
 
         bg_[100:990,100:1990,:] = 255
         fg = example_obj.bg_substract(frame=bg_)

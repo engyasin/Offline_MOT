@@ -15,6 +15,6 @@
 .. autosummary::
     :toctree: .
     
-    main
+    show_result
     
 

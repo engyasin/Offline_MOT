@@ -17,7 +17,7 @@ import cv2
 import os
 
 import argparse
-from config import config
+from config import configs
 from utils_ import read_tracks, resize
 
 # read video from args
@@ -27,20 +27,17 @@ from utils_ import read_tracks, resize
 # load each video frame and draw on it.
 
 
+def show_result(vid_name=None, config=configs()):
 
-
-def main(args=os.path.join(config.cwd,'model','sample.mp4')):
-
-    # check wether called directly
-    if type(args) is str:
-        args = {"video":args}
 
     # read video file
-    v_obj = cv2.VideoCapture(args["video"])
+    if vid_name is None:
+        vid_name = os.path.join(configs.cwd,'model','sample.mp4')
+    v_obj = cv2.VideoCapture(vid_name)
 
-    tracking_data = read_tracks(args["video"])
+    tracking_data = read_tracks(vid_name)
 
-    video_name = os.path.split(args["video"])[-1].split('.')[-2]
+    video_name = os.path.split(vid_name)[-1].split('.')[-2]
     # frame_id: ([x,y,w,h],class)
 
     ret, frame = v_obj.read()
@@ -48,9 +45,7 @@ def main(args=os.path.join(config.cwd,'model','sample.mp4')):
 
     # run first frame logic
     #Fix_obj = FixView(bg)
-    color_map =[(0,255,0), # ped
-                (255,0,0), # cyclist
-                (0, 0, 0)] # cars
+
     #ret, frame = v_obj.read()
     if config.save_out_video:
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')  
@@ -73,11 +68,11 @@ def main(args=os.path.join(config.cwd,'model','sample.mp4')):
             center = int(box[0]+(box[2]/2)),int(box[1]+(box[3]/2))
             rect = cv2.boxPoints((center,(box[2],box[3]),angel))
             rect = np.intp(rect)
-            cv2.drawContours(frame,[rect],0,color=color_map[class_id-1],thickness=4)
+            cv2.drawContours(frame,[rect],0,color=config.colors_map[class_id-1],thickness=4)
             #cv2.drawContours(stabilized_frame, [rect], 0, (255,0,0),4)   
 
             #cv2.rectangle(frame,(box[0],box[1]),(box[0]+box[2],box[1]+box[3]),color=color_map[class_id-1],thickness=4)
-            cv2.putText(frame,str(track_id),(box[0],box[1]),2,3,color=color_map[class_id-1],thickness=4)
+            cv2.putText(frame,str(track_id),(box[0],box[1]),2,3,color=config.colors_map[class_id-1],thickness=4)
         cv2.imshow('fgmask', resize(frame,config.resize_scale)) 
         if config.save_out_video:
             out.write(frame)
@@ -107,6 +102,6 @@ if __name__=='__main__':
     #	help="OpenCV object tracker type")
 
     args = vars(ap.parse_args())
-    main(args)
+    show_result(args["video"])
 
 

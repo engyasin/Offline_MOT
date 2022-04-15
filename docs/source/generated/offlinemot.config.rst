@@ -13,7 +13,7 @@
 .. autosummary::
     :toctree: .
     
-    config
+    configs
     
 
 

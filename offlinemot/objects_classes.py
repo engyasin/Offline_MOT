@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import logging
 
-from config import config
+from config import configs
 
 from utils_ import check_box
 
@@ -105,7 +105,7 @@ class TrafficObj():
 
     """
 
-    def __init__(self,frame,frame_id,box,track_id,tracker=cv2.TrackerKCF_create,class_id=-1,detection_way=1,detect_prob=0.0):
+    def __init__(self,frame,frame_id,box,track_id,cfg=configs(),tracker=cv2.TrackerKCF_create,class_id=-1,detection_way=1,detect_prob=0.0):
         """
         Parameters
         ----------
@@ -119,6 +119,8 @@ class TrafficObj():
             w,h are the width and height.
         track_id : int
             The object unique identifier
+        cfg : config instance 
+            A class instance of all the configuration parameters
         tracker : function
             The builder function for the tracker object 
             (default is cv2.TrackerKCF_create)
@@ -146,6 +148,7 @@ class TrafficObj():
         self.boxes = [box]
         self.true_wh_max = box[2:],1
         self.tracking_state = [1]
+        self.cfg = cfg
 
         self.time_steps = [frame_id]
         self.trust_level = [[0,0,0]]
@@ -162,7 +165,7 @@ class TrafficObj():
         self.class_ids[class_id] += (1/(1-detect_prob))
 
         # error + color_code + unknown
-        self.colors_map = [(0,0,255)] + config.colors_map + [(255,255,255)] 
+        self.colors_map = [(0,0,255)] + self.cfg.colors_map + [(255,255,255)] 
 
         self.track_id = track_id
 
@@ -279,7 +282,7 @@ class TrafficObj():
 
         """
         # history length
-        under_prosses = len(self.trust_level)<config.min_history
+        under_prosses = len(self.trust_level)<self.cfg.min_history
 
         if not(under_prosses):
             # min detection
@@ -293,14 +296,14 @@ class TrafficObj():
                 sum_traj_state += sum(state)
 
             #if object is still, (detection error) or not much detections
-            if sum_traj_state<(config.min_history+3):
+            if sum_traj_state<(self.cfg.min_history+3):
                 # at least three time movement or detection
                 logging.info('Object ',self.track_id,' deleted because of missing matching steps')
                 return False,False
             elif all(traj_state):
                 # keep tracking if detected enough
                 return True,False
-            elif (sum(traj_state)/len(traj_state))<config.missing_thresh:
+            elif (sum(traj_state)/len(traj_state))<self.cfg.missing_thresh:
                 #delete
                 logging.info('Object ',self.track_id,' deleted because of low detection rate')
                 #print(sum(traj_state),len(traj_state))
@@ -340,7 +343,7 @@ class TrafficObj():
 
         for obj_item in detections:
 
-            if obj_item[2]<config.detect_thresh:
+            if obj_item[2]<self.cfg.detect_thresh:
                 detections_dists.append(1e9)
                 detections_size.append(1e9)
                 continue
@@ -360,8 +363,8 @@ class TrafficObj():
 
         detections_dists.append(1e9)
         detections_size.append(1e9)
-        Ok = min(detections_dists) < (config.dist_thresh)# )
-        Ok *= (min(detections_size) < (config.size_thresh* [1.0,1.6][self.class_id==-1]))
+        Ok = min(detections_dists) < (self.cfg.dist_thresh)# )
+        Ok *= (min(detections_size) < (self.cfg.size_thresh* [1.0,1.6][self.class_id==-1]))
         #if self.track_id == 4:
         #    print(detections_dists)
         #    print([ob[2] for ob in detections])
@@ -427,7 +430,7 @@ class TrafficObj():
 
         Ok = False
         if bg_objs:
-            Ok = (min(detections_dists) < (config.dist_thresh-12))*(min(detections_size) < (config.size_thresh-12))
+            Ok = (min(detections_dists) < (self.cfg.dist_thresh-12))*(min(detections_size) < (self.cfg.size_thresh-12))
         if Ok:
 
             obj_item = bg_objs.pop(np.argmin(detections_dists))

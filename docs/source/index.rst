@@ -59,16 +59,16 @@ Three methods are applied for the detection and tracking in this project. They a
 
 All these three steps are done for every object and the result is recorded for every frame. If one object keeps failing all the steps then it will be deleted after a defined number of times.
 
-.. _file: generated/offlinemot.config.config.html
+.. _file: generated/offlinemot.config.configs.html
 
 .. toctree::
    :maxdepth: 1
    :caption: User guide
 
    installing
-   tutorials/A_Working_Example
    developers
    api
+   tutorials/A_Working_Example
 
 .. toctree::
    :maxdepth: 1

@@ -4,7 +4,7 @@ import torch
 from tool.utils import *
 from tool.torch_utils import *
 
-from config import config
+from config import configs
 from utils_ import find_overlap, transform_detection, load_model
 # from tool.darknet2pytorch import Darknet
 import cv2
@@ -40,21 +40,23 @@ class YoloDetector():
 
     """
 
-    def __init__(self,cfgfile=config.model_config, weightfile=config.model_name, use_cuda=True,namesfile = config.classes_file_name):
+    def __init__(self,config=configs()):
 
         """
         Parameters
         ----------
-        cfgfile : str
-            The filename of the configuration file of the Yolov4 model
-
-        weightfile : str
-            The filename of the network model (Yolov4)
-
-        use_cuda : bool
-            Run on CPU if False or GPU if True (default is True)
+        config : config instance 
+            A class instance of all the configuration parameters
 
         """
+
+        cfgfile   = config.model_config
+        weightfile=config.model_name
+        use_cuda  = config.use_cuda
+        namesfile = config.classes_file_name
+
+        self.detect_scale = config.detect_scale
+        self.detect_thresh = config.detect_thresh
 
         self.m = darknet2pytorch.Darknet(cfgfile, inference=True)
 
@@ -156,7 +158,7 @@ class YoloDetector():
         new_boxes = []
         detections = []
         for box in results:
-            max_dim = int(config.detect_scale*max(box[1][0]-box[0][0],box[1][1]-box[0][1]))
+            max_dim = int(self.detect_scale*max(box[1][0]-box[0][0],box[1][1]-box[0][1]))
             # new box: x,y,w,h
             new_box = [max(box[0][0]-max_dim,0),max(box[0][1]-max_dim,0),
                         box[1][0]-box[0][0]+2*max_dim,
@@ -186,16 +188,16 @@ class YoloDetector():
             cropped_img = imgfile[y:y+h_,x:x+w_]
             new_detections, _ = self.detect(cropped_img)
             p0 = (x,y)
-            detections.extend(transform_detection(p0,new_detections))
+            detections.extend(transform_detection(p0,new_detections,self.detect_thresh))
         return results_+detections,(w,h)
         # calculate the final detection and return it
 
 
 if __name__ == '__main__':
 
-    detector  = YoloDetector(os.path.join(config.cwd,'model','yolov4-obj.cfg'),
-                        os.path.join(config.cwd,'model','Yolov4_epoch300.pth'),use_cuda=False)
-    r = detector.detect(os.path.join(config.cwd,'model','00120.jpg'))
+    detector  = YoloDetector(os.path.join(configs.cwd,'model','yolov4-obj.cfg'),
+                        os.path.join(configs.cwd,'model','Yolov4_epoch300.pth'),use_cuda=False)
+    r = detector.detect(os.path.join(configs.cwd,'model','00120.jpg'))
 
     print(r)
     print(detector.m)

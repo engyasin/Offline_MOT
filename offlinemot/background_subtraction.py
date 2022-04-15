@@ -6,7 +6,7 @@ from utils_ import resize
 
 import os
 
-from config import config
+from config import configs
 
 class BG_subtractor():
     """
@@ -42,17 +42,20 @@ class BG_subtractor():
         Process a foreground with its frame to get the group
         of the different background objects.
     """
-    def __init__(self,bg):
+    def __init__(self,bg,config=configs()):
         """
         Parameters
         ----------
         bg : numpy array
             The background object for the first time
+        config : config instance 
+            A class instance of all the configuration parameters
 
         """
         self.history = config.bgs_history
         self.thresh  = config.bgs_threshold
         self.shadows = config.bgs_shadows
+        self.min_area= config.bgs_min_area
         self.fgbg = cv2.createBackgroundSubtractorKNN(self.history,self.thresh,self.shadows)
         self.bg = bg.copy()
 
@@ -119,7 +122,7 @@ class BG_subtractor():
         regs_str = regionprops(label_image,frame)
         new_regions = []
         for r in regs_str:
-            if r.area < config.bgs_min_area:
+            if r.area < self.min_area:
                 fg_mask[r.slice] = 0
             elif r.extent < 0.1:
                 fg_mask[r.slice] = 0  
@@ -132,7 +135,7 @@ class BG_subtractor():
 
 if __name__ == '__main__':
 
-    cap = cv2.VideoCapture(os.path.join(config.cwd,'model','sample.mp4'))
+    cap = cv2.VideoCapture(os.path.join(configs.cwd,'model','sample.mp4'))
     ret, bg = cap.read()
     frame_id = 1
     cap.set(1, frame_id-1)

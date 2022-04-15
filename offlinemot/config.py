@@ -1,5 +1,6 @@
 import os,sys
-class config:
+import configparser
+class configs:
 
     """
     A class used to set parameters for offline traffic objects detection
@@ -144,3 +145,81 @@ class config:
     window_size = 7
     polydegree  = 3
     save_out_video = False
+
+    def __init__(self,file_name=None):
+
+        if file_name is None:
+            file_name = os.path.join(self.cwd,'model','config.ini')
+
+        self.config_obj = configparser.ConfigParser()
+        self.config_obj.read(file_name)
+
+        self.copy_()
+
+        #self.print_summary()
+
+
+    def print_summary(self):
+        """Show some important parameters
+        """
+        print('Used Parameters')
+        print('====================')
+        print('Groupus: ')
+        for section in self.config_obj.sections():
+            print(section)
+
+        print('====================')
+        print('General Parameters: ')
+        print('====================')
+        for key in self.config_obj['General parameters']:  
+            print(':'.join([key,self.config_obj['General parameters'][key]]))
+
+
+    def __getitem__(self,key):
+        for section in self.config_obj.sections():
+            if key in self.config_obj[section]:
+                print(self.config_obj[section][key])
+                break
+
+
+    def __setitem__(self, key, item):
+
+        for section in self.config_obj.sections():
+            if key in self.config_obj[section]:
+                break
+
+        setattr(self,key,item)
+        if type(item) is not str:
+            item = str(item)
+        self.config_obj[section][key] = item
+
+
+        self.print_section(section)
+
+
+    def print_section(self,section):
+        """Show  parameters of a single section
+        """
+        print(section)
+        print('====================')
+        for key in self.config_obj[section]:  
+            print(':'.join([key,self.config_obj[section][key]]))
+
+    def copy_(self):
+        """Copy the data from the ini file to the instance
+        """
+        for section in self.config_obj.sections():
+            for key in self.config_obj[section]:
+                if key in ['cwd','model_name','model_config','classes_file_name']:
+                    if 'os.path' not in self.config_obj[section][key]:
+                        # it is a directory
+                        setattr(self,key,self.config_obj[section][key])
+                        continue
+                setattr(self,key,eval(self.config_obj[section][key]))
+
+    def write(self,filename):
+        """Save the current set of parameters values
+        """
+        with open(filename, 'w') as configfile:
+            self.config_obj.write(configfile)
+

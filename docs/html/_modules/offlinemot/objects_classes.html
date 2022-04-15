@@ -38,17 +38,15 @@
               <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers.html">For developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html">Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
 </ul>
 
         </div>
@@ -80,7 +78,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">configs</span>
 
 <span class="kn">from</span> <span class="nn">utils_</span> <span class="kn">import</span> <span class="n">check_box</span>
 
@@ -183,7 +181,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">,</span><span class="n">box</span><span class="p">,</span><span class="n">track_id</span><span class="p">,</span><span class="n">tracker</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">TrackerKCF_create</span><span class="p">,</span><span class="n">class_id</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">detection_way</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">detect_prob</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">frame_id</span><span class="p">,</span><span class="n">box</span><span class="p">,</span><span class="n">track_id</span><span class="p">,</span><span class="n">cfg</span><span class="o">=</span><span class="n">configs</span><span class="p">(),</span><span class="n">tracker</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">TrackerKCF_create</span><span class="p">,</span><span class="n">class_id</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">detection_way</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">detect_prob</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -197,6 +195,8 @@
 <span class="sd">            w,h are the width and height.</span>
 <span class="sd">        track_id : int</span>
 <span class="sd">            The object unique identifier</span>
+<span class="sd">        cfg : config instance </span>
+<span class="sd">            A class instance of all the configuration parameters</span>
 <span class="sd">        tracker : function</span>
 <span class="sd">            The builder function for the tracker object </span>
 <span class="sd">            (default is cv2.TrackerKCF_create)</span>
@@ -224,6 +224,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">boxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">box</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">true_wh_max</span> <span class="o">=</span> <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span><span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tracking_state</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="n">cfg</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span> <span class="o">=</span> <span class="p">[</span><span class="n">frame_id</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trust_level</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span>
@@ -240,7 +241,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">class_ids</span><span class="p">[</span><span class="n">class_id</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">detect_prob</span><span class="p">))</span>
 
         <span class="c1"># error + color_code + unknown</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">colors_map</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">)]</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">colors_map</span> <span class="o">+</span> <span class="p">[(</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">)]</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">colors_map</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">)]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">colors_map</span> <span class="o">+</span> <span class="p">[(</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">)]</span> 
 
         <span class="bp">self</span><span class="o">.</span><span class="n">track_id</span> <span class="o">=</span> <span class="n">track_id</span>
 
@@ -357,7 +358,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># history length</span>
-        <span class="n">under_prosses</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trust_level</span><span class="p">)</span><span class="o">&lt;</span><span class="n">config</span><span class="o">.</span><span class="n">min_history</span>
+        <span class="n">under_prosses</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trust_level</span><span class="p">)</span><span class="o">&lt;</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">min_history</span>
 
         <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">under_prosses</span><span class="p">):</span>
             <span class="c1"># min detection</span>
@@ -371,14 +372,14 @@
                 <span class="n">sum_traj_state</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
 
             <span class="c1">#if object is still, (detection error) or not much detections</span>
-            <span class="k">if</span> <span class="n">sum_traj_state</span><span class="o">&lt;</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">min_history</span><span class="o">+</span><span class="mi">3</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">sum_traj_state</span><span class="o">&lt;</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">min_history</span><span class="o">+</span><span class="mi">3</span><span class="p">):</span>
                 <span class="c1"># at least three time movement or detection</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Object &#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">track_id</span><span class="p">,</span><span class="s1">&#39; deleted because of missing matching steps&#39;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="kc">False</span><span class="p">,</span><span class="kc">False</span>
             <span class="k">elif</span> <span class="nb">all</span><span class="p">(</span><span class="n">traj_state</span><span class="p">):</span>
                 <span class="c1"># keep tracking if detected enough</span>
                 <span class="k">return</span> <span class="kc">True</span><span class="p">,</span><span class="kc">False</span>
-            <span class="k">elif</span> <span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">traj_state</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">traj_state</span><span class="p">))</span><span class="o">&lt;</span><span class="n">config</span><span class="o">.</span><span class="n">missing_thresh</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">traj_state</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">traj_state</span><span class="p">))</span><span class="o">&lt;</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">missing_thresh</span><span class="p">:</span>
                 <span class="c1">#delete</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Object &#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">track_id</span><span class="p">,</span><span class="s1">&#39; deleted because of low detection rate&#39;</span><span class="p">)</span>
                 <span class="c1">#print(sum(traj_state),len(traj_state))</span>
@@ -418,7 +419,7 @@
 
         <span class="k">for</span> <span class="n">obj_item</span> <span class="ow">in</span> <span class="n">detections</span><span class="p">:</span>
 
-            <span class="k">if</span> <span class="n">obj_item</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;</span><span class="n">config</span><span class="o">.</span><span class="n">detect_thresh</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">obj_item</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">detect_thresh</span><span class="p">:</span>
                 <span class="n">detections_dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1e9</span><span class="p">)</span>
                 <span class="n">detections_size</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1e9</span><span class="p">)</span>
                 <span class="k">continue</span>
@@ -438,8 +439,8 @@
 
         <span class="n">detections_dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1e9</span><span class="p">)</span>
         <span class="n">detections_size</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1e9</span><span class="p">)</span>
-        <span class="n">Ok</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">detections_dists</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">dist_thresh</span><span class="p">)</span><span class="c1"># )</span>
-        <span class="n">Ok</span> <span class="o">*=</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">detections_size</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">size_thresh</span><span class="o">*</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">1.6</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">class_id</span><span class="o">==-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">Ok</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">detections_dists</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dist_thresh</span><span class="p">)</span><span class="c1"># )</span>
+        <span class="n">Ok</span> <span class="o">*=</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">detections_size</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">size_thresh</span><span class="o">*</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">1.6</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">class_id</span><span class="o">==-</span><span class="mi">1</span><span class="p">]))</span>
         <span class="c1">#if self.track_id == 4:</span>
         <span class="c1">#    print(detections_dists)</span>
         <span class="c1">#    print([ob[2] for ob in detections])</span>
@@ -505,7 +506,7 @@
 
         <span class="n">Ok</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">bg_objs</span><span class="p">:</span>
-            <span class="n">Ok</span> <span class="o">=</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">detections_dists</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">dist_thresh</span><span class="o">-</span><span class="mi">12</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">detections_size</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">size_thresh</span><span class="o">-</span><span class="mi">12</span><span class="p">))</span>
+            <span class="n">Ok</span> <span class="o">=</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">detections_dists</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dist_thresh</span><span class="o">-</span><span class="mi">12</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">detections_size</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">size_thresh</span><span class="o">-</span><span class="mi">12</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">Ok</span><span class="p">:</span>
 
             <span class="n">obj_item</span> <span class="o">=</span> <span class="n">bg_objs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">detections_dists</span><span class="p">))</span>

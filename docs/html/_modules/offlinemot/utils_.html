@@ -38,17 +38,15 @@
               <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers.html">For developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html">Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
 </ul>
 
         </div>
@@ -79,7 +77,7 @@
 <span></span><span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">configs</span>
 <span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">gdown</span>
 
@@ -298,7 +296,7 @@
 
 
 
-<div class="viewcode-block" id="transform_detection"><a class="viewcode-back" href="../../generated/offlinemot.utils_.transform_detection.html#offlinemot.utils_.transform_detection">[docs]</a><span class="k">def</span> <span class="nf">transform_detection</span><span class="p">(</span><span class="n">p0</span><span class="p">,</span><span class="n">detections</span><span class="p">):</span>
+<div class="viewcode-block" id="transform_detection"><a class="viewcode-back" href="../../generated/offlinemot.utils_.transform_detection.html#offlinemot.utils_.transform_detection">[docs]</a><span class="k">def</span> <span class="nf">transform_detection</span><span class="p">(</span><span class="n">p0</span><span class="p">,</span><span class="n">detections</span><span class="p">,</span><span class="n">detect_thresh</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Convert the result of the detection from a cropped part </span>
 <span class="sd">    of image to the original image coordinates.</span>
 
@@ -310,6 +308,9 @@
 <span class="sd">        A list of lists for the detections in the cropped frame as it is the </span>
 <span class="sd">        output from the detection network. The list has the following</span>
 <span class="sd">        shape [top-left point, bottom-right point,probabilty, class id]</span>
+<span class="sd">    detect_thresh : float</span>
+<span class="sd">        The minimum probability to consider a detection result from Yolo</span>
+<span class="sd">        model ok. </span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -321,7 +322,7 @@
 
     <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">detection</span> <span class="ow">in</span> <span class="n">detections</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">detection</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">config</span><span class="o">.</span><span class="n">detect_thresh</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">detection</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">detect_thresh</span><span class="p">:</span>
             <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">[(</span><span class="n">p0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">detection</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">p0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">detection</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span>
                             <span class="p">(</span><span class="n">p0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">detection</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">p0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">detection</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span>
                             <span class="n">detection</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">detection</span><span class="p">[</span><span class="mi">3</span><span class="p">]])</span>
@@ -333,7 +334,7 @@
     <span class="sd">&quot;&quot;&quot;Download the Yolo network pretrained file for the example for</span>
 <span class="sd">    the first time</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s2">&quot;model&quot;</span><span class="p">,</span><span class="s2">&quot;Yolov4_epoch300.pth&quot;</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">configs</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s2">&quot;model&quot;</span><span class="p">,</span><span class="s2">&quot;Yolov4_epoch300.pth&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output</span><span class="p">))</span> <span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Downloading the example pretrained network (Only once)&quot;</span><span class="p">)</span>
         <span class="n">url</span><span class="o">=</span> <span class="s2">&quot;https://drive.google.com/uc?id=1rhDaY7aVSeETP8rHgqZTewp4QkWlr3fb&quot;</span>

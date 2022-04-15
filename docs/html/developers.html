@@ -19,8 +19,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Background Subtraction for Detection and Tracking Example" href="tutorials/Background_Subtraction_Example.html" />
-    <link rel="prev" title="A Working Example" href="tutorials/A_Working_Example.html" /> 
+    <link rel="next" title="API Documentation" href="api.html" />
+    <link rel="prev" title="Installing" href="installing.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,7 +41,6 @@
               <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installing.html">Installing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/A_Working_Example.html">A Working Example</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">For developers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#contributing-to-offline-multi-objects-detection-and-tracking">Contributing to Offline Multi Objects Detection and Tracking</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#current-status">Current status</a></li>
@@ -49,6 +48,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#testing-and-code-quality">Testing and code quality</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/A_Working_Example.html">A Working Example</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
@@ -130,8 +131,24 @@ for future work, one can list:</p>
 </section>
 <section id="how-to-contribute">
 <h2>How to contribute<a class="headerlink" href="#how-to-contribute" title="Permalink to this headline"></a></h2>
-<p>If you have any questions or comments, or if you find any bugs, please open an issue in this project.</p>
-<p>Please feel free to fork the project, and create a pull request, if you have any improvements or bug fixes.</p>
+<p>Roughly, the project has 3 modules:</p>
+<ul class="simple">
+<li><p>Background subtraction</p></li>
+<li><p>Objects tracking</p></li>
+<li><p>Objects detection</p></li>
+</ul>
+<p>Additionally, there’s other scripts for:</p>
+<ul class="simple">
+<li><p>Fixing the view</p></li>
+<li><p>The complete detection and tracking algorithm</p></li>
+</ul>
+<p>For addressing a bug or working in a new feature in any of these modules, please:</p>
+<ul class="simple">
+<li><p>Fork the project</p></li>
+<li><p>Work on a new branch with meaningful name</p></li>
+<li><p>Pull request your branch to the project with full description of the changes.</p></li>
+</ul>
+<p>Alternatively, you can contribute by creating an issue for a problem when running the program. If your issue is about the accuracy of the results (like not detecting or failing to track some objects), please tag the issue with <strong>logic error</strong>. Please also attach some images or gif files depicting how the error happened in running and post-running time of the video.</p>
 </section>
 <section id="testing-and-code-quality">
 <h2>Testing and code quality<a class="headerlink" href="#testing-and-code-quality" title="Permalink to this headline"></a></h2>
@@ -147,8 +164,8 @@ Style Guide
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tutorials/A_Working_Example.html" class="btn btn-neutral float-left" title="A Working Example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tutorials/Background_Subtraction_Example.html" class="btn btn-neutral float-right" title="Background Subtraction for Detection and Tracking Example" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="installing.html" class="btn btn-neutral float-left" title="Installing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="API Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

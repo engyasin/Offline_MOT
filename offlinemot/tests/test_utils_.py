@@ -1,6 +1,8 @@
 import unittest
 import numpy as np
 
+from config import  configs
+
 from offlinemot.utils_ import *
 
 from tests.example_data import *
@@ -27,11 +29,11 @@ class Test_utils(unittest.TestCase):
 
     def test_transform_detection(self):
 
-
-        self.assertEqual(transform_detection(points[0],detections),results_0)
-
-
-        self.assertEqual(transform_detection(points[1],detections),results_1)
+        detect_thresh = configs.detect_thresh
+        self.assertEqual(transform_detection(points[0],detections,detect_thresh),results_0)
 
 
-        self.assertEqual(transform_detection(points[2],detections),results_2)
+        self.assertEqual(transform_detection(points[1],detections,detect_thresh),results_1)
+
+
+        self.assertEqual(transform_detection(points[2],detections,detect_thresh),results_2)

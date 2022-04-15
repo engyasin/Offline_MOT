@@ -38,17 +38,15 @@
               <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers.html">For developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html">Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
 </ul>
 
         </div>
@@ -77,10 +75,10 @@
              
   <h1>Source code for offlinemot.post_process</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">savgol_filter</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">savgol_filter</span>
 <span class="c1">#from scipy.interpolate import splev, splrep</span>
 
-<span class="kn">from</span> <span class="nn">config</span> <span class="k">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">configs</span>
 
 <span class="c1"># find centers</span>
 <span class="c1"># smooth cenetrs (Apply a Savitzky-Golay filter to an array.)</span>
@@ -182,7 +180,7 @@
                 <span class="n">new_centers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">obj</span><span class="o">.</span><span class="n">centers</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">dx</span><span class="o">*</span><span class="n">x</span><span class="p">,</span><span class="n">obj</span><span class="o">.</span><span class="n">centers</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">dy</span><span class="o">*</span><span class="n">x</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">new_centers</span></div>
 
-<div class="viewcode-block" id="post_process"><a class="viewcode-back" href="../../generated/offlinemot.post_process.post_process.html#offlinemot.post_process.post_process">[docs]</a><span class="k">def</span> <span class="nf">post_process</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="post_process"><a class="viewcode-back" href="../../generated/offlinemot.post_process.post_process.html#offlinemot.post_process.post_process">[docs]</a><span class="k">def</span> <span class="nf">post_process</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="n">config</span><span class="o">=</span><span class="n">configs</span><span class="p">()):</span>
     <span class="sd">&quot;&quot;&quot;perform post processing steps on the tracking data.</span>
 
 <span class="sd">    The processing contains:</span>
@@ -227,7 +225,7 @@
     <span class="n">obj</span><span class="o">.</span><span class="n">angels</span>  <span class="o">=</span> <span class="n">tracks_angels</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">centers</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">obj</span></div>
 
-<div class="viewcode-block" id="postProcessAll"><a class="viewcode-back" href="../../generated/offlinemot.post_process.postProcessAll.html#offlinemot.post_process.postProcessAll">[docs]</a><span class="k">def</span> <span class="nf">postProcessAll</span><span class="p">(</span><span class="n">tracks_objs</span><span class="p">):</span>
+<div class="viewcode-block" id="postProcessAll"><a class="viewcode-back" href="../../generated/offlinemot.post_process.postProcessAll.html#offlinemot.post_process.postProcessAll">[docs]</a><span class="k">def</span> <span class="nf">postProcessAll</span><span class="p">(</span><span class="n">tracks_objs</span><span class="p">,</span><span class="n">config</span><span class="o">=</span><span class="n">configs</span><span class="p">()):</span>
     <span class="sd">&quot;&quot;&quot;It loops over all the objects in the input list for post processing</span>
 
 <span class="sd">    Parameters</span>
@@ -235,6 +233,8 @@
 <span class="sd">    tracks_objs : list</span>
 <span class="sd">        The list of all the taregts class objects</span>
 
+<span class="sd">    config : config instance </span>
+<span class="sd">        A class instance of all the configuration parameters</span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    list</span>
@@ -247,7 +247,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">tracks_objs</span><span class="p">:</span>
-        <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">post_process</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">post_process</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">res</span></div>
 </pre></div>
 

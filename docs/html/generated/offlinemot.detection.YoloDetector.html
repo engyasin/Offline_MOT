@@ -18,7 +18,9 @@
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="offlinemot.core" href="offlinemot.core.html" />
+    <link rel="prev" title="offlinemot.detection" href="offlinemot.detection.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -37,19 +39,32 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installing.html">Installing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/A_Working_Example.html">A Working Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers.html">For developers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="offlinemot.html">offlinemot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="offlinemot.config.html">offlinemot.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="offlinemot.background_subtraction.html">offlinemot.background_subtraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="offlinemot.fix_view.html">offlinemot.fix_view</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="offlinemot.detection.html">offlinemot.detection</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">offlinemot.detection.YoloDetector</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="offlinemot.core.html">offlinemot.core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="offlinemot.objects_classes.html">offlinemot.objects_classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="offlinemot.post_process.html">offlinemot.post_process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="offlinemot.show_results.html">offlinemot.show_results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="offlinemot.utils_.html">offlinemot.utils_</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/A_Working_Example.html">A Working Example</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/Tracking_Example.html">Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
 </ul>
 
         </div>
@@ -66,6 +81,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">API Documentation</a> &raquo;</li>
+          <li><a href="offlinemot.detection.html">offlinemot.detection</a> &raquo;</li>
       <li>offlinemot.detection.YoloDetector</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/engyasin/Offline_MOT/blob/main/docs/source/generated/offlinemot.detection.YoloDetector.rst" class="fa fa-github"> Edit on GitHub</a>
@@ -104,7 +121,7 @@
 <h1>offlinemot.detection.YoloDetector<a class="headerlink" href="#offlinemot-detection-yolodetector" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="offlinemot.detection.YoloDetector">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">offlinemot.detection.</span></span><span class="sig-name descname"><span class="pre">YoloDetector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfgfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'C:\\Users\\yasin\\Documents\\Offline_MOT\\offlinemot\\model\\yolov4-obj.cfg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weightfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'C:\\Users\\yasin\\Documents\\Offline_MOT\\offlinemot\\model\\Yolov4_epoch300.pth'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cuda</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namesfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'C:\\Users\\yasin\\Documents\\Offline_MOT\\offlinemot\\model\\obj.names'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/offlinemot/detection.html#YoloDetector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.detection.YoloDetector" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">offlinemot.detection.</span></span><span class="sig-name descname"><span class="pre">YoloDetector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config=&lt;config.configs</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/offlinemot/detection.html#YoloDetector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#offlinemot.detection.YoloDetector" title="Permalink to this definition"></a></dt>
 <dd><p>A class to load trained Yolov4 model from memory,
 and perform detection on frames.</p>
 <p>…</p>
@@ -138,7 +155,10 @@ based on the previous detections.</p>
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="offlinemot.detection.html" class="btn btn-neutral float-left" title="offlinemot.detection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="offlinemot.core.html" class="btn btn-neutral float-right" title="offlinemot.core" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

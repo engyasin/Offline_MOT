@@ -2,7 +2,7 @@ import numpy as np
 from scipy.signal import savgol_filter
 #from scipy.interpolate import splev, splrep
 
-from config import config
+from config import configs
 
 # find centers
 # smooth cenetrs (Apply a Savitzky-Golay filter to an array.)
@@ -104,7 +104,7 @@ def repair_traj(obj):
                 new_centers.append((obj.centers[j-1][0]+dx*x,obj.centers[j-1][1]+dy*x))
     return new_centers
 
-def post_process(obj):
+def post_process(obj,config=configs()):
     """perform post processing steps on the tracking data.
 
     The processing contains:
@@ -149,7 +149,7 @@ def post_process(obj):
     obj.angels  = tracks_angels(obj.centers)
     return obj
 
-def postProcessAll(tracks_objs):
+def postProcessAll(tracks_objs,config=configs()):
     """It loops over all the objects in the input list for post processing
 
     Parameters
@@ -157,6 +157,8 @@ def postProcessAll(tracks_objs):
     tracks_objs : list
         The list of all the taregts class objects
 
+    config : config instance 
+        A class instance of all the configuration parameters
     Returns
     -------
     list
@@ -169,5 +171,5 @@ def postProcessAll(tracks_objs):
     """
     res = []
     for obj in tracks_objs:
-        res.append(post_process(obj))
+        res.append(post_process(obj,config=config))
     return res

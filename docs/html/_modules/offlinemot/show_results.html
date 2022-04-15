@@ -38,17 +38,15 @@
               <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers.html">For developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html">Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
 </ul>
 
         </div>
@@ -95,8 +93,8 @@
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">from</span> <span class="nn">config</span> <span class="k">import</span> <span class="n">config</span>
-<span class="kn">from</span> <span class="nn">utils_</span> <span class="k">import</span> <span class="n">read_tracks</span><span class="p">,</span> <span class="n">resize</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">configs</span>
+<span class="kn">from</span> <span class="nn">utils_</span> <span class="kn">import</span> <span class="n">read_tracks</span><span class="p">,</span> <span class="n">resize</span>
 
 <span class="c1"># read video from args</span>
 
@@ -105,20 +103,17 @@
 <span class="c1"># load each video frame and draw on it.</span>
 
 
+<div class="viewcode-block" id="show_result"><a class="viewcode-back" href="../../generated/offlinemot.show_results.show_result.html#offlinemot.show_results.show_result">[docs]</a><span class="k">def</span> <span class="nf">show_result</span><span class="p">(</span><span class="n">vid_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">configs</span><span class="p">()):</span>
 
-
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../generated/offlinemot.show_results.main.html#offlinemot.show_results.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;sample.mp4&#39;</span><span class="p">)):</span>
-
-    <span class="c1"># check wether called directly</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;video&quot;</span><span class="p">:</span><span class="n">args</span><span class="p">}</span>
 
     <span class="c1"># read video file</span>
-    <span class="n">v_obj</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">vid_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">vid_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">configs</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;sample.mp4&#39;</span><span class="p">)</span>
+    <span class="n">v_obj</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">vid_name</span><span class="p">)</span>
 
-    <span class="n">tracking_data</span> <span class="o">=</span> <span class="n">read_tracks</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">])</span>
+    <span class="n">tracking_data</span> <span class="o">=</span> <span class="n">read_tracks</span><span class="p">(</span><span class="n">vid_name</span><span class="p">)</span>
 
-    <span class="n">video_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">])[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">video_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">vid_name</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
     <span class="c1"># frame_id: ([x,y,w,h],class)</span>
 
     <span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">v_obj</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -126,9 +121,7 @@
 
     <span class="c1"># run first frame logic</span>
     <span class="c1">#Fix_obj = FixView(bg)</span>
-    <span class="n">color_map</span> <span class="o">=</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="c1"># ped</span>
-                <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="c1"># cyclist</span>
-                <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span> <span class="c1"># cars</span>
+
     <span class="c1">#ret, frame = v_obj.read()</span>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">save_out_video</span><span class="p">:</span>
         <span class="n">fourcc</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoWriter_fourcc</span><span class="p">(</span><span class="o">*</span><span class="s1">&#39;mp4v&#39;</span><span class="p">)</span>  
@@ -151,11 +144,11 @@
             <span class="n">center</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">)),</span><span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
             <span class="n">rect</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">boxPoints</span><span class="p">((</span><span class="n">center</span><span class="p">,(</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span><span class="n">angel</span><span class="p">))</span>
             <span class="n">rect</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">(</span><span class="n">rect</span><span class="p">)</span>
-            <span class="n">cv2</span><span class="o">.</span><span class="n">drawContours</span><span class="p">(</span><span class="n">frame</span><span class="p">,[</span><span class="n">rect</span><span class="p">],</span><span class="mi">0</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="n">color_map</span><span class="p">[</span><span class="n">class_id</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">thickness</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">cv2</span><span class="o">.</span><span class="n">drawContours</span><span class="p">(</span><span class="n">frame</span><span class="p">,[</span><span class="n">rect</span><span class="p">],</span><span class="mi">0</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">colors_map</span><span class="p">[</span><span class="n">class_id</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">thickness</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
             <span class="c1">#cv2.drawContours(stabilized_frame, [rect], 0, (255,0,0),4)   </span>
 
             <span class="c1">#cv2.rectangle(frame,(box[0],box[1]),(box[0]+box[2],box[1]+box[3]),color=color_map[class_id-1],thickness=4)</span>
-            <span class="n">cv2</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">track_id</span><span class="p">),(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="n">color_map</span><span class="p">[</span><span class="n">class_id</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">thickness</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">cv2</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="nb">str</span><span class="p">(</span><span class="n">track_id</span><span class="p">),(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">colors_map</span><span class="p">[</span><span class="n">class_id</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">thickness</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
         <span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s1">&#39;fgmask&#39;</span><span class="p">,</span> <span class="n">resize</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="n">config</span><span class="o">.</span><span class="n">resize_scale</span><span class="p">))</span> 
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">save_out_video</span><span class="p">:</span>
             <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
@@ -185,7 +178,7 @@
     <span class="c1">#	help=&quot;OpenCV object tracker type&quot;)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">ap</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
-    <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">show_result</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">])</span>
 
 
 </pre></div>

@@ -3,7 +3,7 @@ import numpy as np
 import logging, os
 from background_subtraction import BG_subtractor 
 
-from config import config
+from config import configs
 from utils_ import resize
 
 class FixView():
@@ -52,13 +52,15 @@ class FixView():
 
     """
 
-    def __init__(self,bg_rgb):
+    def __init__(self,bg_rgb, config= configs()):
         """
         Parameters
         ----------
         bg_rgb : numpy array
             The background image that all the next frames will be refrenced to,
             whether they need transformation or not.
+        config : config instance 
+            A class instance of all the configuration parameters
 
         """
         # Initiate SIFT detector
@@ -191,7 +193,7 @@ class FixView():
 
 if __name__ == '__main__':
 
-    cap = cv2.VideoCapture(os.path.join(config.cwd,'model','sample.mp4'))
+    cap = cv2.VideoCapture(os.path.join(configs.cwd,'model','sample.mp4'))
     frame_id = 1
     cap.set(1, frame_id-1)
     ret,bg_rgb = cap.read()

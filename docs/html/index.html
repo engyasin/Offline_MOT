@@ -40,9 +40,9 @@
               <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installing.html">Installing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/A_Working_Example.html">A Working Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers.html">For developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/A_Working_Example.html">A Working Example</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
@@ -129,16 +129,16 @@ stationary camera)</p>
 <ul class="simple">
 <li><p>Background Subtraction: This method is used on every frame to detect the foreground objects which contain any moving object. If these objects are already tracked then nothing happen. Otherwise, it would be added and tracked as candidate objects (white boxes)</p></li>
 <li><p>Tracking with a filter like KCF (Kernelized Correlation Filter), which only needs the first bounding box of the object to track. These objects will continue to be tracked as long as the tracker keep giving results successfully. Otherwise, the object will not be updated to a new position and a detection step is performed.</p></li>
-<li><p>Detection with a network model like Yolo: This is performed only for every <em>N</em> frame as set in the <code class="docutils literal notranslate"><span class="pre">config.py</span></code> <a class="reference external" href="generated/offlinemot.config.config.html">file</a> . If the object is already tracked then it is confirmed and set to a class type, otherwise nothing happens (only a message saying that something is detected but wasn’t there previously)</p></li>
+<li><p>Detection with a network model like Yolo: This is performed only for every <em>N</em> frame as set in the <code class="docutils literal notranslate"><span class="pre">config.py</span></code> <a class="reference external" href="generated/offlinemot.config.configs.html">file</a> . If the object is already tracked then it is confirmed and set to a class type, otherwise nothing happens (only a message saying that something is detected but wasn’t there previously)</p></li>
 </ul>
 <p>All these three steps are done for every object and the result is recorded for every frame. If one object keeps failing all the steps then it will be deleted after a defined number of times.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installing.html">Installing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/A_Working_Example.html">A Working Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers.html">For developers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/A_Working_Example.html">A Working Example</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">

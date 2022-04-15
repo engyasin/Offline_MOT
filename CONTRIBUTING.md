@@ -22,9 +22,25 @@ for future work, one can list:
 How to contribute
 -----------------
 
-If you have any questions or comments, or if you find any bugs, please open an issue in this project. 
+Roughly, the project has 3 modules:
 
-Please feel free to fork the project, and create a pull request, if you have any improvements or bug fixes. 
+* Background subtraction
+* Objects tracking
+* Objects detection
+
+Additionally, there's other scripts for:
+
+* Fixing the view
+* The complete detection and tracking algorithm
+
+For addressing a bug or working in a new feature in any of these modules, please:
+
+- Fork the project
+- Work on a new branch with meaningful name
+- Pull request your branch to the project with full description of the changes.
+
+
+Alternatively, you can contribute by creating an issue for a problem when running the program. If your issue is about the accuracy of the results (like not detecting or failing to track some objects), please tag the issue with **logic error**. Please also attach some images or gif files depicting how the error happened in running and post-running time of the video.
 
 Testing and code quality
 ------------------------
@@ -32,7 +48,3 @@ Testing and code quality
 The code is fully documented and has good testing. In order to run the 
 testing scripts, you can refer to **readme** for that. 
 
-
-<!---
-Style Guide
--->

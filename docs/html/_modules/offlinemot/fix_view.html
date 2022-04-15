@@ -38,17 +38,15 @@
               <p class="caption" role="heading"><span class="caption-text">User guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../developers.html">For developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/A_Working_Example.html">A Working Example</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html">Background Subtraction for Detection and Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Background_Subtraction_Example.html#Main-loop">Main loop</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Fixing_the_view.html">Fixing the view for Detection and Tracking Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html">Tracking Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Creating-the-tracker-objects">Creating the tracker objects</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/Tracking_Example.html#Main-loop">Main loop</a></li>
 </ul>
 
         </div>
@@ -79,10 +77,10 @@
 <span></span><span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">logging</span><span class="o">,</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">background_subtraction</span> <span class="k">import</span> <span class="n">BG_subtractor</span> 
+<span class="kn">from</span> <span class="nn">background_subtraction</span> <span class="kn">import</span> <span class="n">BG_subtractor</span> 
 
-<span class="kn">from</span> <span class="nn">config</span> <span class="k">import</span> <span class="n">config</span>
-<span class="kn">from</span> <span class="nn">utils_</span> <span class="k">import</span> <span class="n">resize</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="n">configs</span>
+<span class="kn">from</span> <span class="nn">utils_</span> <span class="kn">import</span> <span class="n">resize</span>
 
 <div class="viewcode-block" id="FixView"><a class="viewcode-back" href="../../generated/offlinemot.fix_view.FixView.html#offlinemot.fix_view.FixView">[docs]</a><span class="k">class</span> <span class="nc">FixView</span><span class="p">():</span>
 
@@ -130,13 +128,15 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">bg_rgb</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">bg_rgb</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span> <span class="n">configs</span><span class="p">()):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        bg_rgb : numpy array</span>
 <span class="sd">            The background image that all the next frames will be refrenced to,</span>
 <span class="sd">            whether they need transformation or not.</span>
+<span class="sd">        config : config instance </span>
+<span class="sd">            A class instance of all the configuration parameters</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Initiate SIFT detector</span>
@@ -269,7 +269,7 @@
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
 
-    <span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;sample.mp4&#39;</span><span class="p">))</span>
+    <span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">configs</span><span class="o">.</span><span class="n">cwd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">,</span><span class="s1">&#39;sample.mp4&#39;</span><span class="p">))</span>
     <span class="n">frame_id</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">cap</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">frame_id</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">ret</span><span class="p">,</span><span class="n">bg_rgb</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>

@@ -20,7 +20,7 @@ import objects_classes
 import post_process 
 
 import show_results
-import main 
+import core
 
 
 
