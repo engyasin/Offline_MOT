@@ -12,6 +12,10 @@ Welcome to OfflineMOT's documentation!
    :target: https://github.com/engyasin/Offline_MOT/actions
 
 .. image::
+   https://codecov.io/gh/engyasin/Offline_MOT/branch/main/graph/badge.svg
+   :target: https://codecov.io/gh/engyasin/Offline_MOT/branch/main
+
+.. image::
    https://img.shields.io/badge/License-MIT-blue.svg
    :target: https://opensource.org/licenses/MIT
 

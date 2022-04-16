@@ -366,7 +366,7 @@ div.rendered_html tbody tr:hover {
 <p>This example shows :</p>
 <ol class="arabic simple">
 <li><p>how to run the program for some video</p></li>
-<li><p>how to set some important parameters for the detection, fixing the view and post processing</p></li>
+<li><p>how to set some important parameters for the detection, view fixing and post processing</p></li>
 <li><p>how to show the result</p></li>
 </ol>
 <section id="The-detection-part">
@@ -382,10 +382,10 @@ div.rendered_html tbody tr:hover {
 <p>The training can be done in any library you want (tensorflow, Darknet). However, the result should be only in <code class="docutils literal notranslate"><span class="pre">.pth</span></code> format.</p>
 <p>After installing the library simply by running:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install offlinemot
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install -U offlinemot
 </pre></div>
 </div>
 </div>
@@ -395,8 +395,8 @@ div.rendered_html tbody tr:hover {
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Collecting offlinemot
-  Downloading offlinemot-1.0.1.tar.gz (28.1 MB)
-     ---------------------------------------- 28.1/28.1 MB 5.0 MB/s eta 0:00:00
+  Downloading offlinemot-1.0.3.tar.gz (28.1 MB)
+     ---------------------------------------- 28.1/28.1 MB 10.7 MB/s eta 0:00:00
   Preparing metadata (setup.py): started
   Preparing metadata (setup.py): finished with status &#39;done&#39;
 Requirement already satisfied: numpy in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from offlinemot) (1.18.5)
@@ -412,32 +412,32 @@ Requirement already satisfied: beautifulsoup4 in c:\users\yasin\appdata\local\pr
 Requirement already satisfied: six in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from gdown-&gt;offlinemot) (1.14.0)
 Requirement already satisfied: tifffile&gt;=2019.7.26 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from scikit-image-&gt;offlinemot) (2021.4.8)
 Requirement already satisfied: PyWavelets&gt;=1.1.1 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from scikit-image-&gt;offlinemot) (1.1.1)
-Requirement already satisfied: matplotlib!=3.0.0,&gt;=2.0.0 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from scikit-image-&gt;offlinemot) (3.4.2)
 Requirement already satisfied: pillow!=7.1.0,!=7.1.1,&gt;=4.3.0 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from scikit-image-&gt;offlinemot) (8.2.0)
 Requirement already satisfied: networkx&gt;=2.0 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from scikit-image-&gt;offlinemot) (2.5.1)
 Requirement already satisfied: imageio&gt;=2.3.0 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from scikit-image-&gt;offlinemot) (2.9.0)
+Requirement already satisfied: matplotlib!=3.0.0,&gt;=2.0.0 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from scikit-image-&gt;offlinemot) (3.4.2)
 Requirement already satisfied: typing-extensions in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from torch-&gt;offlinemot) (3.10.0.0)
+Requirement already satisfied: kiwisolver&gt;=1.0.1 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from matplotlib!=3.0.0,&gt;=2.0.0-&gt;scikit-image-&gt;offlinemot) (1.1.0)
+Requirement already satisfied: python-dateutil&gt;=2.7 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from matplotlib!=3.0.0,&gt;=2.0.0-&gt;scikit-image-&gt;offlinemot) (2.8.1)
 Requirement already satisfied: cycler&gt;=0.10 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from matplotlib!=3.0.0,&gt;=2.0.0-&gt;scikit-image-&gt;offlinemot) (0.10.0)
 Requirement already satisfied: pyparsing&gt;=2.2.1 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from matplotlib!=3.0.0,&gt;=2.0.0-&gt;scikit-image-&gt;offlinemot) (2.4.7)
-Requirement already satisfied: python-dateutil&gt;=2.7 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from matplotlib!=3.0.0,&gt;=2.0.0-&gt;scikit-image-&gt;offlinemot) (2.8.1)
-Requirement already satisfied: kiwisolver&gt;=1.0.1 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from matplotlib!=3.0.0,&gt;=2.0.0-&gt;scikit-image-&gt;offlinemot) (1.1.0)
 Requirement already satisfied: decorator&lt;5,&gt;=4.3 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from networkx&gt;=2.0-&gt;scikit-image-&gt;offlinemot) (4.4.1)
 Requirement already satisfied: soupsieve&gt;=1.2 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from beautifulsoup4-&gt;gdown-&gt;offlinemot) (1.9.5)
-Requirement already satisfied: chardet&lt;5,&gt;=3.0.2 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from requests[socks]-&gt;gdown-&gt;offlinemot) (4.0.0)
-Requirement already satisfied: idna&lt;3,&gt;=2.5 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from requests[socks]-&gt;gdown-&gt;offlinemot) (2.10)
 Requirement already satisfied: urllib3&lt;1.27,&gt;=1.21.1 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from requests[socks]-&gt;gdown-&gt;offlinemot) (1.26.3)
 Requirement already satisfied: certifi&gt;=2017.4.17 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from requests[socks]-&gt;gdown-&gt;offlinemot) (2020.12.5)
+Requirement already satisfied: chardet&lt;5,&gt;=3.0.2 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from requests[socks]-&gt;gdown-&gt;offlinemot) (4.0.0)
+Requirement already satisfied: idna&lt;3,&gt;=2.5 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from requests[socks]-&gt;gdown-&gt;offlinemot) (2.10)
 Requirement already satisfied: PySocks!=1.5.7,&gt;=1.5.6 in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from requests[socks]-&gt;gdown-&gt;offlinemot) (1.7.1)
 Requirement already satisfied: colorama in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from tqdm-&gt;gdown-&gt;offlinemot) (0.4.4)
 Requirement already satisfied: setuptools in c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages (from kiwisolver&gt;=1.0.1-&gt;matplotlib!=3.0.0,&gt;=2.0.0-&gt;scikit-image-&gt;offlinemot) (59.5.0)
 Building wheels for collected packages: offlinemot
   Building wheel for offlinemot (setup.py): started
   Building wheel for offlinemot (setup.py): finished with status &#39;done&#39;
-  Created wheel for offlinemot: filename=offlinemot-1.0.1-py3-none-any.whl size=28142813 sha256=706894498e37923dd31df9c5c3dd7ef74cff40d72495be1193436d7d81e7cb75
-  Stored in directory: c:\users\yasin\appdata\local\pip\cache\wheels\53\b9\a8\e95b67a840f28f1b93c8a3e7f2da614fd729911ed05b9f151a
+  Created wheel for offlinemot: filename=offlinemot-1.0.3-py3-none-any.whl size=28144517 sha256=1bf6a028ccdc3857436c18197616d3086a37831681d2f967db9e335f31559740
+  Stored in directory: c:\users\yasin\appdata\local\pip\cache\wheels\8b\fd\9b\f9493bf735bb3b1a5574b65eaee317ea6036e880bf2b9e47b5
 Successfully built offlinemot
 Installing collected packages: offlinemot
-Successfully installed offlinemot-1.0.1
+Successfully installed offlinemot-1.0.3
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -451,10 +451,13 @@ WARNING: Ignoring invalid distribution -pencv-python (c:\users\yasin\appdata\loc
 WARNING: Ignoring invalid distribution -pencv-python (c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages)
 WARNING: Ignoring invalid distribution -pencv-python (c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages)
 WARNING: Ignoring invalid distribution -pencv-python (c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages)
+WARNING: Ignoring invalid distribution -pencv-python (c:\users\yasin\appdata\local\programs\python\python37\lib\site-packages)
+WARNING: You are using pip version 22.0.3; however, version 22.0.4 is available.
+You should consider upgrading via the &#39;C:\Users\yasin\AppData\Local\Programs\Python\Python37\python.exe -m pip install --upgrade pip&#39; command.
 </pre></div></div>
 </div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">offlinemot</span>
@@ -462,38 +465,18 @@ WARNING: Ignoring invalid distribution -pencv-python (c:\users\yasin\appdata\loc
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-Downloading...
-From: https://drive.google.com/uc?id=1rhDaY7aVSeETP8rHgqZTewp4QkWlr3fb
-To: C:\Users\yasin\AppData\Local\Programs\Python\Python37\lib\site-packages\offlinemot\model\Yolov4_epoch300.pth
-100%|██████████| 256M/256M [00:43&lt;00:00, 5.85MB/s]
-</pre></div></div>
-</div>
 <p>This class <code class="docutils literal notranslate"><span class="pre">YoloDetector</span></code> can take several input parameters, like the YOLO configuration file, the model file (in pytorch format), a flag to whether to use GPU or CPU and lastly a file containing the list of object names.</p>
 <p>If there’s not a custom model to be loaded, then the default model can be loaded (as seen below). The example model will be downloaded when loading for the first time, this may take some time depending on your internet speed.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">detector</span>  <span class="o">=</span> <span class="n">YoloDetector</span><span class="p">(</span><span class="n">use_cuda</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cfg</span> <span class="o">=</span> <span class="n">offlinemot</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">configs</span><span class="p">()</span>
+<span class="n">detector</span>  <span class="o">=</span> <span class="n">YoloDetector</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-convalution havn&#39;t activate linear
-convalution havn&#39;t activate linear
-convalution havn&#39;t activate linear
-</pre></div></div>
-</div>
-<p>Detection is only performed every <em>N</em> frame. Where <em>N</em> is set according to <code class="docutils literal notranslate"><span class="pre">config.py</span></code> file. The following is a detailed description of all its parameters and their effects.</p>
+<p>Detection is only performed every <em>N</em> frame. Where <em>N</em> is set according to <code class="docutils literal notranslate"><span class="pre">configs</span></code> class instance. In the following sections there is a detailed description of all its parameters and their effects.</p>
 <div class="admonition note">
 <p class="admonition-title fa fa-exclamation-circle"><strong>Note</strong></p>
 <p>A several testing with the parameters values maybe needed for different types of videos. Once a working set of values is found then all the similar videos can use the same set.</p>
@@ -501,12 +484,20 @@ convalution havn&#39;t activate linear
 </section>
 <section id="Config-file-content">
 <h2>Config file content<a class="headerlink" href="#Config-file-content" title="Permalink to this headline"></a></h2>
-<p>To edit all these parameters a direct method is to run the code:</p>
+<p>To edit and show all these parameters, the following can be ran:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">offlinemot</span>
-<span class="n">offlinemot</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">set_params</span><span class="p">()</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">offlinemot</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">configs</span><span class="p">()</span>
+
+<span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;detect_every_N&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1">#changing some value</span>
+
+<span class="n">cfg</span><span class="o">.</span><span class="n">print_summary</span><span class="p">()</span> <span class="c1">#showing the most important parameters and sections names</span>
+
+<span class="n">cfg</span><span class="o">.</span><span class="n">print_section</span><span class="p">(</span><span class="s1">&#39;Detection&#39;</span><span class="p">)</span> <span class="c1"># showing the detection parameters</span>
+
+<span class="n">cfg</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;new.ini&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>This will open a new text editor with the conifg file, where the changes can be done and saved.</p>
+<p>This will allow changes to all the parameters to be testsed and saved.</p>
 <section id="Detection-and-general-configuration-parameters">
 <h3>Detection and general configuration parameters<a class="headerlink" href="#Detection-and-general-configuration-parameters" title="Permalink to this headline"></a></h3>
 <p>Other paramters influencing the detection and the general settings are:</p>
@@ -553,7 +544,7 @@ convalution havn&#39;t activate linear
 </section>
 <section id="Fixing-and-smoothing">
 <h3>Fixing and smoothing<a class="headerlink" href="#Fixing-and-smoothing" title="Permalink to this headline"></a></h3>
-<p>In <code class="docutils literal notranslate"><span class="pre">config.py</span></code> file the following are the parameters for the part of fixing the view. The first boolean is for whether to do fixing or not. It will slow the processing, so if the video is stationary without noise then no need for it.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">configs</span></code> class the following are the parameters for the part of fixing the view. The first boolean is for whether to do fixing or not. It will slow the processing, so if the video is stationary without noise then no need for it.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">### fix view paramers</span>
 <span class="n">do_fix</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">fixing_dilation</span> <span class="o">=</span> <span class="mi">13</span>
@@ -561,7 +552,7 @@ convalution havn&#39;t activate linear
 </pre></div>
 </div>
 <p>The part for doing the smoothing is also included in the same file as follows. The first boolean is whether to do the smoothing or not, the other two are related to Savitzky-Golay filter from <code class="docutils literal notranslate"><span class="pre">scipy</span></code> library.</p>
-<p>The last boolean flag <code class="docutils literal notranslate"><span class="pre">save_out_video</span></code> will save a new mp4 file in the same folder as the video with the same name started with <em>output_</em> if set to True. This will be run only with <code class="docutils literal notranslate"><span class="pre">offlinemot.show_results.main()</span></code></p>
+<p>The last boolean flag <code class="docutils literal notranslate"><span class="pre">save_out_video</span></code> will save a new mp4 file in the same folder as the video with the same name started with <em>output_</em> if set to True. This will be run only with <code class="docutils literal notranslate"><span class="pre">offlinemot.show_results.show_result()</span></code></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">### Smoothing for post processing</span>
 <span class="n">do_smooth</span>   <span class="o">=</span> <span class="kc">True</span>
 <span class="n">window_size</span> <span class="o">=</span> <span class="mi">7</span>
@@ -595,7 +586,7 @@ convalution havn&#39;t activate linear
 </section>
 <section id="Filering-parameters">
 <h3>Filering parameters<a class="headerlink" href="#Filering-parameters" title="Permalink to this headline"></a></h3>
-<p>Additionally, in the <code class="docutils literal notranslate"><span class="pre">config</span></code> file, there’s parameters that will determine when to delete the detected objects.</p>
+<p>Additionally, in the <code class="docutils literal notranslate"><span class="pre">configs</span></code> class, there’s parameters that will determine when to delete the detected objects.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">### Filtering Objects:</span>
 <span class="n">min_history</span> <span class="o">=</span> <span class="mi">100</span>
 <span class="n">overlap_thresh</span> <span class="o">=</span> <span class="mf">0.7</span>
@@ -611,10 +602,10 @@ convalution havn&#39;t activate linear
 <h2>How to run<a class="headerlink" href="#How-to-run" title="Permalink to this headline"></a></h2>
 <p>To run for a new video, after setting the parameters, the command will be:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">offlinemot</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">main</span><span class="p">()</span><span class="c1"># input your video path here (empty means the example video)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">offlinemot</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">extract_paths</span><span class="p">()</span><span class="c1"># input your video path here (empty means the example video)</span>
 </pre></div>
 </div>
 </div>
@@ -623,9 +614,24 @@ convalution havn&#39;t activate linear
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-convalution havn&#39;t activate linear
-convalution havn&#39;t activate linear
-convalution havn&#39;t activate linear
+Used Parameters
+====================
+Groupus:
+General parameters
+Background subtractor
+Fix view
+Detection
+Filtering
+Smoothing
+====================
+General Parameters:
+====================
+draw:True
+detect_every_n:1
+missing_thresh:0.8
+use_cuda:False
+resize_scale:0.4
+colors_map:[(0,255,0), (255,0,0), (0, 0, 0)]
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -633,6 +639,15 @@ convalution havn&#39;t activate linear
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
+WARNING:root:Some objects are detected but not moving or seen before
+WARNING:root:Some objects are detected but not moving or seen before
+WARNING:root:Some objects are detected but not moving or seen before
+WARNING:root:Some objects are detected but not moving or seen before
+WARNING:root:Some objects are detected but not moving or seen before
+WARNING:root:Some objects are detected but not moving or seen before
+WARNING:root:Some objects are detected but not moving or seen before
+WARNING:root:Some objects are detected but not moving or seen before
+WARNING:root:Some objects are detected but not moving or seen before
 WARNING:root:Some objects are detected but not moving or seen before
 WARNING:root:Some objects are detected but not moving or seen before
 WARNING:root:Some objects are detected but not moving or seen before
@@ -650,15 +665,16 @@ WARNING:root:Some objects are detected but not moving or seen before
 </div>
 <p>If you want to show the result with angles and smoothing for the sample video above, you can run the command:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">offlinemot</span>
-<span class="n">offlinemot</span><span class="o">.</span><span class="n">show_results</span><span class="o">.</span><span class="n">main</span><span class="p">()</span><span class="c1">#put path of the video here (including extention, ex mp4, avi ..)</span>
+<span class="n">offlinemot</span><span class="o">.</span><span class="n">show_results</span><span class="o">.</span><span class="n">show_result</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span><span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">)</span><span class="c1">#put path of the video here (including extention, ex mp4, avi ..)</span>
+<span class="c1"># None for the sample video</span>
 </pre></div>
 </div>
 </div>
-<p>After running this command with your video path and extention (empty for an example), a new video will be written, if that is set in <code class="docutils literal notranslate"><span class="pre">config.py</span></code>, annotated with the tracked objects.</p>
+<p>After running this command with your video path and extention (empty for an example), a new video will be written, if that is set in <code class="docutils literal notranslate"><span class="pre">cfg</span></code> class, annotated with the tracked objects.</p>
 </section>
 <section id="Output-structure">
 <h2>Output structure<a class="headerlink" href="#Output-structure" title="Permalink to this headline"></a></h2>

@@ -10,7 +10,7 @@
     "\n",
     "1. how to run the program for some video\n",
     "\n",
-    "2. how to set some important parameters for the detection, fixing the view and post processing\n",
+    "2. how to set some important parameters for the detection, view fixing and post processing\n",
     "\n",
     "3. how to show the result"
    ]
@@ -43,7 +43,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 3,
+   "execution_count": 1,
    "metadata": {},
    "outputs": [
     {
@@ -51,8 +51,8 @@
      "output_type": "stream",
      "text": [
       "Collecting offlinemot\n",
-      "  Downloading offlinemot-1.0.1.tar.gz (28.1 MB)\n",
-      "     ---------------------------------------- 28.1/28.1 MB 5.0 MB/s eta 0:00:00\n",
+      "  Downloading offlinemot-1.0.3.tar.gz (28.1 MB)\n",
+      "     ---------------------------------------- 28.1/28.1 MB 10.7 MB/s eta 0:00:00\n",
       "  Preparing metadata (setup.py): started\n",
       "  Preparing metadata (setup.py): finished with status 'done'\n",
       "Requirement already satisfied: numpy in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from offlinemot) (1.18.5)\n",
@@ -68,32 +68,32 @@
       "Requirement already satisfied: six in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from gdown->offlinemot) (1.14.0)\n",
       "Requirement already satisfied: tifffile>=2019.7.26 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from scikit-image->offlinemot) (2021.4.8)\n",
       "Requirement already satisfied: PyWavelets>=1.1.1 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from scikit-image->offlinemot) (1.1.1)\n",
-      "Requirement already satisfied: matplotlib!=3.0.0,>=2.0.0 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from scikit-image->offlinemot) (3.4.2)\n",
       "Requirement already satisfied: pillow!=7.1.0,!=7.1.1,>=4.3.0 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from scikit-image->offlinemot) (8.2.0)\n",
       "Requirement already satisfied: networkx>=2.0 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from scikit-image->offlinemot) (2.5.1)\n",
       "Requirement already satisfied: imageio>=2.3.0 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from scikit-image->offlinemot) (2.9.0)\n",
+      "Requirement already satisfied: matplotlib!=3.0.0,>=2.0.0 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from scikit-image->offlinemot) (3.4.2)\n",
       "Requirement already satisfied: typing-extensions in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from torch->offlinemot) (3.10.0.0)\n",
+      "Requirement already satisfied: kiwisolver>=1.0.1 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from matplotlib!=3.0.0,>=2.0.0->scikit-image->offlinemot) (1.1.0)\n",
+      "Requirement already satisfied: python-dateutil>=2.7 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from matplotlib!=3.0.0,>=2.0.0->scikit-image->offlinemot) (2.8.1)\n",
       "Requirement already satisfied: cycler>=0.10 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from matplotlib!=3.0.0,>=2.0.0->scikit-image->offlinemot) (0.10.0)\n",
       "Requirement already satisfied: pyparsing>=2.2.1 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from matplotlib!=3.0.0,>=2.0.0->scikit-image->offlinemot) (2.4.7)\n",
-      "Requirement already satisfied: python-dateutil>=2.7 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from matplotlib!=3.0.0,>=2.0.0->scikit-image->offlinemot) (2.8.1)\n",
-      "Requirement already satisfied: kiwisolver>=1.0.1 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from matplotlib!=3.0.0,>=2.0.0->scikit-image->offlinemot) (1.1.0)\n",
       "Requirement already satisfied: decorator<5,>=4.3 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from networkx>=2.0->scikit-image->offlinemot) (4.4.1)\n",
       "Requirement already satisfied: soupsieve>=1.2 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from beautifulsoup4->gdown->offlinemot) (1.9.5)\n",
-      "Requirement already satisfied: chardet<5,>=3.0.2 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from requests[socks]->gdown->offlinemot) (4.0.0)\n",
-      "Requirement already satisfied: idna<3,>=2.5 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from requests[socks]->gdown->offlinemot) (2.10)\n",
       "Requirement already satisfied: urllib3<1.27,>=1.21.1 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from requests[socks]->gdown->offlinemot) (1.26.3)\n",
       "Requirement already satisfied: certifi>=2017.4.17 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from requests[socks]->gdown->offlinemot) (2020.12.5)\n",
+      "Requirement already satisfied: chardet<5,>=3.0.2 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from requests[socks]->gdown->offlinemot) (4.0.0)\n",
+      "Requirement already satisfied: idna<3,>=2.5 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from requests[socks]->gdown->offlinemot) (2.10)\n",
       "Requirement already satisfied: PySocks!=1.5.7,>=1.5.6 in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from requests[socks]->gdown->offlinemot) (1.7.1)\n",
       "Requirement already satisfied: colorama in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from tqdm->gdown->offlinemot) (0.4.4)\n",
       "Requirement already satisfied: setuptools in c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages (from kiwisolver>=1.0.1->matplotlib!=3.0.0,>=2.0.0->scikit-image->offlinemot) (59.5.0)\n",
       "Building wheels for collected packages: offlinemot\n",
       "  Building wheel for offlinemot (setup.py): started\n",
       "  Building wheel for offlinemot (setup.py): finished with status 'done'\n",
-      "  Created wheel for offlinemot: filename=offlinemot-1.0.1-py3-none-any.whl size=28142813 sha256=706894498e37923dd31df9c5c3dd7ef74cff40d72495be1193436d7d81e7cb75\n",
-      "  Stored in directory: c:\\users\\yasin\\appdata\\local\\pip\\cache\\wheels\\53\\b9\\a8\\e95b67a840f28f1b93c8a3e7f2da614fd729911ed05b9f151a\n",
+      "  Created wheel for offlinemot: filename=offlinemot-1.0.3-py3-none-any.whl size=28144517 sha256=1bf6a028ccdc3857436c18197616d3086a37831681d2f967db9e335f31559740\n",
+      "  Stored in directory: c:\\users\\yasin\\appdata\\local\\pip\\cache\\wheels\\8b\\fd\\9b\\f9493bf735bb3b1a5574b65eaee317ea6036e880bf2b9e47b5\n",
       "Successfully built offlinemot\n",
       "Installing collected packages: offlinemot\n",
-      "Successfully installed offlinemot-1.0.1\n"
+      "Successfully installed offlinemot-1.0.3\n"
      ]
     },
     {
@@ -105,30 +105,22 @@
       "WARNING: Ignoring invalid distribution -pencv-python (c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages)\n",
       "WARNING: Ignoring invalid distribution -pencv-python (c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages)\n",
       "WARNING: Ignoring invalid distribution -pencv-python (c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages)\n",
-      "WARNING: Ignoring invalid distribution -pencv-python (c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages)\n"
+      "WARNING: Ignoring invalid distribution -pencv-python (c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages)\n",
+      "WARNING: Ignoring invalid distribution -pencv-python (c:\\users\\yasin\\appdata\\local\\programs\\python\\python37\\lib\\site-packages)\n",
+      "WARNING: You are using pip version 22.0.3; however, version 22.0.4 is available.\n",
+      "You should consider upgrading via the 'C:\\Users\\yasin\\AppData\\Local\\Programs\\Python\\Python37\\python.exe -m pip install --upgrade pip' command.\n"
      ]
     }
    ],
    "source": [
-    "!pip install offlinemot"
+    "!pip install -U offlinemot"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 4,
+   "execution_count": 2,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "Downloading...\n",
-      "From: https://drive.google.com/uc?id=1rhDaY7aVSeETP8rHgqZTewp4QkWlr3fb\n",
-      "To: C:\\Users\\yasin\\AppData\\Local\\Programs\\Python\\Python37\\lib\\site-packages\\offlinemot\\model\\Yolov4_epoch300.pth\n",
-      "100%|██████████| 256M/256M [00:43<00:00, 5.85MB/s] \n"
-     ]
-    }
-   ],
+   "outputs": [],
    "source": [
     "import offlinemot\n",
     "from offlinemot.detection import YoloDetector"
@@ -146,28 +138,19 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 9,
+   "execution_count": 3,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "convalution havn't activate linear\n",
-      "convalution havn't activate linear\n",
-      "convalution havn't activate linear\n"
-     ]
-    }
-   ],
+   "outputs": [],
    "source": [
-    "detector  = YoloDetector(use_cuda=False)"
+    "cfg = offlinemot.config.configs()\n",
+    "detector  = YoloDetector(cfg)"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Detection is only performed every *N* frame. Where *N* is set according to `config.py` file. The following is a detailed description of all its parameters and their effects.\n",
+    "Detection is only performed every *N* frame. Where *N* is set according to `configs` class instance. In the following sections there is a detailed description of all its parameters and their effects.\n",
     "\n",
     "<div class=\"alert alert-info\">\n",
     "\n",
@@ -184,14 +167,22 @@
    "source": [
     "## Config file content\n",
     "\n",
-    "To edit all these parameters a direct method is to run the code:\n",
+    "To edit and show all these parameters, the following can be ran:\n",
     "\n",
     "```python\n",
     "import offlinemot\n",
-    "offlinemot.main.set_params()\n",
+    "cfg = offlinemot.config.configs()\n",
+    "\n",
+    "cfg['detect_every_N'] = 3 #changing some value\n",
+    "\n",
+    "cfg.print_summary() #showing the most important parameters and sections names\n",
+    "\n",
+    "cfg.print_section('Detection') # showing the detection parameters\n",
+    "\n",
+    "cfg.write('new.ini')\n",
     "```\n",
     "\n",
-    "This will open a new text editor with the conifg file, where the changes can be done and saved.\n",
+    "This will allow changes to all the parameters to be testsed and saved.\n",
     "\n",
     "\n",
     "\n",
@@ -249,7 +240,7 @@
    "source": [
     "### Fixing and smoothing\n",
     "\n",
-    "In `config.py` file the following are the parameters for the part of fixing the view. The first boolean is for whether to do fixing or not. It will slow the processing, so if the video is stationary without noise then no need for it.\n",
+    "In `configs` class the following are the parameters for the part of fixing the view. The first boolean is for whether to do fixing or not. It will slow the processing, so if the video is stationary without noise then no need for it.\n",
     "\n",
     "```python\n",
     "### fix view paramers\n",
@@ -260,7 +251,7 @@
     "\n",
     "The part for doing the smoothing is also included in the same file as follows. The first boolean is whether to do the smoothing or not, the other two are related to Savitzky-Golay filter from `scipy` library.\n",
     "\n",
-    "The last boolean flag `save_out_video` will save a new mp4 file in the same folder as the video with the same name started with *output_* if set to True. This will be run only with `offlinemot.show_results.main()`\n",
+    "The last boolean flag `save_out_video` will save a new mp4 file in the same folder as the video with the same name started with *output_* if set to True. This will be run only with `offlinemot.show_results.show_result()`\n",
     "\n",
     "```python\n",
     "### Smoothing for post processing\n",
@@ -315,7 +306,7 @@
    "source": [
     "### Filering parameters\n",
     "\n",
-    "Additionally, in the `config` file, there's parameters that will determine when to delete the detected objects.\n",
+    "Additionally, in the `configs` class, there's parameters that will determine when to delete the detected objects.\n",
     "\n",
     "```python\n",
     "\n",
@@ -341,16 +332,31 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 10,
+   "execution_count": 6,
    "metadata": {},
    "outputs": [
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "convalution havn't activate linear\n",
-      "convalution havn't activate linear\n",
-      "convalution havn't activate linear\n"
+      "Used Parameters\n",
+      "====================\n",
+      "Groupus: \n",
+      "General parameters\n",
+      "Background subtractor\n",
+      "Fix view\n",
+      "Detection\n",
+      "Filtering\n",
+      "Smoothing\n",
+      "====================\n",
+      "General Parameters: \n",
+      "====================\n",
+      "draw:True\n",
+      "detect_every_n:1\n",
+      "missing_thresh:0.8\n",
+      "use_cuda:False\n",
+      "resize_scale:0.4\n",
+      "colors_map:[(0,255,0), (255,0,0), (0, 0, 0)]\n"
      ]
     },
     {
@@ -359,12 +365,21 @@
      "text": [
       "WARNING:root:Some objects are detected but not moving or seen before\n",
       "WARNING:root:Some objects are detected but not moving or seen before\n",
+      "WARNING:root:Some objects are detected but not moving or seen before\n",
+      "WARNING:root:Some objects are detected but not moving or seen before\n",
+      "WARNING:root:Some objects are detected but not moving or seen before\n",
+      "WARNING:root:Some objects are detected but not moving or seen before\n",
+      "WARNING:root:Some objects are detected but not moving or seen before\n",
+      "WARNING:root:Some objects are detected but not moving or seen before\n",
+      "WARNING:root:Some objects are detected but not moving or seen before\n",
+      "WARNING:root:Some objects are detected but not moving or seen before\n",
+      "WARNING:root:Some objects are detected but not moving or seen before\n",
       "WARNING:root:Some objects are detected but not moving or seen before\n"
      ]
     }
    ],
    "source": [
-    "offlinemot.main.main()# input your video path here (empty means the example video)"
+    "offlinemot.core.extract_paths()# input your video path here (empty means the example video)"
    ]
   },
   {
@@ -398,19 +413,20 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 11,
+   "execution_count": 7,
    "metadata": {},
    "outputs": [],
    "source": [
     "import offlinemot\n",
-    "offlinemot.show_results.main()#put path of the video here (including extention, ex mp4, avi ..)"
+    "offlinemot.show_results.show_result(None,config=cfg)#put path of the video here (including extention, ex mp4, avi ..)\n",
+    "# None for the sample video"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "After running this command with your video path and extention (empty for an example), a new video will be written, if that is set in `config.py`, annotated with the tracked objects. "
+    "After running this command with your video path and extention (empty for an example), a new video will be written, if that is set in `cfg` class, annotated with the tracked objects. "
    ]
   },
   {
@@ -431,7 +447,7 @@
  ],
  "metadata": {
   "kernelspec": {
-   "display_name": "Python 3",
+   "display_name": "Python 3 (ipykernel)",
    "language": "python",
    "name": "python3"
   },

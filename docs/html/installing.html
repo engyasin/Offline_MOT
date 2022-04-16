@@ -107,15 +107,14 @@
 <section id="installing">
 <h1>Installing<a class="headerlink" href="#installing" title="Permalink to this headline"></a></h1>
 <p>The package can be installed on python 3.x simply using the <code class="docutils literal notranslate"><span class="pre">pip</span></code> command:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">offlinemot</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install offlinemot
 </pre></div>
 </div>
 <section id="getting-started">
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h2>
 <p>After installing the library, and in order to test the example provided with it, the following lines can be used in as python commands:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">offlinemot</span>
-
-<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">offlinemot</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">main</span><span class="p">()</span> <span class="c1"># no input to run the example video</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">offlinemot</span>
+<span class="n">offlinemot</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">extract_paths</span><span class="p">()</span> <span class="c1"># no input to run the example video</span>
 </pre></div>
 </div>
 <p>In the first time this is ran, the example network model will be downloaded (around 250MB). And a window for the example video with the tracked objects will be shown.</p>
@@ -126,36 +125,39 @@
 <li> <span style="color:black">Black</span>: Car is detected.</li>
 <li> <span style="color:red">Red</span>: The tracked object has failed the tracking step for the current frame</li>
 <li> <span style="color:gray">White</span>: The object is moving but still not classified to a class.</li>
-</ul><p>Of course, for a different case, the colors can be changed from the <code class="docutils literal notranslate"><span class="pre">config.py</span></code> <a class="reference external" href="generated/offlinemot.config.configs.html">file</a>. This also depends on the number of classes to predict.</p>
+</ul><p>Of course, for a different case, the colors can be changed from the <code class="docutils literal notranslate"><span class="pre">configs</span></code> class instance <a class="reference external" href="generated/offlinemot.config.configs.html">here</a>. This also depends on the number of classes to predict.</p>
 <p>To control these parameters and many others, the commands to be run are:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">offlinemot</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">set_params</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cfg</span> <span class="o">=</span> <span class="n">offlinemot</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">configs</span><span class="p">()</span>
+ <span class="c1">#input can be named file, or empty for the default values.</span>
+<span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;colors_map&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">),(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">)]</span>
 </pre></div>
 </div>
 <p>This will open a new text editor with the <code class="docutils literal notranslate"><span class="pre">config.py</span></code> file containing all of the parameters.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>It’s highly recommended to set all the parameters when running on a new video.
-A detailed description for their meaning is available in the <code class="docutils literal notranslate"><span class="pre">config</span></code> <a class="reference external" href="generated/offlinemot.config.configs.html">file</a> .
+A detailed description for their meaning is available in the <code class="docutils literal notranslate"><span class="pre">config</span></code> <a class="reference external" href="generated/offlinemot.config.configs.html">here</a> .
 Additionally, a complete example for parameters tuning is available here <a class="reference internal" href="tutorials/A_Working_Example.html"><span class="doc">link</span></a></p>
 </div>
 </section>
 <section id="running">
 <h2>Running<a class="headerlink" href="#running" title="Permalink to this headline"></a></h2>
 <p>To run it on some video, the command is:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">offlinemot</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;path_to_video&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cfg</span> <span class="o">=</span> <span class="n">offlinemot</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">configs</span><span class="p">()</span>
+<span class="n">offlinemot</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">extract_paths</span><span class="p">(</span><span class="s1">&#39;path_to_video&#39;</span><span class="p">,</span><span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">)</span>
 <span class="c1">#[directory of the videos, leave empty to run the example video]</span>
 </pre></div>
 </div>
 <p>To show the result on the same video after post processing, use the command:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">offlinemot</span><span class="o">.</span><span class="n">show_results</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;path_to_same_video&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">offlinemot</span><span class="o">.</span><span class="n">show_results</span><span class="o">.</span><span class="n">show_result</span><span class="p">(</span><span class="s1">&#39;path_to_same_video&#39;</span><span class="p">)</span>
 <span class="c1">#[directory of the videos, leave empty to run the example video]</span>
 </pre></div>
 </div>
-<p>Finally, to change the yolo network used in the package, the complete directory to 3 files need to be assigned inside the <code class="docutils literal notranslate"><span class="pre">config.py</span></code>:</p>
+<p>Finally, to change the yolo network used in the package, the complete directory to 3 files need to be assigned with the <code class="docutils literal notranslate"><span class="pre">configs</span></code> class instance:</p>
 <ul class="simple">
-<li><p><em>.pth</em> for the model weights</p></li>
-<li><p><em>.cfg</em> for the Yolo configuration.</p></li>
-<li><p><em>.names</em> for a simple text file containing the names of the classes.</p></li>
+<li><p><em>.pth</em> for the model weights  <cite>cfg[‘model_name’] = ‘directory’</cite></p></li>
+<li><p><em>.cfg</em> for the Yolo configuration. <cite>cfg[‘model_config’] = ‘directory’</cite></p></li>
+<li><p><em>.names</em> for a simple text file containing the names of the classes.  <cite>cfg[‘class_file_name’] = ‘directory’</cite></p></li>
 </ul>
 </section>
 </section>
