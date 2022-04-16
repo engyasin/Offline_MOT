@@ -105,7 +105,7 @@ class TrafficObj():
 
     """
 
-    def __init__(self,frame,frame_id,box,track_id,cfg=configs(),tracker=cv2.TrackerKCF_create,class_id=-1,detection_way=1,detect_prob=0.0):
+    def __init__(self,frame,frame_id,box,track_id,config=configs(),tracker=cv2.TrackerKCF_create,class_id=-1,detection_way=1,detect_prob=0.0):
         """
         Parameters
         ----------
@@ -148,7 +148,7 @@ class TrafficObj():
         self.boxes = [box]
         self.true_wh_max = box[2:],1
         self.tracking_state = [1]
-        self.cfg = cfg
+        self.cfg = config
 
         self.time_steps = [frame_id]
         self.trust_level = [[0,0,0]]

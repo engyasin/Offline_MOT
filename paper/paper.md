@@ -58,13 +58,14 @@ With the help of this package, the extraction of trajectories from a cyclists’
 
 In order to run the program on a new video, optimally all the parameters should be tuned for all the tracking and detection modules, starting from the basic operations of general settings and background subtraction and ending with detection and post processing operations.
 
-All these parameters are made available in one file. It can be edited by running the following function after installing:
+All these parameters can be changed, and saved through the command line. If a suitable set of parameters are found, then it can be saved for later usage to a `.ini` file.
 
 ```python
-offlinemot.main.set_params()
+cfg = offlinemot.config.configs() # load previous set by passing its file.
+cfg['detect_every_N'] = 5
 ```
 
-In the following table, the most important ones of these parameters are listed along with how to tune them for a new video. 
+In the following table, the most important parameters are listed along with how to tune them for a new video. 
 
 ![Important parameters to tune in config.py \label{table:parameters}](table.PNG)
 
@@ -83,7 +84,7 @@ Regarding the last point, the model provided with the package is trained on rand
 
 If the video is too noisy, has low resoluation, or the training dataset detection is very different from the video background and objects, then errors in tracking can happen.
 
-As an example, the sample video has some problems with one moving object, because of the different background and the new scene of the video. This can be avoided by retraining the detection part (Yolo network) on similar examples. Additionally, a thorough tunning step for the parameters in the `config` file should be done to eliminate possible errors in the result. 
+As an example, the sample video has some problems with one moving object, because of the different background and the new scene of the video. This can be avoided by retraining the detection part (Yolo network) on similar examples. Additionally, a thorough tunning step for the parameters with the `configs` class should be done to eliminate possible errors in the result. 
 
 ### Acknowledgment
 This work was supported by the German Academic Exchange Service (DAAD) under the Graduate School Scholarship Programme (GSSP).The training of Yolo network and labeling the datasets was done by Merlin Korth and Sakif Hossain.

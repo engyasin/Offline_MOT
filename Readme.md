@@ -41,7 +41,7 @@ In [1]: import offlinemot
 
 In [2]: from offlinemot.config import configs
 
-In [3]: cfg= configs() # if you have avaliable configuration file '.ini', you can pass it
+In [3]: cfg = configs() # if you have avaliable configuration file '.ini', you can pass it
 
 In [4]: cfg.print_summary() # show the current values and sections
 
@@ -51,13 +51,16 @@ In [6]: cfg.print_section('Detection') # show parameters of single section
 
 In [7]: cfg['detect_thresh'] = 15
 
-In [8]: offlinemot.main.main(config=cfg) # no input to run the example video
+In [8]: offlinemot.core.extract_paths(config=cfg) # no input to run the example video
 
 In [9]: cfg.write('new_config_file.ini') # to be loaded for similar videos
 
 ```
+Lines 2 through 7 import and change the parameters for running the program.
 
-For the first time this is ran, the example network model will be downloaded (around 250MB). And a window for the example video with the tracked objects will be shown.
+For the first time line 8 is ran, the example network model will be downloaded (around 250MB). And a window for the example video with the tracked objects will be shown.
+
+Line 9 save the current set of parameters into the provided file name.
 
 The tracked objects will be surrounded with boxes in 5 different colors. Each color has a spicific meaning:
 
@@ -67,38 +70,38 @@ The tracked objects will be surrounded with boxes in 5 different colors. Each co
 - <span style="color:red">Red</span>: The tracked object has failed the tracking step for the current frame
 - <span style="color:white">White</span>: The object is moving but still not classified to a class.
 
-Of course, for a different case, the colors can be changed from the `cofig.py` file. This also depends on the number of classes to predict.
+Of course, for a different case, the colors can be changed from the `configs` class attribute (`colors_map`). This also depends on the number of classes to predict.
 
-to control these parameters and many others, the commands to be run are:
+To control this parameter and many others, the values can be assigned to the `configs` instance:
 
 ```python
-offlinemot.main.set_params()
+cfg = configs() #input can be named file, or empty for the default values.
+cfg['colors_map'] = [(255,0,0),(0,0,255),(0,255,0)]
 ```
 
-Then a new text editor with the `config.py` file containing all the parameters is shown.
 
 Note: It's highly recommended to set all the parameters when running on a new video. A detailed description for their meaning is available in the `config` file. Additionally, a complete example for parameters tuning is available in the [documentation here](https://engyasin.github.io/Offline_MOT/html/tutorials/A_Working_Example.html)
 
 ### Running
 
-Then to run it on some video, the command is:
+Then to run it on a new video, the command is:
 
 ```python
-offlinemot.main.main('path_to_video') 
+offlinemot.core.extract_paths('path_to_video',config=cfg) 
 #[directory of the videos, leave empty to run the example video]
 ```
 to show the result on the same video after post processing, use the command:
 
 ```python
-offlinemot.show_results.main('path_to_same_video')
+offlinemot.show_results.show_result('path_to_same_video',config=cfg)
 #[directory of the videos, leave empty to run the example video]
 ```
 
-Finally, to change the yolo network used in the package, the complete directory to 3 files need to be assigned inside the `config.py`:
+Finally, to change the yolo network used in the package, the complete directory to 3 files need to be assigned through `configs` class:
 
-- *.pth* for the model weights
-- *.cfg* for the Yolo configuration.
-- *.names* for a simple text file containing the names of the classes.
+- *.pth* for the model weights  `cfg['model_name'] = 'directory'`
+- *.cfg* for the Yolo configuration. `cfg['model_config'] = 'directory'`
+- *.names* for a simple text file containing the names of the classes.  `cfg['class_file_name'] = 'directory'`
 
 ---------------------
 ## Use cases
@@ -120,11 +123,13 @@ $ pytest -v ./offlinemot/tests
 
 For the previous command `pytest` library is needed to be installed.
 
+Additionally, upon pushes and pull requests a github action would run pytest as well.
+
 --------------------
 
 ## Support
 
-If you like to contribute to a feature of a bug fix, please take a look at the [contribution instructions](CONTRIBUTING.md) has further details.
+If you like to contribute to a feature of a bug fix, please take a look at the [contribution instructions](CONTRIBUTING.md) page. It has further details.
 
 
 Alternatively, you can contribute by creating an issue for a problem when running the program. If your issue is about the accuracy of the results (like not detecting or failing to track some objects), please tag the issue with **logic error**. Please also attach some images or gif files depicting how the error happened in running and post-running time of the video.
