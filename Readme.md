@@ -31,6 +31,8 @@ pip install offlinemot
 
 The documentation includes some example and guides to run this package and it is available here https://engyasin.github.io/Offline_MOT/
 
+Jupyter notebooks tutorials format are also available [here](docs/source/tutorials)
+
 --------------------
 ## Getting Started
 
