@@ -1,0 +1,35 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  OfflineMOT: A Python Package for multiple objects
+  detection and tracking from bird view stationary
+  drone videos
+message: 'If you use this software, please cite it as below.'
+type: software
+authors:
+  - given-names: Yasin
+    name-particle: Maan
+    family-names: Yousif
+    email: yy33@tu-clausthal.de
+    orcid: 'https://orcid.org/0000-0002-5282-7259'
+    affiliation: >-
+      Institut für Informatik, Technische Universität
+      Clausthal
+  - given-names: Awad
+    family-names: Mukbil
+    affiliation: >-
+      Institut für Informatik, Technische Universität
+      Clausthal
+  - given-names: Jörg
+    name-particle: P.
+    family-names: Müller
+    affiliation: >-
+      Institut für Informatik, Technische Universität
+      Clausthal
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.6569417
+repository-code: 'https://github.com/engyasin/Offline_MOT'
+url: 'https://github.com/engyasin/Offline_MOT'

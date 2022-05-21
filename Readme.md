@@ -2,6 +2,7 @@ Multiple objects detection and tracking from bird view stationary drone videos
 =========
 [![GH Actions Status](https://github.com/engyasin/Offline_MOT/workflows/PyTest/badge.svg)](https://github.com/engyasin/Offline_MOT/actions?query=branch%3Amain)
 [![codecov](https://codecov.io/gh/engyasin/Offline_MOT/branch/main/graph/badge.svg)](https://codecov.io/gh/engyasin/Offline_MOT/branch/main)
+[![DOI](https://zenodo.org/badge/403068329.svg)](https://zenodo.org/badge/latestdoi/403068329)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 `OfflineMOT` is a package for multi objects tracking from bird's eye view stationary videos. The accuracy has priority over runtime in this package, therefore it is better suited for offline processing rather than real time applications, hence the name of the package.
