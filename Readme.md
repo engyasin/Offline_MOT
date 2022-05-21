@@ -140,7 +140,21 @@ Alternatively, you can contribute by creating an issue for a problem when runnin
 --------------------
 
 ## Citation Info
-To be added
+If you use this software in your work, please cite it as following
+
+```
+@software{Maan_Yousif_OfflineMOT_A_Python,
+author = {Maan Yousif, Yasin and Mukbil, Awad and P. Müller, Jörg},
+title = {{OfflineMOT: A Python Package for multiple objects detection and tracking from bird view stationary drone videos}},
+url = {https://github.com/engyasin/Offline_MOT}
+doi = {10.5281/zenodo.6569417}
+}
+```
+
+--------------------
+## Report
+
+A technical report can be found [here](paper/paper.pdf) 
 
 --------------------
 ## Stars
