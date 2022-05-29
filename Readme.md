@@ -29,6 +29,7 @@ The package can be installed on python 3.x simply using the `pip` command:
 ```
 pip install offlinemot
 ```
+
 --------------------
 
 
@@ -52,6 +53,7 @@ The documentation includes some example and guides to run this package and it is
 Jupyter notebooks tutorials format are also available [here](docs/source/tutorials)
 
 A technical report can be found [here](paper/paper.pdf) 
+
 --------------------
 ## Getting Started
 
