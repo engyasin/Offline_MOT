@@ -9,6 +9,8 @@ Multiple objects detection and tracking from bird view stationary drone videos
 
 A pretrained Yolo network is used for detection in this package and it should be trained separately. The network included with this library is Yolo v4 in a pytorch format (trained to detect pedestrians, cyclists and cars). The loading and running of Yolo model is done with the help of scripts taken from [this project](https://github.com/Tianxiaomo/pytorch-YOLOv4) (All of them are in *offlinemot/tool* subfolder)
 
+For training YOLOv4 from scratch [the same repo](https://github.com/Tianxiaomo/pytorch-YOLOv4) is useful. Additionally, Darknet code can be used to train YOLO and then converting the resulted trained file to pytorch format `.pth` as described by the [docs](https://engyasin.github.io/Offline_MOT/html/tutorials/A_Working_Example.html). 
+
 Example output for a sample video, taken from [**Vehicle-Crowd Interaction  (VCI) - CITR Dataset**](https://github.com/dongfang-steven-yang/vci-dataset-citr) :
 
 ![Problem loading the gif!](docs/sources/../source/_static/output.gif)
@@ -28,12 +30,28 @@ The package can be installed on python 3.x simply using the `pip` command:
 pip install offlinemot
 ```
 --------------------
+
+
+## Citation Info
+If you use this software in your work, please cite it as following
+
+```
+@software{Maan_Yousif_OfflineMOT_A_Python,
+author = {Maan Yousif, Yasin and Mukbil, Awad and P. Müller, Jörg},
+title = {{OfflineMOT: A Python Package for multiple objects detection and tracking from bird view stationary drone videos}},
+url = {https://github.com/engyasin/Offline_MOT}
+doi = {10.5281/zenodo.6569417}
+}
+```
+
+--------------------
 ## Documentation
 
 The documentation includes some example and guides to run this package and it is available here https://engyasin.github.io/Offline_MOT/
 
 Jupyter notebooks tutorials format are also available [here](docs/source/tutorials)
 
+A technical report can be found [here](paper/paper.pdf) 
 --------------------
 ## Getting Started
 
@@ -136,25 +154,6 @@ If you like to contribute to a feature of a bug fix, please take a look at the [
 
 
 Alternatively, you can contribute by creating an issue for a problem when running the program. If your issue is about the accuracy of the results (like not detecting or failing to track some objects), please tag the issue with **logic error**. Please also attach some images or gif files depicting how the error happened in running and post-running time of the video.
-
---------------------
-
-## Citation Info
-If you use this software in your work, please cite it as following
-
-```
-@software{Maan_Yousif_OfflineMOT_A_Python,
-author = {Maan Yousif, Yasin and Mukbil, Awad and P. Müller, Jörg},
-title = {{OfflineMOT: A Python Package for multiple objects detection and tracking from bird view stationary drone videos}},
-url = {https://github.com/engyasin/Offline_MOT}
-doi = {10.5281/zenodo.6569417}
-}
-```
-
---------------------
-## Report
-
-A technical report can be found [here](paper/paper.pdf) 
 
 --------------------
 ## Stars

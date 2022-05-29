@@ -49,7 +49,8 @@ def show_result(vid_name=None, config=configs()):
     #ret, frame = v_obj.read()
     if config.save_out_video:
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')  
-        video_2_save = os.path.join(config.cwd,'output_'+video_name+'.mp4')
+        filedir,_ = os.path.split(vid_name)
+        video_2_save = os.path.join(filedir,'output_'+video_name+'.mp4')
         out = cv2.VideoWriter(video_2_save,fourcc, 30.0, tuple(frame.shape[:-1][::-1]))
     while ret:#frame is not None:
 
