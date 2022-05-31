@@ -30,6 +30,19 @@ The package can be installed on python 3.x simply using the `pip` command:
 pip install offlinemot
 ```
 
+**For developers**
+
+To work on the latest development branch, one can simple clone the repo
+
+```
+git clone https://github.com/engyasin/Offline_MOT
+```
+and then from the repo root run:
+
+```
+pip install -e .
+```
+
 --------------------
 
 
