@@ -49,7 +49,7 @@ The pseudo code in \autoref{fig:workflow} illustrates the main workflow implemen
 The specific case for extracting trajectories from top view, stationary traffic videos (for pedestrians, cyclists, and vehicles) lacks targeted open source solutions in the literature. 
 Therefore, the development of this package is directed towards helping researchers in the field of traffic analysis or any other fields where trajectories of moving objects are needed.  
 
-With the help of this package, the extraction of trajectories from a cyclists’ behavior dataset in TU Clausthal will be done. The package has proved its ability of producing very accurate results for different scenes and conditions in these videos. The dataset itself will be published later.
+With the help of this package, the extraction of trajectories from a cyclists’ behaviour dataset in TU Clausthal will be done. The package has proved its ability of producing very accurate results for different scenes and conditions in these videos. The dataset itself will be published later.
 
 # Parameters Tuning Procedure
 
