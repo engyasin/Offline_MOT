@@ -3,7 +3,7 @@
     "license": "other-open", 
     "title": "OfflineMOT: A Python Package for multiple objects detection and tracking from bird view stationary drone videos", 
     "notes": "If you use this software, please cite it as below.", 
-    "version": "v1.0.6", 
+    "version": "v1.0.7", 
     "upload_type": "software", 
     "publication_date": "2022-06-12", 
     "creators": [
@@ -27,7 +27,7 @@
     "related_identifiers": [
         {
             "scheme": "url", 
-            "identifier": "https://github.com/engyasin/Offline_MOT/tree/v1.0.6", 
+            "identifier": "https://github.com/engyasin/Offline_MOT/tree/v1.0.7", 
             "relation": "isSupplementTo"
         }, 
         {
