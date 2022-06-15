@@ -11,8 +11,10 @@ authors:
     orcid: 0000-0002-5282-7259
     affiliation: 1
   - name: Awad Mukbil
+    orcid: 0000-0003-4665-1194
     affiliation: 1
-  - name: Jörg Müller
+  - name: Jörg P. Müller
+    orcid: 0000-0001-7533-3852
     affiliation: 1
 
 affiliations:
