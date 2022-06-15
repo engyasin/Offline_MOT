@@ -64,7 +64,7 @@ cfg['detect_every_N'] = 5
 
 In the following table, the most important parameters are listed along with how to tune them for a new video. 
 
-![Important parameters to tune in `config.py \label{table:parameters}](table.PNG)
+![Important parameters to tune in `config.py` \label{table:parameters}](table.PNG)
 
 # Scope
 
@@ -75,7 +75,7 @@ The scope of the problems that can be handled by this package is defined by the 
 3.	*The view direction of the video is from a bird’s eye view*
 4.	*A pretrained detection model for the objects of interest is available*
 
-Regarding the last point, the model provided with the package is trained on random images of cyclists, cars and pedestrians from bird’s eye view. This can be enough if the problem is the same, i.e. tracking traffic entities. Otherwise, this model could be a good starting point to train for other kinds of objects if these objects are similar and Yolo-v4 is used as a model structure.
+Regarding the last point, the model provided with the package is trained on random images of cyclists, cars and pedestrians from bird’s eye view. This can be enough if the problem is the same, i.e., tracking traffic entities. Otherwise, this model could be a good starting point to train for other kinds of objects if these objects are similar and Yolo-v4 is used as a model structure.
 
 ## Failure Cases
 
