@@ -3,6 +3,7 @@ Multiple objects detection and tracking from bird view stationary drone videos
 [![GH Actions Status](https://github.com/engyasin/Offline_MOT/workflows/PyTest/badge.svg)](https://github.com/engyasin/Offline_MOT/actions?query=branch%3Amain)
 [![codecov](https://codecov.io/gh/engyasin/Offline_MOT/branch/main/graph/badge.svg)](https://codecov.io/gh/engyasin/Offline_MOT/branch/main)
 [![DOI](https://zenodo.org/badge/403068329.svg)](https://zenodo.org/badge/latestdoi/403068329)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.04099/status.svg)](https://doi.org/10.21105/joss.04099)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 `OfflineMOT` is a package for multi objects tracking from bird's eye view stationary videos. The accuracy has priority over runtime in this package, therefore it is better suited for offline processing rather than real time applications, hence the name of the package.
@@ -50,11 +51,17 @@ pip install -e .
 If you use this software in your work, please cite it as following
 
 ```
-@software{Maan_Yousif_OfflineMOT_A_Python,
-author = {Maan Yousif, Yasin and Mukbil, Awad and P. Müller, Jörg},
-title = {{OfflineMOT: A Python Package for multiple objects detection and tracking from bird view stationary drone videos}},
-url = {https://github.com/engyasin/Offline_MOT}
-doi = {10.5281/zenodo.6569417}
+@article{Yousif2022,
+  doi = {10.21105/joss.04099},
+  url = {https://doi.org/10.21105/joss.04099},
+  year = {2022},
+  publisher = {The Open Journal},
+  volume = {7},
+  number = {74},
+  pages = {4099},
+  author = {Yasin Maan Yousif and Awad Mukbil and Jörg P. Müller},
+  title = {OfflineMOT: A Python package for multiple objects detection and tracking from bird view stationary drone videos},
+  journal = {Journal of Open Source Software}
 }
 ```
 
