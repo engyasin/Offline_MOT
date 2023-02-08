@@ -63,7 +63,7 @@ def tracks_angels(track):
         ang = np.rad2deg(ang)
         angels.append(ang)
         # in deg
-    angels.extend([angels[-1]]*N)
+    if angels:angels.extend([angels[-1]]*N)
     return angels
 
 def repair_traj(obj):

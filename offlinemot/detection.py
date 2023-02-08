@@ -185,6 +185,9 @@ class YoloDetector():
             imgfile = cv2.imread(imgfile)
         for box in new_boxes:
             x,y,w_,h_ = tuple(box)
+            # ignore if too small
+            if (w_*h_)<3000: continue
+
             cropped_img = imgfile[y:y+h_,x:x+w_]
             new_detections, _ = self.detect(cropped_img)
             p0 = (x,y)

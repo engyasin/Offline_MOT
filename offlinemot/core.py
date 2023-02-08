@@ -31,6 +31,23 @@ from utils_ import save_tracks, resize, check_box, detect_overlaping, transform_
 from objects_classes import  TrafficObj
 from post_process import postProcessAll
 
+def createTracker():
+
+    if configs.Tracker_goturn:
+        def tracker_():
+            params = cv2.TrackerGOTURN_Params()
+
+            params.modelTxt = os.path.join(configs.cwd,'model','goturn.prototxt')
+            params.modelBin = os.path.join(configs.cwd,'model','goturn.caffemodel')
+
+            tracker = cv2.TrackerGOTURN_create(params)
+
+            return tracker
+    else:
+        tracker_ = cv2.TrackerKCF_create
+    
+    return tracker_
+
 
 def track_objs(frame,frame_id,objects):
     """Perfrom tracking on every object in the frame
@@ -87,7 +104,7 @@ def bgObjs_to_objs(bgObjs,frame,frame_id,config=configs()):
         box = [obj_item.bbox[1],obj_item.bbox[0],obj_item.bbox[3]-obj_item.bbox[1],obj_item.bbox[2]-obj_item.bbox[0]]
 
         if all(box): 
-            new_obj = TrafficObj(frame,frame_id,box,-1,config,class_id=-1,detection_way=3)
+            new_obj = TrafficObj(frame,frame_id,box,-1,config,tracker=createTracker(),class_id=-1,detection_way=3)
             output.append(new_obj)
     return output
 
@@ -124,7 +141,7 @@ def detections_to_objects(detections,frame,config,last_track_id=0):
 
             if check_box(box,img_wh): 
 
-                output.append(TrafficObj(frame,0,box,Track_id,config,class_id=obj_item[3],detection_way=1,detect_prob=obj_item[2]))
+                output.append(TrafficObj(frame,0,box,Track_id,config,tracker=createTracker(),class_id=obj_item[3],detection_way=1,detect_prob=obj_item[2]))
                 Track_id += 1
 
     return output 
@@ -155,6 +172,23 @@ def FirstFrame(frame, config):
     # create objects based on detections
     # results : (p1,p2,prob,class_id)
     output = detections_to_objects(results,frame,config)
+
+    if config.manual_start:
+        for obj in output:
+            if obj.last_detect_prob > configs.detect_thresh:
+                print(f'Id {obj.track_id} probabilty: {np.round(obj.last_detect_prob,3)}')
+                frame_ = obj.draw(frame)
+        cv2.namedWindow('frame', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('frame', 1100, 600)
+        manual_boxes = cv2.selectROIs('frame',frame_,fromCenter=False,showCrosshair=False)
+
+        cv2.destroyWindow('frame')
+
+        for box in manual_boxes:
+            results.insert(0,[(box[0],box[1]),(box[0]+box[2],box[1]+box[3]),2.0,1])
+
+        #cv2.imshow('fgmask', resize(frame,config.resize_scale)) 
+        output = detections_to_objects(results,frame,config)
 
 
     return output, detector
@@ -352,7 +386,7 @@ def extract_paths(vid_name=None, config=configs()):
                 # delete
                 continue
 
-        objects, candidates_objs = new_objs[:], new_candidates_objs[:],
+        objects, candidates_objs = new_objs[:], new_candidates_objs[:]
 
         ######## Step 10: check if any objects are overlapping with another
         ######## Delete if a minmum area is found

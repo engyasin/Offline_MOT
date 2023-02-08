@@ -1,10 +1,14 @@
 import cv2
 import numpy as np
 import logging
+from numpy import dot
+from scipy.linalg import inv
 
 from config import configs
 
 from utils_ import check_box
+from filterpy.stats import mahalanobis
+
 
 class TrafficObj():
     """
@@ -146,23 +150,40 @@ class TrafficObj():
 
         self.box = tuple(box)
         self.boxes = [box]
+        self.vel = [0,0]
+        self.use_kalman = True
+        self.cfg = config
+        
+        if self.use_kalman:
+            self.init_kalman_matrices()
+
+            self.covs = [self.P.diagonal()[:4].mean()]
+
+
         self.true_wh_max = box[2:],1
         self.tracking_state = [1]
-        self.cfg = config
+
 
         self.time_steps = [frame_id]
         self.trust_level = [[0,0,0]]
+        if detect_prob>1:
+            #manual
+            self.trust_level = [[1,1,1]]
         self.trust_level[0][detection_way-1] = 1
         #TODO add another list for detection confirm
         self.tracker_class = tracker
-        self.tracker = self.tracker_class()
-        # cv2.TrackerKCF_create())
+
+        if class_id  == -1:
+            self.tracker =  cv2.TrackerKCF_create()
+        else:
+            self.tracker = self.tracker_class()
+
         self.tracker.init(frame,self.box)
         self.class_id = class_id
 
         # length is not standard (class,prob)
         self.class_ids = {-1:0,1:0,2:0,3:0}
-        self.class_ids[class_id] += (1/(1-detect_prob))
+        self.class_ids[class_id] += (1/(1-detect_prob-(1e-5)))
 
         # error + color_code + unknown
         self.colors_map = [(0,0,255)] + self.cfg.colors_map + [(255,255,255)] 
@@ -176,6 +197,130 @@ class TrafficObj():
         # to be used in postprocess
         self.angels  = []
         self.centers = []
+
+
+
+    def get_F(self,dt):
+        """Get the transition matrix for the kalman filter"""
+        F = np.array([[1,0,0,0,dt,0],[0,1,0,0,0,dt],[0,0,1,0,dt,0],[0,0,0,1,0,dt],[0,0,0,0,1,0],[0,0,0,0,0,1]])
+
+        return F
+
+
+    def get_R(self,detection_way,detect_prob=0.5,bbox_wh=[50,50]):
+        """Get the measurement noise matrix for the kalman filter"""
+        R = np.zeros((4,4))
+        noise_cov = [9/(1+detect_prob),5,[bbox_wh[0]/20,bbox_wh[1]/20]][detection_way-1]
+        if type(noise_cov) == list:
+            R[0,0] = (noise_cov[0]**2)+4
+            R[1,1] = (noise_cov[1]**2)+4
+            R[2,2] = (noise_cov[0]**2)+4
+            R[3,3] = (noise_cov[1]**2)+4
+        else:
+            R[0,0] = noise_cov**2
+            R[1,1] = noise_cov**2
+            R[2,2] = noise_cov**2
+            R[3,3] = noise_cov**2
+
+        return R
+
+
+    def init_kalman_matrices(self) -> None:
+        """Initialize the kalman filter for the object"""
+        process_var = self.cfg.process_var**2
+        initial_cov = int(self.cfg.process_var*1.4)**2
+
+        self.Q = np.zeros((6,6))
+        line_q1 = np.array([process_var,0,process_var,0,process_var,0])
+        line_q2 = np.array([0,process_var,0,process_var,0,process_var])
+        self.Q[4] = line_q1
+        self.Q[5] = line_q2
+        self.Q[:,4] = line_q1
+        self.Q[:,5] = line_q2
+
+
+        self.H = np.hstack((np.eye(4),np.zeros((4,2))))
+
+        self.P = np.eye(6)*initial_cov
+        self.x = self.get_state()
+
+    def predict_box(self,frame_id):
+        """Predict with fixed speed the next bounding box
+        """
+
+        dt = frame_id - self.time_steps[-1]
+        F = self.get_F(dt)
+        x = self.get_state()
+
+        #self.box_ = []#new_box
+        #self.boxes_.append(new_box)
+        #self.covs.append(way)
+
+        self.x = dot(F, x)
+        self.P = dot(F, self.P).dot(F.T) + self.Q
+
+    def get_state(self,box=[]):
+
+        state = list(self.box[:2])
+        state.extend([self.box[0]+self.box[2],self.box[1]+self.box[3]])
+        if box:
+            state = list(box[:2])
+            state.extend([box[0]+box[2],box[1]+box[3]])
+
+        state.extend(self.vel)
+        
+        return np.array([state]).T
+    
+    def set_box(self):
+        """Set the box from the updated state"""
+        self.covs.append(self.P.diagonal()[:4].mean())
+        state = self.x[:4].T[0].copy()
+        state[2:] = ( state[2:] - state[:2] )
+        self.box = state.astype(int).tolist()
+        self.vel = self.x[4:].T[0].tolist()
+        self.boxes.append(self.box)
+
+    def update_box(self,new_box,frame_id,way=1):
+        """The new box found via:
+            1- detection
+            2- tracking
+            3- background
+        """
+
+        if not((np.array(new_box) - np.array(self.box)).any()):
+            return None
+        z = self.get_state(box=new_box)[:4]
+
+        try:
+            m_dist = mahalanobis(x=z, mean=self.x[:4], cov=self.P[:4,:4])
+        except ValueError:
+            Warning('varaince is negative. Something went wrong!')
+            return None
+
+        if m_dist > self.cfg.mahalanobis_dist :
+            return None
+        #print('mahalanobis distance = {:.1f}'.format(m_dist))
+
+        if frame_id not in self.time_steps:
+            self.predict_box(frame_id)
+            self.time_steps.append(frame_id)
+
+        R = self.get_R(way,self.last_detect_prob,new_box[2:])
+
+        S = dot(self.H, self.P).dot(self.H.T) + R
+        K = dot(self.P, self.H.T).dot(inv(S))
+
+        y = z - dot(self.H, self.x)
+        self.x = self.x + dot(K, y)
+
+        self.P = self.P - dot(K, self.H).dot(self.P)
+
+        self.set_box()
+        #print(self.P.diagonal())
+
+
+        #self.covs.append(way)
+
 
     def find_center(self):
         """Calculate the current center for the box. 
@@ -205,9 +350,13 @@ class TrafficObj():
         #print(state)
         if state:
             #update boxes list
-            self.box = box
-            self.find_true_size(box)
-            self.boxes.append(list(box))
+            if self.use_kalman:
+                self.update_box(box,frame_id,2)
+            else:
+                self.box = box
+                self.boxes.append(list(box))
+            self.find_true_size(self.box)
+
 
         self.tracking_state.append(state)
         self.time_steps.append(frame_id)
@@ -353,6 +502,7 @@ class TrafficObj():
 
             size_ = np.linalg.norm(((obj_item[1][0]-obj_item[0][0]) - self.box[2],
                                    (obj_item[1][1]-obj_item[0][1]) - self.box[3]))
+
             #if (obj_item[3] not in self.class_ids) and (self.class_id != -1):
             #    if dist < config.dist_thresh: self.class_ids.append(obj_item[3])
             #    detections_dists.append(1e9)
@@ -363,7 +513,7 @@ class TrafficObj():
 
         detections_dists.append(1e9)
         detections_size.append(1e9)
-        Ok = min(detections_dists) < (self.cfg.dist_thresh)# )
+        Ok = min(detections_dists) <(self.cfg.dist_thresh)#  (np.sqrt(self.covs[-1])*3)#)
         Ok *= (min(detections_size) < (self.cfg.size_thresh* [1.0,1.6][self.class_id==-1]))
         #if self.track_id == 4:
         #    print(detections_dists)
@@ -374,20 +524,39 @@ class TrafficObj():
             box = [obj_item[0][0], obj_item[0][1], obj_item[1][0]-obj_item[0][0],obj_item[1][1]-obj_item[0][1]]
 
             self.find_true_size(box)
+            self.last_detect_prob = obj_item[2]
             if check: 
+                if self.use_kalman:
+                    self.update_box(box,self.time_steps[-1],1)
                 self.boxes[-1] = box
             else:
-                self.boxes.append(box)
+                if self.use_kalman:
+                    self.update_box(box,self.time_steps[-1],1)
+                else:
+                    self.boxes.append(box)
             if self.class_id == -1: 
                 logging.info('Object ',self.track_id,' now is turned to ',obj_item[3])
+
             self.class_id = obj_item[3]
-            self.box = box
+
+            if not(self.use_kalman): self.box = box
             self.class_ids[obj_item[3]] += (1/(1-obj_item[2]))
-            self.last_detect_prob = obj_item[2]
 
             #self.need_redetect = not(check_box(box,self.img_wh))
 
         return Ok, detections 
+
+    def change_tracker(self,frame):
+        """Change the tracker type of the object
+
+        Parameters
+        ----------
+        frame : numpy.ndarray
+            The current frame of the video
+
+        """
+        self.tracker = self.tracker_class()
+        self.tracker.init(frame, self.box)
 
 
     def filter_by_bg_objs(self, bg_objs):
@@ -430,19 +599,24 @@ class TrafficObj():
 
         Ok = False
         if bg_objs:
-            Ok = (min(detections_dists) < (self.cfg.dist_thresh-12))*(min(detections_size) < (self.cfg.size_thresh-12))
+            ##(np.sqrt(self.covs[-1])*3))
+            Ok = (min(detections_dists) <(self.cfg.dist_thresh-12)) *(min(detections_size) < (self.cfg.size_thresh-12))
         if Ok:
 
             obj_item = bg_objs.pop(np.argmin(detections_dists))
             # no need to assign boxes, unless
             if not(self.tracking_state[-1]): # and not detected
 
-                box = [obj_item.bbox[1],obj_item.bbox[0],obj_item.bbox[3]-obj_item.bbox[1],obj_item.bbox[2]-obj_item.bbox[0]]
+                box = [obj_item.bbox[1],obj_item.bbox[0],abs(obj_item.bbox[3]-obj_item.bbox[1]),abs(obj_item.bbox[2]-obj_item.bbox[0])]
 
                 #box = [obj_item[0][0], obj_item[0][1], obj_item[1][0]-obj_item[0][0],obj_item[1][1]-obj_item[0][1]]
-                self.box = tuple(box)
+                if self.use_kalman:
+                    self.update_box(box,self.time_steps[-1],3)
+                else:
+                    self.box = tuple(box)
+                    self.boxes.append(box)
+
                 self.find_true_size(box)
-                self.boxes.append(box)
 
             #if self.class_id == -1: 
             #    self.class_id = obj_item[3]

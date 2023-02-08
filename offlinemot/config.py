@@ -146,6 +146,12 @@ class configs:
     polydegree  = 3
     save_out_video = False
 
+    ## Other parameters
+    manual_start = True
+    mahalanobis_dist = 50
+    Tracker_goturn = True
+    process_var = 90
+
     def __init__(self,file_name=None):
 
         if file_name is None:

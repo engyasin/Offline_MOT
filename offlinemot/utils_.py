@@ -203,9 +203,9 @@ def detect_overlaping(objects,overlap_thresh=0.5):
                     elif len(obj.trust_level)>len(other_obj.trust_level)+1:
                         return j
                     # detection prob, then
-                    elif round(obj.last_detect_prob,1) < round(other_obj.last_detect_prob,1):
+                    elif round(obj.last_detect_prob,2) < round(other_obj.last_detect_prob,2):
                         return i
-                    elif round(obj.last_detect_prob,1) > round(other_obj.last_detect_prob,1):
+                    elif round(obj.last_detect_prob,2) > round(other_obj.last_detect_prob,2):
                         return j
                     # area
                     elif (obj.box[2]*obj.box[3]) < (other_obj.box[2]*other_obj.box[3]):
