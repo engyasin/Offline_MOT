@@ -151,16 +151,17 @@ class TrafficObj():
         self.box = tuple(box)
         self.boxes = [box]
         self.vel = [0,0]
-        self.use_kalman = True
+        self.use_kalman = config.use_kalman
         self.cfg = config
+        self.class_id = class_id
         
         if self.use_kalman:
             self.init_kalman_matrices()
 
             self.covs = [self.P.diagonal()[:4].mean()]
 
-
         self.true_wh_max = box[2:],1
+        self.wh = box[2:]
         self.tracking_state = [1]
 
 
@@ -179,7 +180,7 @@ class TrafficObj():
             self.tracker = self.tracker_class()
 
         self.tracker.init(frame,self.box)
-        self.class_id = class_id
+        
 
         # length is not standard (class,prob)
         self.class_ids = {-1:0,1:0,2:0,3:0}
@@ -210,12 +211,13 @@ class TrafficObj():
     def get_R(self,detection_way,detect_prob=0.5,bbox_wh=[50,50]):
         """Get the measurement noise matrix for the kalman filter"""
         R = np.zeros((4,4))
-        noise_cov = [9/(1+detect_prob),5,[bbox_wh[0]/20,bbox_wh[1]/20]][detection_way-1]
+        noise_cov = [self.cfg.detection_min_var/(1+detect_prob),self.cfg.tracking_var,
+                        [self.cfg.bgs_var,self.cfg.bgs_var]][detection_way-1]#bbox_wh[0]/20,bbox_wh[1]/20
         if type(noise_cov) == list:
-            R[0,0] = (noise_cov[0]**2)+4
-            R[1,1] = (noise_cov[1]**2)+4
-            R[2,2] = (noise_cov[0]**2)+4
-            R[3,3] = (noise_cov[1]**2)+4
+            R[0,0] = (noise_cov[0]**2)
+            R[1,1] = (noise_cov[1]**2)
+            R[2,2] = (noise_cov[0]**2)
+            R[3,3] = (noise_cov[1]**2)
         else:
             R[0,0] = noise_cov**2
             R[1,1] = noise_cov**2
@@ -227,8 +229,12 @@ class TrafficObj():
 
     def init_kalman_matrices(self) -> None:
         """Initialize the kalman filter for the object"""
-        process_var = self.cfg.process_var**2
-        initial_cov = int(self.cfg.process_var*1.4)**2
+        if self.class_id in [2,3]:
+            self.process_cov = self.cfg.process_var*self.class_id
+        else:
+            self.process_cov = self.cfg.process_var*self.class_id
+        process_var = (self.process_cov)**2
+        initial_cov = int(self.process_cov*1.4)**2
 
         self.Q = np.zeros((6,6))
         line_q1 = np.array([process_var,0,process_var,0,process_var,0])
@@ -259,10 +265,13 @@ class TrafficObj():
         self.x = dot(F, x)
         self.P = dot(F, self.P).dot(F.T) + self.Q
 
+        self.trust_level.append([0,0,0])
+
     def get_state(self,box=[]):
 
         state = list(self.box[:2])
         state.extend([self.box[0]+self.box[2],self.box[1]+self.box[3]])
+
         if box:
             state = list(box[:2])
             state.extend([box[0]+box[2],box[1]+box[3]])
@@ -273,12 +282,42 @@ class TrafficObj():
     
     def set_box(self):
         """Set the box from the updated state"""
+        
         self.covs.append(self.P.diagonal()[:4].mean())
+
+
         state = self.x[:4].T[0].copy()
         state[2:] = ( state[2:] - state[:2] )
-        self.box = state.astype(int).tolist()
+        box = state.astype(int).tolist()
+
+
+        #min_size=50
+        #e_r = 1.1
+        #if (box[2]+box[3])<min_size:
+        #    print('enlarging')
+        #    self.x[0] = max(box[0]-box[2]*(e_r-1),0)
+        #    self.x[1] = max(box[1]-box[3]*(e_r-1),0)
+        #    self.x[2] = max(box[0]+(e_r*box[2]),0)
+        #    self.x[3] = max(box[1]+(e_r*box[3]),0)
+        #    state = self.x[:4].T[0].copy()
+        #    state[2:] = ( state[2:] - state[:2] )
+        #    box = state.astype(int).tolist()
+        #    box[2] += min_size
+        #    box[3] += min_size
+
+        self.box = box
+
+        # limit vel changes [-100,100]
+        self.x[4:] = np.clip(self.x[4:],-1*self.cfg.clip_speed,self.cfg.clip_speed)
+
         self.vel = self.x[4:].T[0].tolist()
-        self.boxes.append(self.box)
+
+        if len(self.boxes) == len(self.time_steps):
+            #replace
+            self.boxes[-1] = self.box
+        else:
+            #add
+            self.boxes.append(self.box)
 
     def update_box(self,new_box,frame_id,way=1):
         """The new box found via:
@@ -286,9 +325,12 @@ class TrafficObj():
             2- tracking
             3- background
         """
+        #if way in [2,3]:
+        #    return None
 
-        if not((np.array(new_box) - np.array(self.box)).any()):
-            return None
+        #if not((np.array(new_box) - np.array(self.box)).any()):
+        #    pass
+            #return None
         z = self.get_state(box=new_box)[:4]
 
         try:
@@ -297,11 +339,12 @@ class TrafficObj():
             Warning('varaince is negative. Something went wrong!')
             return None
 
-        if m_dist > self.cfg.mahalanobis_dist :
+        if m_dist > self.cfg.mahalanobis_dist and way !=2:
             return None
         #print('mahalanobis distance = {:.1f}'.format(m_dist))
 
         if frame_id not in self.time_steps:
+            #print(f'frame: {frame_id} ,covarince now {self.P.diagonal().mean()}')
             self.predict_box(frame_id)
             self.time_steps.append(frame_id)
 
@@ -311,14 +354,30 @@ class TrafficObj():
         K = dot(self.P, self.H.T).dot(inv(S))
 
         y = z - dot(self.H, self.x)
+        #print(f'error vector mean {y.mean()}')
+        #if abs(y).mean()>1:
+        if dot(K,y)[:4].sum()>400:
+            print(f'something fishy with object: {self.track_id}')
+            #breakpoint()
         self.x = self.x + dot(K, y)
 
         self.P = self.P - dot(K, self.H).dot(self.P)
 
+
+
+        #if way ==1:
+        #    self.wh = new_box[2:]
+        # fix x
+        #center = (self.x[0]+self.x[2])//2,(self.x[1]+self.x[3])//2
+
+        #self.x[0] = (center[0] - self.wh[0]//2)
+        #self.x[2] = (center[0] + self.wh[0]//2)
+        #self.x[1] = (center[1] - self.wh[1]//2)
+        #self.x[3] = (center[1] + self.wh[1]//2)
+
         self.set_box()
+        self.trust_level[-1][way-1]=1
         #print(self.P.diagonal())
-
-
         #self.covs.append(way)
 
 
@@ -346,8 +405,53 @@ class TrafficObj():
             The current frame order in the video
 
         """
+
+        #new_frame_ = new_frame.copy()
+        #if self.cfg.Tracker_goturn:
+        #    times_ = 2 # each side
+        #    c,r,w,h = tuple(self.box)
+            #max_r,max_c,_ = new_frame.shape
+            #print(c,r,w,h)
+        #    new_frame_ = new_frame[min(r-h*times_,0):(r+h+h*times_),min(c-w*times_,0):(c+w+w*times_),:]
+
         state, box = self.tracker.update(new_frame)
+
+        min_area = 50*50
+        re_init = False
+        e_r = 1.15
+        box = list(box)
+        if (box[2]*box[3])<(min_area):
+            
+            #box[0] = max(box[0]-min_size//2,0)
+            #box[1] = max(box[1]-min_size//2,0)
+            #box[2] += min_size
+            #box[3] += min_size
+            box[0] -= box[2]*((e_r-1)/2)
+            box[1] -= box[3]*((e_r-1)/2)
+            box[2] *= e_r
+            box[3] *= e_r
+
+            re_init = True
+        #NOTE enlarge by ration
+        else:
+            e_r = 1.05 #enlarge ratio
+            box[0] -= box[2]*((e_r-1)/2)
+            box[1] -= box[3]*((e_r-1)/2)
+            box[2] *= e_r
+            box[3] *= e_r
+
+        # TODO should we add reinint here?
+
+
+        #if self.cfg.Tracker_goturn:
+        #    box = list(box)
+        #    box[0] += min(c-w*times_,0)
+        #    box[1] += min(r-h*times_,0)
+        #    box = tuple(box)
         #print(state)
+
+        box = tuple(box)
+
         if state:
             #update boxes list
             if self.use_kalman:
@@ -355,12 +459,16 @@ class TrafficObj():
             else:
                 self.box = box
                 self.boxes.append(list(box))
+                self.time_steps.append(frame_id)
+                self.trust_level.append([0,int(state),0])
+                
             self.find_true_size(self.box)
 
-
+        
         self.tracking_state.append(state)
-        self.time_steps.append(frame_id)
-        self.trust_level.append([0,int(state),0])
+        
+        
+        if re_init: self.re_init_tracker(new_frame)
 
     def re_init_tracker(self,frame):
         """start a new tracker object in the provided frame with
@@ -375,8 +483,9 @@ class TrafficObj():
         # re init with detections
         # done after filter by detection
         #print(self.box)
+
         self.tracker = self.tracker_class()
-        self.tracker.init(frame,tuple(self.box))
+        self.tracker.init(frame,tuple([int(v) for v in self.box]))
 
     def draw(self,new_frame):
 
@@ -433,6 +542,9 @@ class TrafficObj():
         # history length
         under_prosses = len(self.trust_level)<self.cfg.min_history
 
+        #if (self.box[2]*self.box[3])<30:
+        #    return False
+
         if not(under_prosses):
             # min detection
             #if self.class_id == -1:
@@ -445,23 +557,23 @@ class TrafficObj():
                 sum_traj_state += sum(state)
 
             #if object is still, (detection error) or not much detections
-            if sum_traj_state<(self.cfg.min_history+3):
+            if sum_traj_state<(self.cfg.min_history):
                 # at least three time movement or detection
-                logging.info('Object ',self.track_id,' deleted because of missing matching steps')
+                logging.info(f'Object {self.track_id} deleted because of missing matching steps')
                 return False,False
             elif all(traj_state):
                 # keep tracking if detected enough
-                return True,False
+                return True and (self.box[2]*self.box[3])>30,False
             elif (sum(traj_state)/len(traj_state))<self.cfg.missing_thresh:
                 #delete
-                logging.info('Object ',self.track_id,' deleted because of low detection rate')
+                logging.info(f'Object {self.track_id} deleted because of low detection rate')
                 #print(sum(traj_state),len(traj_state))
                 return False,True
             #else:
                 # error in first steps , delete all
             #    return False,False
                 #save only history true longer than n_history
-        return True, False
+        return True and (self.box[2]*self.box[3])>30, False
         ##Return: Track, Save
 
 
@@ -508,13 +620,18 @@ class TrafficObj():
             #    detections_dists.append(1e9)
             #    continue
 
+            # if manaual
+            if obj_item[2]>1.1:
+                dist = (dist/10)
+                size_ = (size_/10)
+
             detections_dists.append(dist)
             detections_size.append(size_)
 
         detections_dists.append(1e9)
         detections_size.append(1e9)
         Ok = min(detections_dists) <(self.cfg.dist_thresh)#  (np.sqrt(self.covs[-1])*3)#)
-        Ok *= (min(detections_size) < (self.cfg.size_thresh* [1.0,1.6][self.class_id==-1]))
+        Ok *= (min(detections_size) < (self.cfg.size_thresh* [1.0,1.5][self.class_id==-1]))
         #if self.track_id == 4:
         #    print(detections_dists)
         #    print([ob[2] for ob in detections])
@@ -535,7 +652,7 @@ class TrafficObj():
                 else:
                     self.boxes.append(box)
             if self.class_id == -1: 
-                logging.info('Object ',self.track_id,' now is turned to ',obj_item[3])
+                logging.info(f'Object {self.track_id} now is turned to {obj_item[3]}')
 
             self.class_id = obj_item[3]
 

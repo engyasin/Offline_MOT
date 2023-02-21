@@ -148,9 +148,21 @@ class configs:
 
     ## Other parameters
     manual_start = True
+    double_detection = True
+    Tracker_goturn = False
+    # [we have a problem ==> push them,
+    #  it is that big ==> cut them, it's too much ==> delete the bigger]
+    overlap_steps = [0.15,0.33,1.01]
+
+
+    # kalman parameters
+    use_kalman = True
     mahalanobis_dist = 50
-    Tracker_goturn = True
     process_var = 90
+    bgs_var = 70
+    tracking_var = 7
+    detection_min_var = 15
+    clip_speed = 15
 
     def __init__(self,file_name=None):
 

@@ -132,7 +132,8 @@ def post_process(obj,config=configs()):
     """
 
     obj.centers = find_cntrs(obj.boxes)
-    obj.centers = repair_traj(obj)
+    # TODO
+    #obj.centers = repair_traj(obj)
     # smooth
     if config.do_smooth and len(obj.centers)>=config.window_size:
         obj.centers = savgol_filter(obj.centers,config.window_size,config.polydegree,axis=0)
@@ -141,10 +142,11 @@ def post_process(obj,config=configs()):
         # maybe smooth on x also
         
     # change boxes
-    w,h = obj.true_wh_max[0][0],obj.true_wh_max[0][1]
-    obj.boxes = []
-    for i,cntr in enumerate(obj.centers):
-        obj.boxes.append([int(cntr[0]-(w/2)),int(cntr[1]-(h/2)),w,h])
+    if False:
+        w,h = obj.true_wh_max[0][0],obj.true_wh_max[0][1]
+        obj.boxes = []
+        for i,cntr in enumerate(obj.centers):
+            obj.boxes.append([int(cntr[0]-(w/2)),int(cntr[1]-(h/2)),w,h])
     # find angels
     obj.angels  = tracks_angels(obj.centers)
     return obj

@@ -57,6 +57,7 @@ class YoloDetector():
 
         self.detect_scale = config.detect_scale
         self.detect_thresh = config.detect_thresh
+        self.double_detection = config.double_detection
 
         self.m = darknet2pytorch.Darknet(cfgfile, inference=True)
 
@@ -150,6 +151,9 @@ class YoloDetector():
         """
 
         results,(w,h) = self.detect(imgfile)
+        if not(self.double_detection):
+            return results,(w,h)
+
         results_ = results[:]
 
         results.extend([obj.get_detection_format() for obj in additional_objs])
@@ -192,7 +196,7 @@ class YoloDetector():
             new_detections, _ = self.detect(cropped_img)
             p0 = (x,y)
             detections.extend(transform_detection(p0,new_detections,self.detect_thresh))
-        return results_+detections,(w,h)
+        return results_+detections,(w,h)#results_+
         # calculate the final detection and return it
 
 

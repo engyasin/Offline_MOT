@@ -56,6 +56,7 @@ def show_result(vid_name=None, config=configs()):
 
         if frame_id in tracking_data:
             objects_2_draw = tracking_data[frame_id]
+            print(frame_id)
         else:
             objects_2_draw = []
             #print('text finished before video')

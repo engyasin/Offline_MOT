@@ -18,7 +18,7 @@ except:
 setup(
   name = 'offlinemot',         # How you named your package folder (MyLib)
   packages = find_packages(),   # Chose the same as "name"
-  version = '1.0.6',      # Start with a small number and increase it with every change you make
+  version = '1.1.1',      # Start with a small number and increase it with every change you make
   license='MIT',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = short_description[0],   # Give a short description about your library
   long_description=long_description,
@@ -35,6 +35,7 @@ setup(
           'torch',
           'scipy',
           'gdown',
+          'filterpy',
       ],
   include_package_data=True,
   classifiers=[

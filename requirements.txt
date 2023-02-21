@@ -5,3 +5,4 @@ scikit-image
 torch
 scipy
 gdown
+filterpy

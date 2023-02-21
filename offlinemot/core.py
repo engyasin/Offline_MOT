@@ -20,6 +20,7 @@ import webbrowser
 import numpy as np
 import cv2
 
+logging.basicConfig(level=logging.INFO)
 
 from config import configs
 from fix_view import FixView
@@ -174,10 +175,11 @@ def FirstFrame(frame, config):
     output = detections_to_objects(results,frame,config)
 
     if config.manual_start:
+        frame_ = frame.copy()
         for obj in output:
             if obj.last_detect_prob > configs.detect_thresh:
                 print(f'Id {obj.track_id} probabilty: {np.round(obj.last_detect_prob,3)}')
-                frame_ = obj.draw(frame)
+                frame_ = obj.draw(frame_)
         cv2.namedWindow('frame', cv2.WINDOW_NORMAL)
         cv2.resizeWindow('frame', 1100, 600)
         manual_boxes = cv2.selectROIs('frame',frame_,fromCenter=False,showCrosshair=False)
@@ -185,7 +187,7 @@ def FirstFrame(frame, config):
         cv2.destroyWindow('frame')
 
         for box in manual_boxes:
-            results.insert(0,[(box[0],box[1]),(box[0]+box[2],box[1]+box[3]),2.0,1])
+            results.insert(0,[(box[0],box[1]),(box[0]+box[2],box[1]+box[3]),10.0,1])
 
         #cv2.imshow('fgmask', resize(frame,config.resize_scale)) 
         output = detections_to_objects(results,frame,config)
@@ -193,6 +195,21 @@ def FirstFrame(frame, config):
 
     return output, detector
 
+def enhance(img):
+    lab= cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    l_channel, a, b = cv2.split(lab)
+
+    # Applying CLAHE to L-channel
+    # feel free to try different values for the limit and grid size:
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+    cl = clahe.apply(l_channel)
+
+    # merge the CLAHE enhanced L-channel with the a and b channel
+    limg = cv2.merge((cl,a,b))
+
+    # Converting image from LAB Color model to BGR color spcae
+    enhanced_img = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
+    return enhanced_img
 
 def set_params():
     """Open the configuration file in a text editor
@@ -222,7 +239,9 @@ def extract_paths(vid_name=None, config=configs()):
 
     v_obj = cv2.VideoCapture(vid_name)
 
+    #v_obj.set(cv2.CAP_PROP_POS_FRAMES,180)
     _ , frame = v_obj.read()
+    #frame = enhance(frame)
     frame_id = 0
 
     # good tracks
@@ -233,9 +252,9 @@ def extract_paths(vid_name=None, config=configs()):
     config.print_summary()
 
     # run first frame logic
-    objects,detector = FirstFrame(frame,config)
+    objects,detector = FirstFrame(enhance(frame),config)
 
-    logging.info('Number of detected objects in first frame: ',len(objects))
+    logging.info(f'Number of detected objects in first frame: {len(objects)}')
 
     previous_frame = frame.copy()
     bg = previous_frame.copy()
@@ -244,6 +263,7 @@ def extract_paths(vid_name=None, config=configs()):
     BG_s = BG_subtractor(bg,config)
 
     ret, frame = v_obj.read()
+    #frame = enhance(frame)
 
     foreground = BG_s.bg_substract(frame)
     # for every frame and object in the list:
@@ -253,7 +273,7 @@ def extract_paths(vid_name=None, config=configs()):
         frame_id += 1
         #frame = frame[:,:2800,:]
 
-        logging.info('Frame: %s'%frame_id,'Time: %s ,'%(frame_id/30))
+        logging.info(f'Frame: {frame_id},Time: {np.round(frame_id/30,2)}')
 
         ###### Step 2: Stabilize frame by frame
         if config.do_fix: 
@@ -335,7 +355,7 @@ def extract_paths(vid_name=None, config=configs()):
 
         if (frame_id%config.detect_every_N)==0:
                 
-            detections, _ = detector.better_detection(frame,additional_objs=candidates_objs+objects)
+            detections, _ = detector.better_detection(enhance(frame),additional_objs=candidates_objs+objects)
             for obj in objects:
                 # object deleted if not ok here:
                 ok,detections = obj.filter_by_detections_dist(detections,check=True)
@@ -390,36 +410,60 @@ def extract_paths(vid_name=None, config=configs()):
 
         ######## Step 10: check if any objects are overlapping with another
         ######## Delete if a minmum area is found
+        all_objects = objects+candidates_objs
         while True:
-            to_remove = detect_overlaping(objects,overlap_thresh=config.overlap_thresh)
+            to_remove = detect_overlaping(all_objects,overlap_thresh=config.overlap_thresh,overlap_steps=config.overlap_steps)
             if to_remove == -1:
                 break
 
-            if (np.array(objects[to_remove].trust_level).sum()>(config.min_history+5)) and \
-                objects[to_remove].tracking_state[-1]:
+            if (np.array(all_objects[to_remove].trust_level).sum()>(config.min_history+5)) and \
+                all_objects[to_remove].tracking_state[-1]:
                 # true object?
                 # return it to its last ok state.
-                objects[to_remove].box = objects[to_remove].boxes[-2]
-                objects[to_remove].boxes[-1] = objects[to_remove].boxes[-2]
-                objects[to_remove].tracking_state[-1] = False
+                all_objects[to_remove].box = all_objects[to_remove].boxes[-2]
+                all_objects[to_remove].boxes[-1] = all_objects[to_remove].boxes[-2]
+                all_objects[to_remove].tracking_state[-1] = False
             
                 continue
 
-            logging.info('Object {} is deleted because of overlaping'.format(objects[to_remove].track_id))
-            deleted_tracks.append(objects.pop(to_remove))
-
+            logging.info('Object {} is deleted because of overlaping'.format(all_objects[to_remove].track_id))
+            _ = all_objects.pop(to_remove)
+            if to_remove<len(objects):
+                deleted_tracks.append(objects.pop(to_remove))
+            else:
+                deleted_tracks.append(candidates_objs.pop(to_remove-len(objects)))
+                
         ######## Step 11: Draw each frame with the tracking result
         ######## if needed for debugging
 
         if config.draw:
             for obj in objects+candidates_objs:
                 frame = obj.draw(frame)
+            cv2.namedWindow('fgmask', cv2.WINDOW_NORMAL)
             cv2.imshow('fgmask', resize(frame,config.resize_scale)) 
             k = cv2.waitKey(10) & 0xff
             if k == 27: 
                 break
-
+            elif k in [ord('s'),ord('S')] :# or (frame_id%45)==0:
+                print('manaul correction')
+                #candidate objects maybe useless
+                candidates_objs = []
+                manual_boxes = cv2.selectROIs('fgmask',frame,fromCenter=False,showCrosshair=False)
+                #cv2.destroyWindow('fgmask')
+                results = []
+                for box in manual_boxes:
+                    results.insert(0,[(box[0],box[1]),(box[0]+box[2],box[1]+box[3]),2.0,1])
+                for obj in objects:
+                    ok,results = obj.filter_by_detections_dist(results,check=True)
+                    obj.set_detection(ok)
+                    if ok:
+                        obj.re_init_tracker(frame)
+                        obj.tracking_state[-1] = True
+        # NOTE 
+        #for _ in range(15):
         ret, frame = v_obj.read()
+        #frame = enhance(frame)
+        #print(f' frame Nr: {frame_id}')
 
     ###### Step 12: Take the current and saved objects,
     ###### smooth the trajectories, interpolate the missing points,
@@ -430,7 +474,7 @@ def extract_paths(vid_name=None, config=configs()):
             saved_tracks.append(obj)
     for obj in deleted_tracks:
         Track,Save = obj.update()
-        if Save and (obj.class_id != -1):
+        if (Save or Track) and (obj.class_id != -1):
             saved_tracks.append(obj)
 
     cv2.destroyAllWindows()
@@ -446,7 +490,7 @@ if __name__=='__main__':
     # construct the argument parser and parse the arguments
     ap = argparse.ArgumentParser()
 
-    ap.add_argument("-v", "--video", type=str,
+    ap.add_argument("-v", "--video", type=str, default= "model/sample.mp4",
         help="path to input video file")
 
     args = vars(ap.parse_args())
