@@ -11,6 +11,8 @@ Multiple objects detection and tracking from bird view stationary drone videos
 
 **Update** *21/2/2023*: New changes are made to the tracking, like using [GOTURN](https://docs.opencv.org/3.4/d7/d4c/classcv_1_1TrackerGOTURN.html) and the option to use kalman filter. Sadly, the documentation is not updated yet, but you can control the new configuration from the configuration file.
 
+**Update** *27/3/2023*: The ability for manaul intervention by pressing `s` key to save the current tracking state is added. This is useful when the tracking is not working well and you want to correct it manually. The documentation is *not yet* updated.
+
 A pretrained Yolo network is used for detection in this package and it should be trained separately. The network included with this library is Yolo v4 in a pytorch format (trained to detect pedestrians, cyclists and cars). The loading and running of Yolo model is done with the help of scripts taken from [this project](https://github.com/Tianxiaomo/pytorch-YOLOv4) (All of them are in *offlinemot/tool* subfolder)
 
 For training YOLOv4 from scratch [the same repo](https://github.com/Tianxiaomo/pytorch-YOLOv4) is useful. Additionally, Darknet code can be used to train YOLO and then converting the resulted trained file to pytorch format `.pth` as described by the [docs](https://engyasin.github.io/Offline_MOT/html/tutorials/A_Working_Example.html). 

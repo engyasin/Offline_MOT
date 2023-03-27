@@ -485,7 +485,7 @@ class TrafficObj():
         #print(self.box)
 
         self.tracker = self.tracker_class()
-        self.tracker.init(frame,tuple([int(v) for v in self.box]))
+        self.tracker.init(frame,tuple([int(v)+1 for v in self.box]))
 
     def draw(self,new_frame):
 
@@ -573,7 +573,7 @@ class TrafficObj():
                 # error in first steps , delete all
             #    return False,False
                 #save only history true longer than n_history
-        return True and (self.box[2]*self.box[3])>30, False
+        return True and ((int(self.box[2])*int(self.box[3]))>100), False
         ##Return: Track, Save
 
 
@@ -622,8 +622,8 @@ class TrafficObj():
 
             # if manaual
             if obj_item[2]>1.1:
-                dist = (dist/10)
-                size_ = (size_/10)
+                dist = (dist/2.5)
+                size_ = (size_/2.5)
 
             detections_dists.append(dist)
             detections_size.append(size_)
@@ -631,7 +631,7 @@ class TrafficObj():
         detections_dists.append(1e9)
         detections_size.append(1e9)
         Ok = min(detections_dists) <(self.cfg.dist_thresh)#  (np.sqrt(self.covs[-1])*3)#)
-        Ok *= (min(detections_size) < (self.cfg.size_thresh* [1.0,1.5][self.class_id==-1]))
+        Ok *= (min(detections_size) < (self.cfg.size_thresh* [1.0,1.35][self.class_id==-1]))
         #if self.track_id == 4:
         #    print(detections_dists)
         #    print([ob[2] for ob in detections])

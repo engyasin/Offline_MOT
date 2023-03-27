@@ -130,7 +130,7 @@ def check_box(box,img_wh):
         dimensions or not.
 
     """
-    return (box[0]>=0)*(box[1]>=0)*((box[0]+box[2])<img_wh[0])*((box[1]+box[3])<img_wh[1])*(box[2]>=0)*(box[3]>=0)
+    return (box[0]>=0)*(box[1]>=0)*((box[0]+box[2])<img_wh[1])*((box[1]+box[3])<img_wh[0])*(box[2]>=0)*(box[3]>=0)
 
 def find_overlap(box1,box2):
     """Find the area of intersection between two boxes
@@ -194,6 +194,11 @@ def detect_overlaping(objects,overlap_thresh=0.5,overlap_steps=[0.15,0.33,1.01])
                 continue
             area = find_overlap(obj.box,other_obj.box)
             if area:
+
+                if (obj.class_id == -1):
+                    return i
+                elif (other_obj.class_id == -1 ):
+                    return j
 
                 overlap_ratio = (area/min((obj.box[2]*obj.box[3]),(other_obj.box[2]*other_obj.box[3])))
                 if overlap_ratio >overlap_steps[2]:

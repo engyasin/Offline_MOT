@@ -144,7 +144,6 @@ def detections_to_objects(detections,frame,config,last_track_id=0):
 
                 output.append(TrafficObj(frame,0,box,Track_id,config,tracker=createTracker(),class_id=obj_item[3],detection_way=1,detect_prob=obj_item[2]))
                 Track_id += 1
-
     return output 
 
 def FirstFrame(frame, config):
@@ -187,11 +186,9 @@ def FirstFrame(frame, config):
         cv2.destroyWindow('frame')
 
         for box in manual_boxes:
-            results.insert(0,[(box[0],box[1]),(box[0]+box[2],box[1]+box[3]),10.0,1])
-
+            results.insert(0,((box[0],box[1]),(box[0]+box[2],box[1]+box[3]),10.0,1))
         #cv2.imshow('fgmask', resize(frame,config.resize_scale)) 
         output = detections_to_objects(results,frame,config)
-
 
     return output, detector
 
@@ -209,7 +206,7 @@ def enhance(img):
 
     # Converting image from LAB Color model to BGR color spcae
     enhanced_img = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
-    return enhanced_img
+    return  enhanced_img#img
 
 def set_params():
     """Open the configuration file in a text editor
@@ -241,7 +238,7 @@ def extract_paths(vid_name=None, config=configs()):
 
     #v_obj.set(cv2.CAP_PROP_POS_FRAMES,180)
     _ , frame = v_obj.read()
-    #frame = enhance(frame)
+    frame = enhance(frame)
     frame_id = 0
 
     # good tracks
@@ -252,7 +249,7 @@ def extract_paths(vid_name=None, config=configs()):
     config.print_summary()
 
     # run first frame logic
-    objects,detector = FirstFrame(enhance(frame),config)
+    objects,detector = FirstFrame((frame),config)
 
     logging.info(f'Number of detected objects in first frame: {len(objects)}')
 
@@ -263,12 +260,14 @@ def extract_paths(vid_name=None, config=configs()):
     BG_s = BG_subtractor(bg,config)
 
     ret, frame = v_obj.read()
-    #frame = enhance(frame)
+    frame_ = enhance(frame)
 
-    foreground = BG_s.bg_substract(frame)
+    foreground = BG_s.bg_substract(frame_)
     # for every frame and object in the list:
 
     while ret:
+
+        frame = enhance(frame)
 
         frame_id += 1
         #frame = frame[:,:2800,:]
@@ -439,16 +438,15 @@ def extract_paths(vid_name=None, config=configs()):
         if config.draw:
             for obj in objects+candidates_objs:
                 frame = obj.draw(frame)
-            cv2.namedWindow('fgmask', cv2.WINDOW_NORMAL)
-            cv2.imshow('fgmask', resize(frame,config.resize_scale)) 
+            cv2.namedWindow(vid_name, cv2.WINDOW_NORMAL)
+            cv2.imshow(vid_name, resize(frame,config.resize_scale)) 
             k = cv2.waitKey(10) & 0xff
             if k == 27: 
                 break
-            elif k in [ord('s'),ord('S')] :# or (frame_id%45)==0:
+            elif k in [ord('s'),ord('S')] or not(all([obj.tracking_state[-1] for obj in objects])):# or (frame_id%45)==0:
                 print('manaul correction')
-                #candidate objects maybe useless
-                candidates_objs = []
-                manual_boxes = cv2.selectROIs('fgmask',frame,fromCenter=False,showCrosshair=False)
+
+                manual_boxes = cv2.selectROIs(vid_name,frame,fromCenter=False,showCrosshair=False)
                 #cv2.destroyWindow('fgmask')
                 results = []
                 for box in manual_boxes:
@@ -459,10 +457,25 @@ def extract_paths(vid_name=None, config=configs()):
                     if ok:
                         obj.re_init_tracker(frame)
                         obj.tracking_state[-1] = True
+                for bg_obj in candidates_objs:
+                    ok,results = bg_obj.filter_by_detections_dist(results,check=True)
+                    bg_obj.set_detection(ok)
+                    if ok:
+                        bg_obj.re_init_tracker(frame)
+                        bg_obj.set_track_id(max([x.track_id for x in objects+saved_tracks+deleted_tracks]+[-1])+1)
+                        logging.info('Creating new objects... ')
+                        objects.append(bg_obj)
+
+                if results:
+                    # just add them as new objects
+                    output = detections_to_objects(results,frame,config,last_track_id=(max([x.track_id for x in objects+saved_tracks+deleted_tracks])+1))
+                    objects.extend(output)
+                #candidate objects maybe useless
+                #candidates_objs = []
         # NOTE 
         #for _ in range(15):
         ret, frame = v_obj.read()
-        #frame = enhance(frame)
+
         #print(f' frame Nr: {frame_id}')
 
     ###### Step 12: Take the current and saved objects,
